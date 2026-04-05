@@ -2,7 +2,6 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import Landing from './Landing';
-import LandingTest from './LandingTest';
 import Register from './Register';
 import Login from './Login';
 import Dashboard from './Dashboard';
