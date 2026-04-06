@@ -23,6 +23,11 @@ class User extends Authenticatable
         'password',
         'no_telefon',
         'peranan',
+        'alamat_1',
+        'alamat_2',
+        'poskod',
+        'bandar',
+        'negeri',
     ];
 
     /**

@@ -19,6 +19,11 @@ return new class extends Migration
             $table->string('password');
             $table->string('no_telefon');
             $table->string('peranan')->default('komuniti');
+            $table->string('alamat_1')->nullable();
+            $table->string('alamat_2')->nullable();
+            $table->string('poskod')->nullable();
+            $table->string('bandar')->nullable();
+            $table->string('negeri')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

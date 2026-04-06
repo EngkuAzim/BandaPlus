@@ -57,4 +57,33 @@ class AuthController extends Controller
         'user' => $user
     ]);
     }
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user(); // Get the currently logged-in user
+
+        // Validate the incoming data
+        $request->validate([
+            'no_telefon' => 'required|string',
+            'alamat_1' => 'nullable|string',
+            'alamat_2' => 'nullable|string',
+            'poskod' => 'nullable|string|max:5',
+            'bandar' => 'nullable|string',
+            'negeri' => 'nullable|string',
+        ]);
+
+        // Update the user's records in the database
+        $user->update($request->only([
+            'no_telefon', 
+            'alamat_1', 
+            'alamat_2', 
+            'poskod', 
+            'bandar', 
+            'negeri'
+        ]));
+
+        return response()->json([
+            'message' => 'Profil berjaya dikemaskini', 
+            'user' => $user
+        ]);
+    }
 }

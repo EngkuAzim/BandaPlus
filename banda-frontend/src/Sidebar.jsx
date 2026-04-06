@@ -1,12 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, FilePlus, History, LogOut, Settings, Users, ClipboardList, Map } from 'lucide-react';
-
+import { motion } from 'framer-motion';
+import { Home, FilePlus, History, LogOut, Settings, Users, ClipboardList, Map, ChevronLeft, ChevronRight, Bell, UserCircle } from 'lucide-react';
 const Sidebar = ({ userData }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const [isCollapsed, setIsCollapsed] = useState(false);
   
-  // Default to komuniti if role is missing
   const role = userData?.peranan || 'komuniti';
 
   const handleLogout = () => {
@@ -15,47 +15,58 @@ const Sidebar = ({ userData }) => {
     navigate('/login');
   };
 
-  // Define navigation links based on the user's role
+  // Navigation config based on roles
   const navigationConfig = {
     komuniti: [
-      { name: 'Utama', path: '/dashboard', icon: Home },
-      { name: 'Lapor Aduan', path: '/lapor-aduan', icon: FilePlus },
-      { name: 'Sejarah Aduan', path: '/sejarah', icon: History },
-    ],
-    pentadbir: [
-      { name: 'Utama', path: '/dashboard', icon: Home },
-      { name: 'Pengurusan Aduan', path: '/urus-aduan', icon: ClipboardList },
-      { name: 'Pengguna Sistem', path: '/pengguna', icon: Users },
-      { name: 'Tetapan', path: '/tetapan', icon: Settings },
-    ],
-    pegawai: [
-      { name: 'Utama', path: '/dashboard', icon: Home },
-      { name: 'Tugasan Semasa', path: '/tugasan', icon: Map },
-      { name: 'Laporan Siasatan', path: '/siasatan', icon: ClipboardList },
-    ],
+    { name: 'Utama', path: '/dashboard', icon: Home },
+    { name: 'Lapor Aduan', path: '/lapor-aduan', icon: FilePlus },
+    { name: 'Sejarah Aduan', path: '/sejarah', icon: History },
+    { name: 'Profil Saya', path: '/profil', icon: UserCircle }, // <--- Add this line!
+  ],
     kontraktor: [
       { name: 'Utama', path: '/dashboard', icon: Home },
       { name: 'Kerja Pembaikan', path: '/pembaikan', icon: ClipboardList },
       { name: 'Sejarah Kerja', path: '/sejarah-kerja', icon: History },
+    ],
+    pentadbir: [
+      { name: 'Utama', path: '/dashboard', icon: Home },
+      { name: 'Urus Aduan', path: '/urus-aduan', icon: ClipboardList },
+      { name: 'Pengguna', path: '/pengguna', icon: Users },
+      { name: 'Tetapan', path: '/tetapan', icon: Settings },
     ]
   };
 
-  // Get the specific links for the current user's role
   const currentLinks = navigationConfig[role] || navigationConfig.komuniti;
 
   return (
-    <aside className="w-64 bg-blue-950 shadow-xl border-r border-blue-900 flex flex-col h-full">
-      <div className="p-8">
-        <Link to="/dashboard" className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-white/10 backdrop-blur-md rounded-lg flex items-center justify-center text-white text-sm border border-white/20">🏛️</div>
-          <span className="text-2xl font-black text-white tracking-tight">BANDA<span className="text-cyan-400">+</span></span>
-        </Link>
-        <p className="text-sm text-blue-300 mt-2 font-medium px-1 capitalize">
-          {role} Ampang
-        </p>
+    <motion.aside 
+      animate={{ width: isCollapsed ? 80 : 280 }}
+      transition={{ duration: 0.3, ease: "easeInOut" }}
+      className="bg-white shadow-lg border-r border-slate-200 flex flex-col h-full relative z-20"
+    >
+      {/* Collapse Toggle */}
+      <button 
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className="absolute -right-3 top-8 bg-white border border-slate-200 shadow-sm rounded-full p-1 text-slate-500 hover:text-teal-600 transition-colors z-50"
+      >
+        {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+      </button>
+
+      {/* Brand Logo */}
+      <div className={`p-6 flex items-center ${isCollapsed ? 'justify-center px-0' : 'gap-3'} transition-all`}>
+        <div className="w-10 h-10 rounded-xl bg-teal-600 flex items-center justify-center text-white text-sm shadow-md shrink-0">
+          🏛️
+        </div>
+        {!isCollapsed && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="whitespace-nowrap overflow-hidden">
+            <span className="text-2xl font-black text-slate-900 tracking-tight">BANDA<span className="text-teal-600">+</span></span>
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">{role}</p>
+          </motion.div>
+        )}
       </div>
       
-      <nav className="mt-4 flex-1">
+      {/* Navigation Links */}
+      <nav className="mt-4 flex-1 flex flex-col gap-1 px-3">
         {currentLinks.map((link) => {
           const Icon = link.icon;
           const isActive = location.pathname === link.path;
@@ -64,30 +75,32 @@ const Sidebar = ({ userData }) => {
             <Link
               key={link.name}
               to={link.path}
-              className={`flex items-center gap-3 px-8 py-4 font-medium transition-all ${
+              title={isCollapsed ? link.name : ""}
+              className={`flex items-center gap-3 py-3 px-3 rounded-xl font-medium transition-all ${
                 isActive 
-                  ? 'bg-blue-900/50 text-cyan-400 font-bold border-r-4 border-cyan-400' 
-                  : 'text-blue-300 hover:bg-blue-900/30 hover:text-white'
-              }`}
+                  ? 'bg-teal-50 text-teal-700 shadow-sm' 
+                  : 'text-slate-600 hover:bg-slate-50 hover:text-teal-600'
+              } ${isCollapsed ? 'justify-center' : ''}`}
             >
-              <Icon className="w-5 h-5" />
-              {link.name}
+              <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-teal-600' : 'text-slate-400'}`} />
+              {!isCollapsed && <span className="whitespace-nowrap">{link.name}</span>}
             </Link>
           );
         })}
       </nav>
 
-      {/* Sidebar Footer */}
-      <div className="p-6 border-t border-blue-900/50">
+      {/* Sidebar Footer / Logout */}
+      <div className="p-4 border-t border-slate-100">
         <button 
           onClick={handleLogout}
-          className="flex items-center gap-3 text-blue-300 hover:text-rose-400 transition-colors font-medium w-full px-2"
+          title={isCollapsed ? "Log Keluar" : ""}
+          className={`flex items-center gap-3 py-3 px-3 rounded-xl font-medium text-slate-500 hover:bg-rose-50 hover:text-rose-600 transition-colors w-full ${isCollapsed ? 'justify-center' : ''}`}
         >
-          <LogOut className="w-5 h-5" />
-          Log Keluar
+          <LogOut className="w-5 h-5 shrink-0" />
+          {!isCollapsed && <span className="whitespace-nowrap">Log Keluar</span>}
         </button>
       </div>
-    </aside>
+    </motion.aside>
   );
 };
 
