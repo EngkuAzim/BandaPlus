@@ -33,6 +33,7 @@ class Aduan extends Model
         'skor_ai',
         'label_prioriti',
         'status',
+        'maklum_balas'
     ];
 
     public function pengguna()

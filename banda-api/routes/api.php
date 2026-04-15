@@ -24,5 +24,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/aduan', [AduanController::class, 'store']); 
     Route::get('/aduan', [AduanController::class, 'getUserAduan']); // <--- MUST BE INSIDE THIS GROUP
     Route::get('/dashboard/stats', [AduanController::class, 'getStats']); 
+    Route::get('/admin/aduan', [AduanController::class, 'getAllAduanAdmin']);
+    Route::put('/admin/aduan/{id_aduan}', [AduanController::class, 'updateStatusAduan']);
 
 });

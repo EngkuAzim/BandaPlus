@@ -8,6 +8,7 @@ import Dashboard from './Dashboard';
 import Profile from './Profile';
 import LaporAduan from './LaporAduan';
 import StatusAduan from './StatusAduan';
+import UrusAduan from './UrusAduan';
 
 function App() {
   return (
@@ -24,7 +25,9 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profil" element={<Profile />} />
         <Route path="/lapor-aduan" element={<LaporAduan />} />
-<Route path="/sejarah" element={<StatusAduan />} />      </Routes>
+        <Route path="/sejarah" element={<StatusAduan />} />
+        <Route path="/urus-aduan" element={<UrusAduan />} />
+      </Routes>
     </>
   );
 }

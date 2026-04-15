@@ -73,4 +73,58 @@ class AduanController extends Controller
 
         return response()->json($aduans);
     }
+    public function getAllAduanAdmin(Request $request)
+    {
+        // Pastikan hanya pentadbir boleh akses
+        if ($request->user()->peranan !== 'pentadbir') {
+            return response()->json(['message' => 'Akses Ditolak'], 403);
+        }
+
+        // Tarik semua aduan berserta nama & no telefon pengadu
+        $aduans = Aduan::with('pengguna:id,name,no_telefon') 
+            ->orderBy('tarikh_lapor', 'desc')
+            ->get();
+
+        return response()->json($aduans);
+    }
+
+    public function updateStatusAduan(Request $request, $id_aduan)
+    {
+        if ($request->user()->peranan !== 'pentadbir') {
+            return response()->json(['message' => 'Akses Ditolak'], 403);
+        }
+
+        $request->validate([
+            'status' => 'required|string',
+            'maklum_balas' => 'nullable|string'
+        ]);
+
+        $aduan = Aduan::where('id_aduan', $id_aduan)->firstOrFail();
+        
+        $aduan->update([
+            'status' => $request->status,
+            'maklum_balas' => $request->maklum_balas
+        ]);
+
+        return response()->json(['message' => 'Aduan berjaya dikemaskini!', 'aduan' => $aduan]);
+    }
+    // --- 7. ADMIN & PEGAWAI: STATISTIK PAPAN PEMUKA KESELURUHAN ---
+    public function getAdminDashboardStats(Request $request)
+    {
+        $peranan = $request->user()->peranan;
+        
+        // Hanya pentadbir dan pegawai boleh akses
+        if (!in_array($peranan, ['pentadbir', 'pegawai'])) {
+            return response()->json(['message' => 'Akses Ditolak'], 403);
+        }
+
+        // Kira statistik seluruh sistem BANDA+
+        return response()->json([
+            'jumlah_keseluruhan' => Aduan::count(),
+            'baru' => Aduan::where('status', 'Baru')->count(),
+            'diproses' => Aduan::where('status', 'Dalam Tindakan')->count(),
+            'selesai' => Aduan::where('status', 'Selesai')->count(),
+            'ditolak' => Aduan::where('status', 'Ditolak')->count(),
+        ]);
+    }
 }
