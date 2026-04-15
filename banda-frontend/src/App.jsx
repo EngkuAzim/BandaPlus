@@ -7,6 +7,7 @@ import Login from './Login';
 import Dashboard from './Dashboard';
 import Profile from './Profile';
 import LaporAduan from './LaporAduan';
+import StatusAduan from './StatusAduan';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profil" element={<Profile />} />
         <Route path="/lapor-aduan" element={<LaporAduan />} />
+        <Route path="/sejarah" element={<StatusAduan />} />
       </Routes>
     </>
   );

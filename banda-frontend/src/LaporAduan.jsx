@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { UploadCloud, FileText, MapPin, Send, Loader2, AlertCircle, X, Image as ImageIcon, Map } from 'lucide-react';
 import { toast } from 'sonner';
 import Sidebar from './Sidebar';
-import exifr from 'exifr'; // USING THE NEW MODERN LIBRARY
+import exifr from 'exifr';
 
 function LaporAduan() {
   const navigate = useNavigate();
@@ -15,10 +15,11 @@ function LaporAduan() {
   
   const [formData, setFormData] = useState({
     jenis_kerosakan: '',
+    id_zon: '', 
     alamat_lokasi: '',
     keterangan_aduan: '',
-    lat: null, // Store Latitude
-    lng: null, // Store Longitude
+    lat: null, 
+    lng: null, 
   });
   
   const [selectedImage, setSelectedImage] = useState(null);
@@ -32,11 +33,9 @@ function LaporAduan() {
     }).then(res => setUserData(res.data)).catch(() => navigate('/login'));
   }, [navigate]);
 
-  // --- 1. CONVERT COORDINATES TO REAL ADDRESS ---
   const fetchAddressFromCoords = async (lat, lng) => {
     setIsLocating(true);
     try {
-      // Using free OpenStreetMap Nominatim API (No API key needed!)
       const response = await axios.get(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
       if (response.data && response.data.display_name) {
         setFormData(prev => ({ 
@@ -54,7 +53,6 @@ function LaporAduan() {
     }
   };
 
-  // --- 2. EXTRACT GPS FROM UPLOADED PHOTO USING EXIFR ---
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -66,7 +64,6 @@ function LaporAduan() {
       setImagePreview(URL.createObjectURL(file));
 
       try {
-        // exifr automatically parses the file and returns clean decimal coordinates!
         const gpsData = await exifr.gps(file);
         
         if (gpsData && gpsData.latitude && gpsData.longitude) {
@@ -81,7 +78,6 @@ function LaporAduan() {
     }
   };
 
-  // --- 3. MANUAL LOCATION BUTTON (FALLBACK) ---
   const getCurrentLocation = () => {
     setIsLocating(true);
     if ("geolocation" in navigator) {
@@ -100,7 +96,6 @@ function LaporAduan() {
   const clearImage = () => {
     setSelectedImage(null);
     setImagePreview(null);
-    // Optional: Clear location data if image is removed
     setFormData(prev => ({...prev, lat: null, lng: null, alamat_lokasi: ''}));
   };
 
@@ -111,11 +106,11 @@ function LaporAduan() {
     setIsSubmitting(true);
     const submitData = new FormData();
     submitData.append('jenis_kerosakan', formData.jenis_kerosakan);
+    submitData.append('id_zon', formData.id_zon);
     submitData.append('alamat_lokasi', formData.alamat_lokasi);
     submitData.append('keterangan_aduan', formData.keterangan_aduan);
     submitData.append('gambar_bukti', selectedImage);
     
-    // Attach coordinates if we have them
     if (formData.lat && formData.lng) {
       submitData.append('lat', formData.lat);
       submitData.append('lng', formData.lng);
@@ -187,6 +182,18 @@ function LaporAduan() {
                       <option value="Pokok Tumbang">Pokok Tumbang</option>
                       <option value="Infrastruktur Awam">Infrastruktur Awam (Taman/Surau)</option>
                       <option value="Lain-lain">Lain-lain</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-slate-700">Zon MPAJ</label>
+                    <select required value={formData.id_zon} onChange={(e) => setFormData({...formData, id_zon: e.target.value})} className="w-full px-4 py-3.5 bg-white border border-slate-200 rounded-xl outline-none">
+                      <option value="" disabled>Pilih Zon Anda...</option>
+                      <option value="1">Zon 1 (Taman Melawati)</option>
+                      <option value="2">Zon 2 (Klang Gates / Ukay Perdana)</option>
+                      <option value="3">Zon 3 (Bukit Antarabangsa)</option>
+                      <option value="4">Zon 4 (Ukay Bistari)</option>
+                      <option value="5">Zon 5 (Ampang Jaya)</option>
                     </select>
                   </div>
 

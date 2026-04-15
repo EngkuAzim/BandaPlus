@@ -9,17 +9,17 @@ function Dashboard() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [userData, setUserData] = useState(null);
+  
+  const [stats, setStats] = useState({ baru: 0, diproses: 0, selesai: 0 });
   const [currentTime, setCurrentTime] = useState(new Date());
 
-  // Update clock every minute
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60000);
     return () => clearInterval(timer);
   }, []);
 
-  // Fetch User Data
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchData = async () => {
       const token = localStorage.getItem('token');
       if (!token) {
         navigate('/login');
@@ -27,13 +27,13 @@ function Dashboard() {
       }
 
       try {
-        const response = await axios.get('http://localhost:8000/api/user', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: 'application/json',
-          }
-        });
-        setUserData(response.data);
+        const [userResponse, statsResponse] = await Promise.all([
+            axios.get('http://localhost:8000/api/user', { headers: { Authorization: `Bearer ${token}` } }),
+            axios.get('http://localhost:8000/api/dashboard/stats', { headers: { Authorization: `Bearer ${token}` } })
+        ]);
+        
+        setUserData(userResponse.data);
+        setStats(statsResponse.data);
         setIsLoading(false);
       } catch (error) {
         localStorage.removeItem('token');
@@ -41,15 +41,13 @@ function Dashboard() {
         navigate('/login');
       }
     };
-    fetchUser();
+    fetchData();
   }, [navigate]);
 
-  // Format date for Header (e.g., "6 April 2026")
   const formattedDate = currentTime.toLocaleDateString('ms-MY', { 
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' 
   });
 
-  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     show: { opacity: 1, transition: { staggerChildren: 0.1 } }
@@ -59,7 +57,6 @@ function Dashboard() {
     show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
   };
 
-  // PREMIUM LOADING SKELETON
   if (isLoading) {
     return (
       <div className="flex h-screen bg-slate-50 font-sans">
@@ -81,14 +78,9 @@ function Dashboard() {
 
   return (
     <div className="flex h-screen bg-slate-50 font-sans selection:bg-teal-500/20">
-      
-      {/* Sidebar Component */}
       <Sidebar userData={userData} />
 
-      {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden relative">
-        
-        {/* Top Header */}
         <header className="flex items-center justify-between px-8 py-5 bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-10">
           <div>
             <h2 className="text-2xl font-black text-slate-900 tracking-tight">Papan Pemuka</h2>
@@ -99,13 +91,10 @@ function Dashboard() {
           </div>
           
           <div className="flex items-center gap-5">
-            {/* Notification Bell */}
             <button className="relative p-2 text-slate-400 hover:text-teal-600 transition-colors">
               <Bell className="w-6 h-6" />
               <span className="absolute top-1 right-2 w-2.5 h-2.5 bg-rose-500 border-2 border-white rounded-full"></span>
             </button>
-
-            {/* User Profile */}
             <div className="flex items-center gap-3 pl-5 border-l border-slate-200">
               <div className="text-right hidden md:block">
                 <p className="text-sm font-bold text-slate-900 leading-tight">{userData?.name || 'Pengguna'}</p>
@@ -118,57 +107,52 @@ function Dashboard() {
           </div>
         </header>
 
-        {/* Dashboard Content */}
         <main className="flex-1 overflow-x-hidden overflow-y-auto p-8">
-          
           <motion.div variants={containerVariants} initial="hidden" animate="show" className="max-w-6xl mx-auto">
             
-            {/* Greeting */}
             <motion.h3 variants={itemVariants} className="text-lg font-medium text-slate-600 mb-6">
               Selamat datang, <span className="font-bold text-slate-900">{userData?.name}</span>! Berikut adalah ringkasan aduan anda.
             </motion.h3>
 
-            {/* Status Cards Row */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               
-              {/* Card 1: Baru (Teal) */}
+              {/* Card 1: Baru */}
               <motion.div variants={itemVariants} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-shadow flex items-center gap-5 relative overflow-hidden">
                 <div className="w-14 h-14 rounded-2xl bg-teal-50 flex items-center justify-center text-teal-600 border border-teal-100">
                   <AlertCircle className="w-7 h-7" />
                 </div>
                 <div>
                   <p className="text-slate-500 font-bold text-sm uppercase tracking-wide">Aduan Baru</p>
-                  <h4 className="text-4xl font-black text-slate-900 mt-1">2</h4>
+                  <h4 className="text-4xl font-black text-slate-900 mt-1">{stats.baru}</h4>
                 </div>
                 <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-teal-50 rounded-full blur-2xl pointer-events-none"></div>
               </motion.div>
 
-              {/* Card 2: Sedang Diproses (Amber) */}
+              {/* Card 2: Diproses */}
               <motion.div variants={itemVariants} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-shadow flex items-center gap-5 relative overflow-hidden">
                 <div className="w-14 h-14 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-500 border border-amber-100">
                   <Clock className="w-7 h-7" />
                 </div>
                 <div>
                   <p className="text-slate-500 font-bold text-sm uppercase tracking-wide">Diproses</p>
-                  <h4 className="text-4xl font-black text-slate-900 mt-1">1</h4>
+                  <h4 className="text-4xl font-black text-slate-900 mt-1">{stats.diproses}</h4>
                 </div>
                 <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-amber-50 rounded-full blur-2xl pointer-events-none"></div>
               </motion.div>
 
-              {/* Card 3: Selesai (Emerald) */}
+              {/* Card 3: Selesai */}
               <motion.div variants={itemVariants} className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-md transition-shadow flex items-center gap-5 relative overflow-hidden">
                 <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-500 border border-emerald-100">
                   <CheckCircle2 className="w-7 h-7" />
                 </div>
                 <div>
                   <p className="text-slate-500 font-bold text-sm uppercase tracking-wide">Selesai</p>
-                  <h4 className="text-4xl font-black text-slate-900 mt-1">5</h4>
+                  <h4 className="text-4xl font-black text-slate-900 mt-1">{stats.selesai}</h4>
                 </div>
                 <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-emerald-50 rounded-full blur-2xl pointer-events-none"></div>
               </motion.div>
             </div>
 
-            {/* Main Action Area */}
             <motion.div variants={itemVariants} className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden mt-8">
               <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
                 <h3 className="text-lg font-black text-slate-900">Tindakan Pantas</h3>

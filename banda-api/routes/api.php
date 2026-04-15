@@ -22,5 +22,5 @@ Route::middleware('auth:sanctum')->group(function () {
     // Aduan System & Dashboard
     Route::post('/aduan', [AduanController::class, 'store']); // <--- MUST BE INSIDE THIS GROUP
     Route::get('/dashboard/stats', [AduanController::class, 'getStats']); // <--- MUST BE INSIDE THIS GROUP
-
+    Route::get('/aduan', [AduanController::class, 'getUserAduan']);
 });
