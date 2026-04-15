@@ -1,23 +1,26 @@
 <?php
 
 use Illuminate\Http\Request;
-use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AduanController; // Make sure this is imported at the top!
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
-*/
-
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+// --- PUBLIC ROUTES (No login required) ---
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::put('/user/profile', [App\Http\Controllers\AuthController::class, 'updateProfile']);
+
+
+// --- PROTECTED ROUTES (Login required) ---
+Route::middleware('auth:sanctum')->group(function () {
+    
+    // User Profile
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
+    Route::post('/logout', [AuthController::class, 'logout']);
+
+    // Aduan System & Dashboard
+    Route::post('/aduan', [AduanController::class, 'store']); // <--- MUST BE INSIDE THIS GROUP
+    Route::get('/dashboard/stats', [AduanController::class, 'getStats']); // <--- MUST BE INSIDE THIS GROUP
+
+});

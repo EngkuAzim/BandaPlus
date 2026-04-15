@@ -6,6 +6,7 @@ import Register from './Register';
 import Login from './Login';
 import Dashboard from './Dashboard';
 import Profile from './Profile';
+import LaporAduan from './LaporAduan';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profil" element={<Profile />} />
+        <Route path="/lapor-aduan" element={<LaporAduan />} />
       </Routes>
     </>
   );
