@@ -18,9 +18,11 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
     Route::post('/logout', [AuthController::class, 'logout']);
+    Route::put('/profil', [AuthController::class, 'updateProfile']);
 
     // Aduan System & Dashboard
-    Route::post('/aduan', [AduanController::class, 'store']); // <--- MUST BE INSIDE THIS GROUP
-    Route::get('/dashboard/stats', [AduanController::class, 'getStats']); // <--- MUST BE INSIDE THIS GROUP
-    Route::get('/aduan', [AduanController::class, 'getUserAduan']);
+    Route::post('/aduan', [AduanController::class, 'store']); 
+    Route::get('/aduan', [AduanController::class, 'getUserAduan']); // <--- MUST BE INSIDE THIS GROUP
+    Route::get('/dashboard/stats', [AduanController::class, 'getStats']); 
+
 });

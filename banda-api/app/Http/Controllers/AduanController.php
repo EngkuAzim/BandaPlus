@@ -65,7 +65,9 @@ class AduanController extends Controller
     }
     public function getUserAduan(Request $request)
     {
-        $aduans = Aduan::where('id_pengguna', $request->user()->id)
+        // Explicitly select only the columns you need for the frontend
+        $aduans = Aduan::select('id_aduan', 'jenis_kerosakan', 'gambar_bukti', 'alamat_lokasi', 'status', 'tarikh_lapor')
+                       ->where('id_pengguna', $request->user()->id)
                        ->orderBy('tarikh_lapor', 'desc')
                        ->get();
 

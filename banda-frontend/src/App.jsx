@@ -24,8 +24,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profil" element={<Profile />} />
         <Route path="/lapor-aduan" element={<LaporAduan />} />
-        <Route path="/sejarah" element={<StatusAduan />} />
-      </Routes>
+<Route path="/sejarah" element={<StatusAduan />} />      </Routes>
     </>
   );
 }
