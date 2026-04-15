@@ -11,6 +11,7 @@ Route::post('/login', [AuthController::class, 'login']);
 
 
 // --- PROTECTED ROUTES (Login required) ---
+// --- PROTECTED ROUTES (Login required) ---
 Route::middleware('auth:sanctum')->group(function () {
     
     // User Profile
@@ -18,13 +19,14 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::put('/profil', [AuthController::class, 'updateProfile']);
 
     // Aduan System & Dashboard
-    Route::post('/aduan', [AduanController::class, 'store']); 
-    Route::get('/aduan', [AduanController::class, 'getUserAduan']); // <--- MUST BE INSIDE THIS GROUP
+    Route::post('/aduan', [AduanController::class, 'store']);
+    Route::get('/aduan', [AduanController::class, 'getUserAduan']);
+    
+    // Dashboard Stats
     Route::get('/dashboard/stats', [AduanController::class, 'getStats']); 
-    Route::get('/admin/aduan', [AduanController::class, 'getAllAduanAdmin']);
-    Route::put('/admin/aduan/{id_aduan}', [AduanController::class, 'updateStatusAduan']);
-
+    
+    // ADD THIS LINE FOR PENTADBIR (Admin)
+    Route::get('/admin/dashboard/stats', [AduanController::class, 'getAdminStats']); 
 });

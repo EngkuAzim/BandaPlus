@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { motion } from 'framer-motion';
-import { FilePlus, AlertCircle, Clock, CheckCircle2, Bell, Calendar, ClipboardList, ShieldCheck, FileSearch, HardHat, PieChart } from 'lucide-react';
+import { FilePlus, AlertCircle, Clock, CheckCircle2, Bell, Calendar, ClipboardList, ShieldCheck, FileSearch, HardHat, PieChart, Loader2 } from 'lucide-react';
 import Sidebar from './Sidebar';
 
 function Dashboard() {
@@ -36,11 +36,20 @@ function Dashboard() {
         const statsRes = await axios.get(statsUrl, { headers: { Authorization: `Bearer ${token}` } });
         setStats(statsRes.data);
         setIsLoading(false);
-      } catch (error) {
-        localStorage.removeItem('token');
-        navigate('/login');
-      }
+        
+      } catch (error) { // <--- FIXED: Removed the extra '}' here
+        // ONLY log out if the error is 401 Unauthorized
+        if (error.response && error.response.status === 401) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('userRole');
+          navigate('/login');
+        } else {
+          console.error("Gagal mendapatkan data dashboard:", error);
+          setIsLoading(false);
+        } // <--- FIXED: Added missing closing brace for the 'else' block
+      } // <--- FIXED: Added missing closing brace for the 'catch' block
     };
+    
     fetchData();
   }, [navigate]);
 

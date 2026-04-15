@@ -73,6 +73,7 @@ class AduanController extends Controller
 
         return response()->json($aduans);
     }
+    // --- 5. ADMIN: DAPATKAN SEMUA ADUAN ---
     public function getAllAduanAdmin(Request $request)
     {
         // Pastikan hanya pentadbir boleh akses
@@ -80,10 +81,15 @@ class AduanController extends Controller
             return response()->json(['message' => 'Akses Ditolak'], 403);
         }
 
-        // Tarik semua aduan berserta nama & no telefon pengadu
-        $aduans = Aduan::with('pengguna:id,name,no_telefon') 
-            ->orderBy('tarikh_lapor', 'desc')
-            ->get();
+        // Tarik aduan (KECUALI lokasi_gps) berserta nama & no telefon pengadu
+        $aduans = Aduan::select(
+            'id_aduan', 'id_pengguna', 'id_zon', 'jenis_kerosakan', 
+            'gambar_bukti', 'keterangan_aduan', 'alamat_lokasi', 
+            'status', 'tarikh_lapor', 'maklum_balas'
+        )
+        ->with('pengguna:id,name,no_telefon') 
+        ->orderBy('tarikh_lapor', 'desc')
+        ->get();
 
         return response()->json($aduans);
     }
