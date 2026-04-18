@@ -5,9 +5,10 @@ import { Calendar, Bell, Loader2 } from 'lucide-react';
 import Sidebar from '../Sidebar';
 
 // Import komponen dashboard khusus
-import UserDashboard from './dashboards/UserDashboard';
-import AdminDashboard from './dashboards/AdminDashboard';
-// Kita akan import AdminDashboard & PegawaiDashboard di sini nanti!
+import UserDashboard from './UserDashboard';
+import AdminDashboard from './AdminDashboard';
+import PegawaiDashboard from './PegawaiDashboard';    
+import KontraktorDashboard from './KontraktorDashboard';
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -71,7 +72,10 @@ function Dashboard() {
       case 'pentadbir':
         return <AdminDashboard userData={userData} stats={stats} />;
       case 'pegawai':
-        return <div className="p-10 text-center font-bold text-slate-500">Paparan Pegawai Akan Datang...</div>;
+        return <PegawaiDashboard userData={userData} stats={stats} />;
+      case 'kontraktor':
+        return <KontraktorDashboard userData={userData} stats={stats} />;
+
       case 'komuniti':
       default:
         // Panggil fail UserDashboard.jsx dan berikan data kepadanya

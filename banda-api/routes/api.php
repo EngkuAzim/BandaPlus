@@ -25,7 +25,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/aduan', [AduanController::class, 'getUserAduan']);
     
     // Dashboard Stats
-    Route::get('/dashboard/stats', [AduanController::class, 'getAdminDashboardStats']); 
+    Route::get('/dashboard/stats', [AduanController::class, 'getStats']); 
     
     // ADD THIS LINE FOR PENTADBIR (Admin)
     Route::get('/admin/dashboard/stats', [AduanController::class, 'getAdminDashboardStats']); 
