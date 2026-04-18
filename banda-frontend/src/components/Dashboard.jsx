@@ -5,7 +5,8 @@ import { Calendar, Bell, Loader2 } from 'lucide-react';
 import Sidebar from '../Sidebar';
 
 // Import komponen dashboard khusus
-import UserDashboard from './components/dashboards/UserDashboard';
+import UserDashboard from './dashboards/UserDashboard';
+import AdminDashboard from './dashboards/AdminDashboard';
 // Kita akan import AdminDashboard & PegawaiDashboard di sini nanti!
 
 function Dashboard() {
@@ -68,7 +69,7 @@ function Dashboard() {
   const renderDashboardContent = () => {
     switch (userData.peranan) {
       case 'pentadbir':
-        return <div className="p-10 text-center font-bold text-slate-500">Paparan Pentadbir Akan Datang...</div>; // Kita buat ini seterusnya!
+        return <AdminDashboard userData={userData} stats={stats} />;
       case 'pegawai':
         return <div className="p-10 text-center font-bold text-slate-500">Paparan Pegawai Akan Datang...</div>;
       case 'komuniti':
