@@ -63,6 +63,7 @@ class AduanController extends Controller
             'selesai' => $selesai
         ]);
     }
+
     public function getUserAduan(Request $request)
     {
         // Explicitly select only the columns you need for the frontend
@@ -73,6 +74,7 @@ class AduanController extends Controller
 
         return response()->json($aduans);
     }
+
     // --- 5. ADMIN: DAPATKAN SEMUA ADUAN ---
     public function getAllAduanAdmin(Request $request)
     {
@@ -81,9 +83,9 @@ class AduanController extends Controller
             return response()->json(['message' => 'Akses Ditolak'], 403);
         }
 
-        // Tarik aduan (KECUALI lokasi_gps) berserta nama & no telefon pengadu
+        // ✅ KEMAS KINI: Tambah 'id_jabatan' ke dalam senarai yang ditarik dari pangkalan data
         $aduans = Aduan::select(
-            'id_aduan', 'id_pengguna', 'id_zon', 'jenis_kerosakan', 
+            'id_aduan', 'id_pengguna', 'id_zon', 'id_jabatan', 'jenis_kerosakan', 
             'gambar_bukti', 'keterangan_aduan', 'alamat_lokasi', 
             'status', 'tarikh_lapor', 'maklum_balas'
         )
@@ -100,20 +102,25 @@ class AduanController extends Controller
             return response()->json(['message' => 'Akses Ditolak'], 403);
         }
 
+        // ✅ KEMAS KINI: Tambah validasi untuk membenarkan 'id_jabatan' diterima dari frontend
         $request->validate([
             'status' => 'required|string',
-            'maklum_balas' => 'nullable|string'
+            'maklum_balas' => 'nullable|string',
+            'id_jabatan' => 'nullable|string' // Boleh null jika status ditukar kepada 'Ditolak'
         ]);
 
         $aduan = Aduan::where('id_aduan', $id_aduan)->firstOrFail();
         
+        // ✅ KEMAS KINI: Simpan nilai 'id_jabatan' ke dalam pangkalan data
         $aduan->update([
             'status' => $request->status,
-            'maklum_balas' => $request->maklum_balas
+            'maklum_balas' => $request->maklum_balas,
+            'id_jabatan' => $request->id_jabatan
         ]);
 
         return response()->json(['message' => 'Aduan berjaya dikemaskini!', 'aduan' => $aduan]);
     }
+
     // --- 7. ADMIN & PEGAWAI: STATISTIK PAPAN PEMUKA KESELURUHAN ---
     public function getAdminDashboardStats(Request $request)
     {

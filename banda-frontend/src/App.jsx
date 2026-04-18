@@ -4,7 +4,7 @@ import { Toaster } from 'sonner';
 import Landing from './Landing';
 import Register from './Register';
 import Login from './Login';
-import Dashboard from './Dashboard';
+import Dashboard from './components/Dashboard';
 import Profile from './Profile';
 import LaporAduan from './LaporAduan';
 import StatusAduan from './StatusAduan';

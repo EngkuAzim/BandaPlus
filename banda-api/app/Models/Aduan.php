@@ -24,6 +24,7 @@ class Aduan extends Model
         'id_aduan',
         'id_pengguna',
         'id_zon',
+        'id_jabatan',
         'id_aduan_induk',
         'jenis_kerosakan',
         'gambar_bukti',
