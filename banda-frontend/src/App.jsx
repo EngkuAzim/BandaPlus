@@ -9,6 +9,9 @@ import Profile from './Profile';
 import LaporAduan from './LaporAduan';
 import StatusAduan from './StatusAduan';
 import UrusAduan from './UrusAduan';
+import UrusPengguna from './UrusPengguna';
+import PetaKluster from './PetaKluster';
+import TetapanSistem from './TetapanSistem';
 
 function App() {
   return (
@@ -27,6 +30,9 @@ function App() {
         <Route path="/lapor-aduan" element={<LaporAduan />} />
         <Route path="/sejarah" element={<StatusAduan />} />
         <Route path="/urus-aduan" element={<UrusAduan />} />
+        <Route path="/urus-pengguna" element={<UrusPengguna />} />
+        <Route path="/peta-kluster" element={<PetaKluster />} />
+        <Route path="/tetapan" element={<TetapanSistem />} />
       </Routes>
     </>
   );

@@ -86,4 +86,58 @@ class AuthController extends Controller
             'user' => $user
         ]);
     }
+    // --- FUNGSI PENGURUSAN PENGGUNA ADMIN ---
+    public function getAllUsers(Request $request)
+    {
+        if ($request->user()->peranan !== 'pentadbir') return response()->json(['message' => 'Akses Ditolak'], 403);
+        // Tarik semua pengguna, susun dari yang terbaru
+        $users = User::orderBy('created_at', 'desc')->get();
+        return response()->json($users);
+    }
+
+    public function createUser(Request $request)
+    {
+        if ($request->user()->peranan !== 'pentadbir') return response()->json(['message' => 'Akses Ditolak'], 403);
+
+        $request->validate([
+            'name' => 'required|string',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:6',
+            'peranan' => 'required|string',
+            'no_telefon' => 'nullable|string'
+        ]);
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => \Hash::make($request->password),
+            'peranan' => $request->peranan,
+            'no_telefon' => $request->no_telefon
+        ]);
+
+        return response()->json(['message' => 'Pengguna ditambah', 'user' => $user]);
+    }
+
+    public function updateUser(Request $request, $id)
+    {
+        if ($request->user()->peranan !== 'pentadbir') return response()->json(['message' => 'Akses Ditolak'], 403);
+
+        $user = User::findOrFail($id);
+        
+        $data = [
+            'name' => $request->name,
+            'email' => $request->email,
+            'peranan' => $request->peranan,
+            'no_telefon' => $request->no_telefon
+        ];
+
+        // Jika admin masukkan password baru, kemaskininya
+        if (!empty($request->password)) {
+            $data['password'] = \Hash::make($request->password);
+        }
+
+        $user->update($data);
+
+        return response()->json(['message' => 'Pengguna dikemaskini', 'user' => $user]);
+    }
 }

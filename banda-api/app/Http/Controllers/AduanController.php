@@ -87,7 +87,9 @@ class AduanController extends Controller
         $aduans = Aduan::select(
             'id_aduan', 'id_pengguna', 'id_zon', 'id_jabatan', 'jenis_kerosakan', 
             'gambar_bukti', 'keterangan_aduan', 'alamat_lokasi', 
-            'status', 'tarikh_lapor', 'maklum_balas'
+            'status', 'tarikh_lapor', 'maklum_balas',
+            DB::raw('ST_Y(lokasi_gps) as lat'), 
+            DB::raw('ST_X(lokasi_gps) as lng')
         )
         ->with('pengguna:id,name,no_telefon') 
         ->orderBy('tarikh_lapor', 'desc')

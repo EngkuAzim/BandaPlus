@@ -36,6 +36,9 @@ class Aduan extends Model
         'status',
         'maklum_balas'
     ];
+    protected $hidden = [
+        'lokasi_gps',
+    ];
 
     public function pengguna()
     {

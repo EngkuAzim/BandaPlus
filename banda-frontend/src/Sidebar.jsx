@@ -16,7 +16,9 @@ import {
   Building2,
   HardHat,
   Wallet,
-  Camera
+  Camera,
+  LayoutDashboard,
+  ShieldAlert,
 } from 'lucide-react';
 
 const Sidebar = ({ userData }) => {
@@ -43,8 +45,8 @@ const Sidebar = ({ userData }) => {
     pentadbir: [
       { name: 'Pusat Kawalan', path: '/dashboard', icon: Home },
       { name: 'Saringan Aduan', path: '/urus-aduan', icon: ClipboardList },
-      { name: 'Pengurusan Pengguna', path: '/pengguna', icon: Users },
-      { name: 'Peta Kluster (AI)', path: '/peta', icon: Map },
+      { name: 'Pengurusan Pengguna', path: '/urus-pengguna', icon: Users },
+      { name: 'Peta Kluster (AI)', path: '/peta-kluster', icon: Map },
       { name: 'Tetapan Sistem', path: '/tetapan', icon: Settings },
     ],
     pegawai: [

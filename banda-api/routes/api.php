@@ -31,4 +31,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/admin/dashboard/stats', [AduanController::class, 'getAdminDashboardStats']); 
     Route::get('/admin/aduan', [AduanController::class, 'getAllAduanAdmin']); 
     Route::put('/admin/aduan/{id}', [AduanController::class, 'updateStatusAduan']);
+    // --- PENGURUSAN PENGGUNA (ADMIN SAHAJA) ---
+    Route::get('/admin/users', [AuthController::class, 'getAllUsers']);
+    Route::post('/admin/users', [AuthController::class, 'createUser']);
+    Route::put('/admin/users/{id}', [AuthController::class, 'updateUser']);
 });
