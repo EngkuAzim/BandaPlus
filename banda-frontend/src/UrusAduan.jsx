@@ -17,6 +17,10 @@ function UrusAduan() {
   const [isSaving, setIsSaving] = useState(false);
   const [editForm, setEditForm] = useState({ status: '', maklum_balas: '' });
 
+  // State untuk Carian & Tapisan (BARU)
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState('Semua');
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) { navigate('/login'); return; }
@@ -26,7 +30,6 @@ function UrusAduan() {
         const userRes = await axios.get('http://localhost:8000/api/user', { headers: { Authorization: `Bearer ${token}` } });
         setUserData(userRes.data);
 
-        // Jika bukan pentadbir, tendang balik ke dashboard
         if (userRes.data.peranan !== 'pentadbir') {
           navigate('/dashboard');
           return;
@@ -34,9 +37,11 @@ function UrusAduan() {
 
         const aduanRes = await axios.get('http://localhost:8000/api/admin/aduan', { headers: { Authorization: `Bearer ${token}` } });
         setAduans(aduanRes.data);
-        setIsLoading(false);
       } catch (error) {
-        navigate('/login');
+        console.error("Ralat memuat turun aduan:", error);
+        toast.error('Gagal memuat turun data aduan.');
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchData();
@@ -59,7 +64,6 @@ function UrusAduan() {
         headers: { Authorization: `Bearer ${token}` }
       });
       
-      // Kemaskini senarai UI tanpa perlu refresh page
       setAduans(aduans.map(a => a.id_aduan === selectedAduan.id_aduan ? res.data.aduan : a));
       toast.success('Berjaya!', { description: 'Status dan maklum balas telah dikemaskini.' });
       setSelectedAduan(null);
@@ -80,15 +84,54 @@ function UrusAduan() {
     }
   };
 
+  // Logik Tapisan & Carian (BARU)
+  const filteredAduans = aduans.filter(aduan => {
+    const matchesSearch = 
+      aduan.id_aduan.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      (aduan.pengguna?.name && aduan.pengguna.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    const matchesStatus = filterStatus === 'Semua' || aduan.status === filterStatus;
+    
+    return matchesSearch && matchesStatus;
+  });
+
   return (
     <div className="flex h-screen bg-slate-50 font-sans">
       <Sidebar userData={userData} />
 
       <div className="flex-1 flex flex-col overflow-hidden relative">
-        <header className="flex items-center justify-between px-8 py-5 bg-white border-b border-slate-200 sticky top-0 z-10">
+        <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-8 py-5 bg-white border-b border-slate-200 sticky top-0 z-10 gap-4">
           <div>
             <h2 className="text-2xl font-black text-slate-900 tracking-tight">Pengurusan Aduan</h2>
-            <p className="text-sm text-slate-500 font-medium mt-1">Pantau dan urus laporan kerosakan komuniti</p>
+            <p className="text-sm text-slate-500 font-medium mt-1">Pantau dan urus laporan kerosakan BANDA+</p>
+          </div>
+          
+          {/* Bar Carian & Tapisan (BARU) */}
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <div className="relative w-full sm:w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <input 
+                type="text" 
+                placeholder="Cari ID atau Nama..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
+              />
+            </div>
+            <div className="relative">
+              <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <select 
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                className="pl-9 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm appearance-none focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 cursor-pointer"
+              >
+                <option value="Semua">Semua Status</option>
+                <option value="Baru">Baru</option>
+                <option value="Dalam Tindakan">Dalam Tindakan</option>
+                <option value="Selesai">Selesai</option>
+                <option value="Ditolak">Ditolak</option>
+              </select>
+            </div>
           </div>
         </header>
 
@@ -97,7 +140,6 @@ function UrusAduan() {
             <div className="flex items-center justify-center h-full"><Loader2 className="w-10 h-10 animate-spin text-teal-600" /></div>
           ) : (
             <div className="max-w-7xl mx-auto">
-              
               <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
@@ -106,20 +148,31 @@ function UrusAduan() {
                         <th className="p-5">ID Aduan</th>
                         <th className="p-5">Pengadu</th>
                         <th className="p-5">Kategori</th>
+                        <th className="p-5">Prioriti</th>
                         <th className="p-5">Tarikh Lapor</th>
                         <th className="p-5">Status</th>
                         <th className="p-5 text-right">Tindakan</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                      {aduans.map(aduan => (
+                      {filteredAduans.map(aduan => (
                         <tr key={aduan.id_aduan} className="hover:bg-slate-50 transition-colors group">
                           <td className="p-5 font-mono text-sm font-bold text-teal-700">{aduan.id_aduan}</td>
                           <td className="p-5">
-                            <p className="font-bold text-slate-900">{aduan.pengguna?.name}</p>
+                            <p className="font-bold text-slate-900">{aduan.pengguna?.name || 'Pengguna Dibuang'}</p>
                             <p className="text-xs text-slate-500">{aduan.pengguna?.no_telefon || 'Tiada No Tel'}</p>
                           </td>
                           <td className="p-5 font-medium text-slate-700">{aduan.jenis_kerosakan}</td>
+                          <td className="p-5">
+                            {/* Paparan Label Prioriti (Bersedia untuk AI) */}
+                            <span className={`px-2 py-1 rounded text-xs font-bold ${
+                              aduan.label_prioriti === 'Tinggi' ? 'bg-red-100 text-red-700' : 
+                              aduan.label_prioriti === 'Sederhana' ? 'bg-yellow-100 text-yellow-700' : 
+                              'bg-slate-100 text-slate-600'
+                            }`}>
+                              {aduan.label_prioriti || 'Menunggu AI'}
+                            </span>
+                          </td>
                           <td className="p-5 text-sm text-slate-500">{new Date(aduan.tarikh_lapor).toLocaleDateString('ms-MY')}</td>
                           <td className="p-5">
                             <span className={`px-3 py-1 rounded-lg text-xs font-bold ${getStatusColor(aduan.status)}`}>
@@ -133,23 +186,22 @@ function UrusAduan() {
                           </td>
                         </tr>
                       ))}
-                      {aduans.length === 0 && (
-                        <tr><td colSpan="6" className="p-10 text-center text-slate-500">Tiada rekod aduan buat masa ini.</td></tr>
+                      {filteredAduans.length === 0 && (
+                        <tr><td colSpan="7" className="p-10 text-center text-slate-500">Tiada rekod aduan dijumpai.</td></tr>
                       )}
                     </tbody>
                   </table>
                 </div>
               </div>
-
             </div>
           )}
         </main>
 
-        {/* MODAL URUS ADUAN (ADMIN OVERLAY) */}
+        {/* MODAL KEKAL SAMA SEPERTI SEBELUM INI */}
         <AnimatePresence>
           {selectedAduan && (
             <div className="absolute inset-0 z-50 flex items-center justify-center p-4 sm:p-8">
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedAduan(null)} className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" />
+               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setSelectedAduan(null)} className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" />
               
               <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="relative w-full max-w-3xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
                 
@@ -161,8 +213,13 @@ function UrusAduan() {
                 <div className="flex-1 overflow-y-auto p-8 flex flex-col md:flex-row gap-8">
                   {/* Info Panel */}
                   <div className="w-full md:w-1/2 space-y-6">
-                    <div className="aspect-video rounded-2xl overflow-hidden border border-slate-200">
-                      <img src={`http://localhost:8000/storage/${selectedAduan.gambar_bukti}`} className="w-full h-full object-cover" alt="Kerosakan" />
+                    <div className="aspect-video rounded-2xl overflow-hidden border border-slate-200 bg-slate-100">
+                      <img 
+                        src={`http://localhost:8000/storage/${selectedAduan.gambar_bukti}`} 
+                        className="w-full h-full object-cover" 
+                        alt="Kerosakan" 
+                        onError={(e) => { e.target.src = 'https://via.placeholder.com/400x300?text=Tiada+Gambar' }}
+                      />
                     </div>
                     <div>
                       <h5 className="font-bold text-slate-900 mb-1">Lokasi Kerosakan</h5>
@@ -191,7 +248,7 @@ function UrusAduan() {
                       </div>
 
                       <div className="space-y-2 flex-1 flex flex-col">
-                        <label className="text-sm font-bold text-slate-700">Maklum Balas Rasmi (Untuk dilihat pengadu)</label>
+                        <label className="text-sm font-bold text-slate-700">Maklum Balas Rasmi (Dilihat oleh pengadu)</label>
                         <textarea 
                           placeholder="Taipkan jawapan, arahan atau status semasa di sini..."
                           value={editForm.maklum_balas} onChange={(e) => setEditForm({...editForm, maklum_balas: e.target.value})}
@@ -212,7 +269,6 @@ function UrusAduan() {
             </div>
           )}
         </AnimatePresence>
-
       </div>
     </div>
   );

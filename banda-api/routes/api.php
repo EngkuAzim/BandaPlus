@@ -10,7 +10,7 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 
-// --- PROTECTED ROUTES (Login required) ---
+
 // --- PROTECTED ROUTES (Login required) ---
 Route::middleware('auth:sanctum')->group(function () {
     
@@ -25,8 +25,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/aduan', [AduanController::class, 'getUserAduan']);
     
     // Dashboard Stats
-    Route::get('/dashboard/stats', [AduanController::class, 'getStats']); 
+    Route::get('/dashboard/stats', [AduanController::class, 'getAdminDashboardStats']); 
     
     // ADD THIS LINE FOR PENTADBIR (Admin)
-    Route::get('/admin/dashboard/stats', [AduanController::class, 'getAdminStats']); 
+    Route::get('/admin/dashboard/stats', [AduanController::class, 'getAdminDashboardStats']); 
+    Route::get('/admin/aduan', [AduanController::class, 'getAllAduanAdmin']); 
+    Route::put('/admin/aduan/{id}', [AduanController::class, 'updateStatusAduan']);
 });
