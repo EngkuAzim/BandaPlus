@@ -156,9 +156,19 @@ function PegawaiDashboard({ userData }) {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <button className="p-2 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-teal-600 transition-colors">
-                        <MoreVertical className="w-5 h-5" />
-                      </button>
+                      {/* INI ADALAH BUTANG YANG DIKEMASKINI */}
+                      {aduan.status === 'Baru' || aduan.status === 'Dalam Tindakan' ? (
+                        <button 
+                          onClick={() => navigate(`/lantik-kontraktor/${aduan.id_aduan}`)}
+                          className="bg-slate-900 hover:bg-teal-600 text-white text-xs font-bold px-4 py-2 rounded-lg transition-all shadow-sm whitespace-nowrap"
+                        >
+                          Arahan Kerja
+                        </button>
+                      ) : (
+                        <button className="p-2 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-teal-600 transition-colors">
+                          <MoreVertical className="w-5 h-5" />
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}

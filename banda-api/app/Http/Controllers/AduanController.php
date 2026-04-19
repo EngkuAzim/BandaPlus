@@ -79,7 +79,7 @@ class AduanController extends Controller
     public function getAllAduanAdmin(Request $request)
     {
         // Pastikan hanya pentadbir boleh akses
-        if ($request->user()->peranan !== 'pentadbir') {
+        if (!in_array($request->user()->peranan, ['pentadbir', 'pegawai'])) {
             return response()->json(['message' => 'Akses Ditolak'], 403);
         }
 
@@ -100,7 +100,7 @@ class AduanController extends Controller
 
     public function updateStatusAduan(Request $request, $id_aduan)
     {
-        if ($request->user()->peranan !== 'pentadbir') {
+        if (!in_array($request->user()->peranan, ['pentadbir', 'pegawai'])) {
             return response()->json(['message' => 'Akses Ditolak'], 403);
         }
 
@@ -124,23 +124,25 @@ class AduanController extends Controller
     }
 
     // --- 7. ADMIN & PEGAWAI: STATISTIK PAPAN PEMUKA KESELURUHAN ---
+    // --- 7. ADMIN & PEGAWAI: STATISTIK PAPAN PEMUKA KESELURUHAN ---
     public function getAdminDashboardStats(Request $request)
     {
         $peranan = $request->user()->peranan;
         
-        // Hanya pentadbir dan pegawai boleh akses
         if (!in_array($peranan, ['pentadbir', 'pegawai'])) {
             return response()->json(['message' => 'Akses Ditolak'], 403);
         }
 
-        $currentMonth = Carbon\Carbon::now()->month;
-        $currentYear = Carbon\Carbon::now()->year;
-        $lastMonth = Carbon\Carbon::now()->subMonth()->month;
-        $lastMonthYear = Carbon\Carbon::now()->subMonth()->year;
+        // Betulkan panggilan Carbon supaya tidak bertindih
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
+        $lastMonth = Carbon::now()->subMonth()->month;
+        $lastMonthYear = Carbon::now()->subMonth()->year;
 
-        // Fungsi bantuan untuk kira peratusan perubahan
         $getChange = function($status) use ($currentMonth, $currentYear, $lastMonth, $lastMonthYear) {
-            $query = App\Models\Aduan::query();
+            // Gunakan class Aduan secara terus
+            $query = Aduan::query(); 
+            
             if ($status !== 'semua') {
                 $query->where('status', $status);
             }
@@ -149,25 +151,25 @@ class AduanController extends Controller
             $previous = (clone $query)->whereMonth('tarikh_lapor', $lastMonth)->whereYear('tarikh_lapor', $lastMonthYear)->count();
 
             if ($previous == 0) {
-                return $current > 0 ? 100 : 0; // Jika bulan lepas 0, anggap naik 100% jika ada aduan baru
+                return $current > 0 ? 100 : 0;
             }
             return round((($current - $previous) / $previous) * 100);
         };
 
         return response()->json([
-            'jumlah_keseluruhan' => App\Models\Aduan::count(),
+            'jumlah_keseluruhan' => Aduan::count(),
             'perubahan_jumlah' => $getChange('semua'),
             
-            'baru' => App\Models\Aduan::where('status', 'Baru')->count(),
+            'baru' => Aduan::where('status', 'Baru')->count(),
             'perubahan_baru' => $getChange('Baru'),
             
-            'diproses' => App\Models\Aduan::where('status', 'Dalam Tindakan')->count(),
+            'diproses' => Aduan::where('status', 'Dalam Tindakan')->count(),
             'perubahan_diproses' => $getChange('Dalam Tindakan'),
             
-            'selesai' => App\Models\Aduan::where('status', 'Selesai')->count(),
+            'selesai' => Aduan::where('status', 'Selesai')->count(),
             'perubahan_selesai' => $getChange('Selesai'),
             
-            'ditolak' => App\Models\Aduan::where('status', 'Ditolak')->count(),
+            'ditolak' => Aduan::where('status', 'Ditolak')->count(),
         ]);
     }
 }
