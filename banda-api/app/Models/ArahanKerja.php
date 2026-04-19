@@ -10,8 +10,8 @@ class ArahanKerja extends Model
     use HasFactory;
 
     protected $primaryKey = 'id_arahan';
-    public $incrementing = false;
-    protected $keyType = 'string';
+    public $incrementing  = false;
+    protected $keyType    = 'string';
 
     protected $fillable = [
         'id_arahan',
@@ -19,12 +19,15 @@ class ArahanKerja extends Model
         'id_kontraktor',
         'id_jabatan',
         'kos_anggaran',
+        'tarikh_jangkaan_siap',  // added
+        'nota_pegawai',          // added
         'gambar_selepas',
         'status_kerja',
-        'nota_kontraktor'
+        'nota_kontraktor',
     ];
 
-    // Sambungan (Relationships)
+    // ---- Relationships ----
+
     public function aduan()
     {
         return $this->belongsTo(Aduan::class, 'id_aduan', 'id_aduan');
@@ -33,5 +36,10 @@ class ArahanKerja extends Model
     public function kontraktor()
     {
         return $this->belongsTo(User::class, 'id_kontraktor', 'id');
+    }
+
+    public function jabatan()
+    {
+        return $this->belongsTo(Jabatan::class, 'id_jabatan', 'id_jabatan');
     }
 }

@@ -20,8 +20,12 @@ function PegawaiDashboard({ userData }) {
   const [recentAduan, setRecentAduan] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Data mokap untuk Bajet Mikro (Boleh disambung ke API kelak jika ada table bajet)
-  const bajet = { tahunan: 500000, bakiSemasa: 345200 };
+  // Data Bajet dari DB atau Fallback Mokap
+  const bajet = { 
+    tahunan: userData?.jabatan?.bajet_tahunan || 500000, 
+    bakiSemasa: userData?.jabatan?.baki_semasa || 345200,
+    nama: userData?.jabatan?.nama_jabatan || 'Jabatan'
+  };
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -32,8 +36,8 @@ function PegawaiDashboard({ userData }) {
 
         // Tarik data stat & aduan serentak
         const [statsRes, aduanRes] = await Promise.all([
-          axios.get('http://localhost:8000/api/admin/dashboard/stats', { headers }),
-          axios.get('http://localhost:8000/api/admin/aduan', { headers })
+          axios.get('http://localhost:8000/api/pegawai/dashboard/stats', { headers }),
+          axios.get('http://localhost:8000/api/pegawai/aduan', { headers })
         ]);
 
         setStatsData(statsRes.data);
@@ -80,7 +84,7 @@ function PegawaiDashboard({ userData }) {
       <motion.div variants={itemVariants} className="mb-8">
         <h3 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
           <Building2 className="w-7 h-7 text-teal-600" />
-          Papan Pemuka Pegawai Jabatan
+          Papan Pemuka Pegawai - {bajet.nama}
         </h3>
         <p className="text-sm font-medium text-slate-500 mt-1">Urus penugasan kontraktor dan pantau status aduan masa nyata.</p>
       </motion.div>
@@ -159,7 +163,7 @@ function PegawaiDashboard({ userData }) {
                       {/* INI ADALAH BUTANG YANG DIKEMASKINI */}
                       {aduan.status === 'Baru' || aduan.status === 'Dalam Tindakan' ? (
                         <button 
-                          onClick={() => navigate(`/lantik-kontraktor/${aduan.id_aduan}`)}
+                          onClick={() => navigate('/arahan-kerja')}
                           className="bg-slate-900 hover:bg-teal-600 text-white text-xs font-bold px-4 py-2 rounded-lg transition-all shadow-sm whitespace-nowrap"
                         >
                           Arahan Kerja

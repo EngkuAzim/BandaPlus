@@ -4,7 +4,7 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Building2, HardHat, Calendar, FileText, Save, 
-  Loader2, MapPin, Search, Filter, CheckCircle2, Clock 
+  Loader2, MapPin, Search, Filter, CheckCircle2, Clock, Wallet, AlertTriangle
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Sidebar from './Sidebar';
@@ -17,32 +17,31 @@ function ArahanKerja() {
   const [selectedAduan, setSelectedAduan] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
 
+  // Senarai kontraktor dari pangkalan data
+  const [senaraiKontraktor, setSenaraiKontraktor] = useState([]);
+
   // Form untuk melantik kontraktor
   const [form, setForm] = useState({
     id_kontraktor: '',
     tarikh_jangkaan_siap: '',
-    nota_pegawai: ''
+    nota_pegawai: '',
+    kos_anggaran: ''
   });
-
-  const senaraiKontraktor = [
-    { id: 'K001', nama: 'Bina Teguh Enterprise', zon: 'Zon 1 & 2' },
-    { id: 'K002', nama: 'Maju Jaya Landskap', zon: 'Zon 3 & 4' },
-    { id: 'K003', nama: 'Elektrik Cekap Sdn Bhd', zon: 'Semua Zon' }
-  ];
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem('token');
-        const [userRes, aduanRes] = await Promise.all([
+        const [userRes, aduanRes, kontraktorRes] = await Promise.all([
           axios.get('http://localhost:8000/api/user', { headers: { Authorization: `Bearer ${token}` } }),
-          axios.get('http://localhost:8000/api/admin/aduan', { headers: { Authorization: `Bearer ${token}` } })
+          // Guna /aduan-pending: aduan dari jabatan pegawai ini yang BELUM ada arahan kerja
+          axios.get('http://localhost:8000/api/pegawai/aduan-pending', { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get('http://localhost:8000/api/pegawai/kontraktor-list', { headers: { Authorization: `Bearer ${token}` } })
         ]);
 
         setUserData(userRes.data);
-        // Tapis aduan: Hanya tunjuk yang berstatus 'Baru' (yang Admin sudah sahkan tapi belum ada kontraktor)
-        // Atau sesuaikan mengikut status penugasan jabatan anda
-        setAduans(aduanRes.data.filter(a => a.status === 'Baru'));
+        setAduans(aduanRes.data);
+        setSenaraiKontraktor(kontraktorRes.data);
       } catch (error) {
         toast.error('Gagal memuatkan data aduan.');
       } finally {
@@ -54,7 +53,7 @@ function ArahanKerja() {
 
   const handleSelectAduan = (aduan) => {
     setSelectedAduan(aduan);
-    setForm({ id_kontraktor: '', tarikh_jangkaan_siap: '', nota_pegawai: '' });
+    setForm({ id_kontraktor: '', tarikh_jangkaan_siap: '', nota_pegawai: '', kos_anggaran: '' });
   };
 
   const handleSubmit = async (e) => {
@@ -71,11 +70,18 @@ function ArahanKerja() {
       setAduans(aduans.filter(a => a.id_aduan !== selectedAduan.id_aduan));
       setSelectedAduan(null);
     } catch (error) {
-      toast.error('Ralat', { description: 'Gagal menghantar arahan kerja.' });
+      toast.error('Ralat', { 
+        description: error.response?.data?.message || 'Gagal menghantar arahan kerja.' 
+      });
     } finally {
       setIsSaving(false);
     }
   };
+
+  const bakiSemasa = userData?.jabatan?.baki_semasa || 0;
+  const kosAnggaran = parseFloat(form.kos_anggaran) || 0;
+  const bakiSelepas = bakiSemasa - kosAnggaran;
+  const isOverBudget = bakiSelepas < 0;
 
   return (
     <div className="flex h-screen bg-slate-50 font-sans">
@@ -177,16 +183,25 @@ function ArahanKerja() {
                           className="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-teal-500 focus:bg-white transition-all font-bold text-slate-700"
                         >
                           <option value="">-- Pilih Kontraktor --</option>
-                          {senaraiKontraktor.map(k => <option key={k.id} value={k.id}>{k.nama} ({k.zon})</option>)}
+                          {senaraiKontraktor.map(k => <option key={k.id} value={k.id}>{k.name} ({k.no_pengguna})</option>)}
                         </select>
                       </div>
 
-                      <div className="grid grid-cols-1 gap-5">
+                      <div className="grid grid-cols-2 gap-5">
                         <div>
                           <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Tarikh Jangkaan Siap</label>
                           <input 
                             type="date" required value={form.tarikh_jangkaan_siap}
                             onChange={(e) => setForm({...form, tarikh_jangkaan_siap: e.target.value})}
+                            className="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-teal-500 focus:bg-white transition-all font-bold text-slate-700"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Kos Anggaran (RM)</label>
+                          <input 
+                            type="number" min="0" step="0.01" required value={form.kos_anggaran}
+                            onChange={(e) => setForm({...form, kos_anggaran: e.target.value})}
+                            placeholder="Contoh: 1500.00"
                             className="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-teal-500 focus:bg-white transition-all font-bold text-slate-700"
                           />
                         </div>
@@ -202,8 +217,34 @@ function ArahanKerja() {
                         />
                       </div>
 
+                      {/* Paparan Kalkulator Bajet Automatik */}
+                      <div className={`p-5 rounded-2xl border-2 transition-all ${isOverBudget ? 'bg-rose-50 border-rose-200' : 'bg-slate-50 border-slate-200'}`}>
+                        <div className="flex items-center gap-3 mb-3">
+                          <Wallet className={`w-5 h-5 ${isOverBudget ? 'text-rose-500' : 'text-slate-400'}`} />
+                          <h6 className={`text-xs font-black uppercase tracking-widest ${isOverBudget ? 'text-rose-600' : 'text-slate-500'}`}>Status Bajet Jabatan</h6>
+                        </div>
+                        <div className="flex justify-between items-center text-sm mb-1">
+                          <span className="text-slate-500 font-medium">Baki Semasa:</span>
+                          <span className="font-bold text-slate-700">RM {bakiSemasa.toLocaleString('ms-MY', {minimumFractionDigits: 2})}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-sm mb-2 pb-2 border-b border-slate-200/60">
+                          <span className="text-slate-500 font-medium">Tolak Kos Kerja:</span>
+                          <span className="font-bold text-rose-500">- RM {kosAnggaran.toLocaleString('ms-MY', {minimumFractionDigits: 2})}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className={`text-xs font-bold uppercase tracking-wider ${isOverBudget ? 'text-rose-600' : 'text-teal-600'}`}>Baki Tinggal:</span>
+                          <span className={`text-lg font-black ${isOverBudget ? 'text-rose-600' : 'text-teal-600'}`}>RM {bakiSelepas.toLocaleString('ms-MY', {minimumFractionDigits: 2})}</span>
+                        </div>
+                        {isOverBudget && (
+                          <div className="mt-3 flex items-start gap-2 bg-rose-100 p-3 rounded-xl text-rose-700 text-xs font-bold">
+                            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                            <p>Amaran: Bajet tidak mencukupi. Sila pastikan kos anggaran dalam lingkungan baki yang ada.</p>
+                          </div>
+                        )}
+                      </div>
+
                       <button 
-                        type="submit" disabled={isSaving || !form.id_kontraktor}
+                        type="submit" disabled={isSaving || !form.id_kontraktor || isOverBudget}
                         className="w-full bg-slate-900 text-white font-black py-5 rounded-[25px] hover:bg-teal-600 disabled:opacity-50 flex items-center justify-center gap-3 shadow-xl shadow-teal-100 transition-all mt-4"
                       >
                         {isSaving ? <Loader2 className="animate-spin" /> : <CheckCircle2 />}

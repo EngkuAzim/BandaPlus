@@ -10,8 +10,8 @@ class Jabatan extends Model
     use HasFactory;
 
     protected $primaryKey = 'id_jabatan';
-    public $incrementing = false; // Kerana kita guna string 'J01', bukan nombor berangkai
-    protected $keyType = 'string';
+    public $incrementing  = false;
+    protected $keyType    = 'string';
 
     protected $fillable = [
         'id_jabatan',
@@ -19,4 +19,33 @@ class Jabatan extends Model
         'bajet_tahunan',
         'baki_semasa',
     ];
+
+    // -------------------------------------------------------
+    // Relationships
+    // -------------------------------------------------------
+
+    /**
+     * Semua pegawai yang menjaga jabatan ini.
+     */
+    public function pegawai()
+    {
+        return $this->hasMany(User::class, 'id_jabatan', 'id_jabatan')
+                    ->where('peranan', 'pegawai');
+    }
+
+    /**
+     * Semua aduan yang dikategorikan di bawah jabatan ini.
+     */
+    public function aduans()
+    {
+        return $this->hasMany(Aduan::class, 'id_jabatan', 'id_jabatan');
+    }
+
+    /**
+     * Semua arahan kerja yang dikeluarkan oleh jabatan ini.
+     */
+    public function arahanKerjas()
+    {
+        return $this->hasMany(ArahanKerja::class, 'id_jabatan', 'id_jabatan');
+    }
 }

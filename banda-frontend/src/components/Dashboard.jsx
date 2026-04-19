@@ -32,9 +32,15 @@ function Dashboard() {
         const user = userRes.data;
         setUserData(user);
 
-        const statsUrl = (user.peranan === 'pentadbir' || user.peranan === 'pegawai') 
-          ? 'http://localhost:8000/api/admin/dashboard/stats' 
-          : 'http://localhost:8000/api/dashboard/stats';
+        // Pilih URL stats berdasarkan peranan — JANGAN guna /admin/* untuk pegawai
+        let statsUrl;
+        if (user.peranan === 'pentadbir') {
+          statsUrl = 'http://localhost:8000/api/admin/dashboard/stats';
+        } else if (user.peranan === 'pegawai') {
+          statsUrl = 'http://localhost:8000/api/pegawai/dashboard/stats';
+        } else {
+          statsUrl = 'http://localhost:8000/api/dashboard/stats';
+        }
 
         const statsRes = await axios.get(statsUrl, { headers: { Authorization: `Bearer ${token}` } });
         setStats(statsRes.data);
@@ -105,7 +111,7 @@ function Dashboard() {
             <div className="flex items-center gap-3 pl-5 border-l border-slate-200">
               <div className="text-right hidden md:block">
                 <p className="text-sm font-bold text-slate-900 leading-tight">{userData.name}</p>
-                <p className="text-xs text-slate-500 capitalize">{userData.peranan}</p>
+                <p className="text-xs text-slate-500 capitalize">{userData.peranan} &bull; {userData.no_pengguna}</p>
               </div>
               <div className="w-10 h-10 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center font-bold border border-teal-200 shadow-sm">
                 {initial}
