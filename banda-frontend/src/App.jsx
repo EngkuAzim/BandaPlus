@@ -12,6 +12,7 @@ import UrusAduan from './UrusAduan';
 import UrusPengguna from './UrusPengguna';
 import PetaKluster from './PetaKluster';
 import TetapanSistem from './TetapanSistem';
+import LantikKontraktor from './LantikKontraktor';
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
         <Route path="/urus-pengguna" element={<UrusPengguna />} />
         <Route path="/peta-kluster" element={<PetaKluster />} />
         <Route path="/tetapan" element={<TetapanSistem />} />
+        <Route path="/lantik-kontraktor/:id" element={<LantikKontraktor />} />
       </Routes>
     </>
   );

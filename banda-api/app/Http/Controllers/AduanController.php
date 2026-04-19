@@ -133,13 +133,41 @@ class AduanController extends Controller
             return response()->json(['message' => 'Akses Ditolak'], 403);
         }
 
-        // Kira statistik seluruh sistem BANDA+
+        $currentMonth = Carbon\Carbon::now()->month;
+        $currentYear = Carbon\Carbon::now()->year;
+        $lastMonth = Carbon\Carbon::now()->subMonth()->month;
+        $lastMonthYear = Carbon\Carbon::now()->subMonth()->year;
+
+        // Fungsi bantuan untuk kira peratusan perubahan
+        $getChange = function($status) use ($currentMonth, $currentYear, $lastMonth, $lastMonthYear) {
+            $query = App\Models\Aduan::query();
+            if ($status !== 'semua') {
+                $query->where('status', $status);
+            }
+            
+            $current = (clone $query)->whereMonth('tarikh_lapor', $currentMonth)->whereYear('tarikh_lapor', $currentYear)->count();
+            $previous = (clone $query)->whereMonth('tarikh_lapor', $lastMonth)->whereYear('tarikh_lapor', $lastMonthYear)->count();
+
+            if ($previous == 0) {
+                return $current > 0 ? 100 : 0; // Jika bulan lepas 0, anggap naik 100% jika ada aduan baru
+            }
+            return round((($current - $previous) / $previous) * 100);
+        };
+
         return response()->json([
-            'jumlah_keseluruhan' => Aduan::count(),
-            'baru' => Aduan::where('status', 'Baru')->count(),
-            'diproses' => Aduan::where('status', 'Dalam Tindakan')->count(),
-            'selesai' => Aduan::where('status', 'Selesai')->count(),
-            'ditolak' => Aduan::where('status', 'Ditolak')->count(),
+            'jumlah_keseluruhan' => App\Models\Aduan::count(),
+            'perubahan_jumlah' => $getChange('semua'),
+            
+            'baru' => App\Models\Aduan::where('status', 'Baru')->count(),
+            'perubahan_baru' => $getChange('Baru'),
+            
+            'diproses' => App\Models\Aduan::where('status', 'Dalam Tindakan')->count(),
+            'perubahan_diproses' => $getChange('Dalam Tindakan'),
+            
+            'selesai' => App\Models\Aduan::where('status', 'Selesai')->count(),
+            'perubahan_selesai' => $getChange('Selesai'),
+            
+            'ditolak' => App\Models\Aduan::where('status', 'Ditolak')->count(),
         ]);
     }
 }
