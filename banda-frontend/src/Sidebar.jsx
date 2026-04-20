@@ -19,14 +19,17 @@ import {
   Camera,
   LayoutDashboard,
   ShieldAlert,
+  Search,
+  FileText
 } from 'lucide-react';
+import NotificationBell from './components/NotificationBell';
 
 const Sidebar = ({ userData }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isCollapsed, setIsCollapsed] = useState(false);
   
-  const role = userData?.peranan || 'komuniti';
+  const role = userData?.peranan || localStorage.getItem('userRole') || 'komuniti';
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -44,21 +47,21 @@ const Sidebar = ({ userData }) => {
     ],
     pentadbir: [
       { name: 'Pusat Kawalan', path: '/dashboard', icon: Home },
-      { name: 'Saringan Aduan', path: '/urus-aduan', icon: ClipboardList },
-      { name: 'Pengurusan Pengguna', path: '/urus-pengguna', icon: Users },
-      { name: 'Peta Kluster (AI)', path: '/peta-kluster', icon: Map },
+      { name: 'Saringan & Agihan', path: '/urus-aduan', icon: Search },
+      { name: 'Urus Pengguna', path: '/urus-pengguna', icon: Users },
+      { name: 'Pemetaan AI', path: '/peta-kluster', icon: Map },
+      { name: 'Laporan Prestasi', path: '/laporan-prestasi', icon: FileText },
       { name: 'Tetapan Sistem', path: '/tetapan', icon: Settings },
     ],
     pegawai: [
       { name: 'Papan Pemuka', path: '/dashboard', icon: Home },
       { name: 'Arahan Kerja', path: '/arahan-kerja', icon: Building2 },
-      { name: 'Log Bajet Mikro', path: '/bajet', icon: Wallet },
+      { name: 'Laporan Tugasan', path: '/laporan-tugasan', icon: ClipboardList },
+      { name: 'Log Bajet', path: '/bajet', icon: Wallet },
     ],
     kontraktor: [
       { name: 'Tugasan Semasa', path: '/dashboard', icon: Home },
-      { name: 'Senarai Pembaikan', path: '/pembaikan', icon: HardHat },
-      { name: 'Kamera Geo-Fencing', path: '/geo-kamera', icon: Camera },
-      { name: 'Sejarah Kerja', path: '/sejarah-kerja', icon: History },
+      { name: 'Pengurusan Kerja', path: '/pembaikan', icon: HardHat },
     ]
   };
 
@@ -68,11 +71,13 @@ const Sidebar = ({ userData }) => {
   const springConfig = { type: "spring", stiffness: 300, damping: 26 };
 
   return (
-    <motion.aside 
-      animate={{ width: isCollapsed ? 84 : 290 }}
-      transition={springConfig}
-      className="bg-white shadow-[10px_0_40px_-15px_rgba(0,0,0,0.05)] border-r border-slate-100 flex flex-col h-full relative z-40 selection:bg-teal-500/20 shrink-0"
-    >
+    <>
+      {/* Desktop Sidebar (Hidden on Mobile) */}
+      <motion.aside 
+        animate={{ width: isCollapsed ? 84 : 290 }}
+        transition={springConfig}
+        className="hidden md:flex bg-white shadow-[10px_0_40px_-15px_rgba(0,0,0,0.05)] border-r border-slate-100 flex-col h-full relative z-40 selection:bg-teal-500/20 shrink-0"
+      >
       {/* Collapse Toggle dengan Efek Timbul */}
       <motion.button 
         whileHover={{ scale: 1.1 }}
@@ -108,6 +113,10 @@ const Sidebar = ({ userData }) => {
             </motion.div>
           )}
         </AnimatePresence>
+
+        <div className={`transition-all duration-300 ${isCollapsed ? 'hidden' : 'ml-auto'}`}>
+          <NotificationBell />
+        </div>
       </div>
       
       {/* Links Navigasi */}
@@ -192,6 +201,30 @@ const Sidebar = ({ userData }) => {
         </button>
       </div>
     </motion.aside>
+
+    {/* Mobile Bottom Navigation (Visible only on Mobile) */}
+    <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex justify-between items-center px-6 py-3 z-[100] shadow-[0_-10px_40px_rgba(0,0,0,0.05)] pb-[env(safe-area-inset-bottom)]">
+      {currentLinks.map((link) => {
+        const Icon = link.icon;
+        const isActive = location.pathname === link.path;
+        return (
+          <Link key={link.name} to={link.path} className="flex flex-col items-center gap-1 relative">
+            {isActive && (
+              <motion.div layoutId="mobileActiveIndicator" className="absolute -top-3 w-1.5 h-1.5 rounded-full bg-teal-500" />
+            )}
+            <Icon className={`w-6 h-6 transition-all duration-300 ${isActive ? 'text-teal-600 stroke-[2.5px]' : 'text-slate-400'}`} />
+            <span className={`text-[10px] font-bold ${isActive ? 'text-teal-700' : 'text-slate-500'}`}>{link.name.split(' ')[0]}</span>
+          </Link>
+        );
+      })}
+      
+      {/* Mobile Logout */}
+      <button onClick={handleLogout} className="flex flex-col items-center gap-1">
+        <LogOut className="w-6 h-6 text-slate-400" />
+        <span className="text-[10px] font-bold text-slate-500">Keluar</span>
+      </button>
+    </div>
+    </>
   );
 };
 

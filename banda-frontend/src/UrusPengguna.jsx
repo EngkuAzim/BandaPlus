@@ -4,7 +4,7 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Search, Filter, Plus, Edit2, Trash2, X, Save, 
-  Loader2, Users, ShieldAlert, HardHat, Building2, UserCircle 
+  Loader2, Users, ShieldAlert, HardHat, Building2, UserCircle, Power, CheckCircle 
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Sidebar from './Sidebar';
@@ -13,6 +13,7 @@ function UrusPengguna() {
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
   const [usersList, setUsersList] = useState([]);
+  const [jabatansList, setJabatansList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   
   // State Carian & Tapisan
@@ -24,7 +25,7 @@ function UrusPengguna() {
   const [isSaving, setIsSaving] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({
-    id: '', name: '', email: '', password: '', peranan: 'komuniti', no_telefon: ''
+    id: '', name: '', email: '', password: '', peranan: 'komuniti', no_telefon: '', id_jabatan: ''
   });
 
   useEffect(() => {
@@ -42,9 +43,14 @@ function UrusPengguna() {
           navigate('/dashboard'); return;
         }
 
-        // Tarik senarai semua pengguna
-        const res = await axios.get('http://localhost:8000/api/admin/users', { headers: { Authorization: `Bearer ${token}` } });
-        setUsersList(res.data);
+        // Tarik senarai pengguna & senarai jabatan serentak
+        const [usersRes, jabatanRes] = await Promise.all([
+          axios.get('http://localhost:8000/api/admin/users', { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get('http://localhost:8000/api/pegawai/jabatan', { headers: { Authorization: `Bearer ${token}` } })
+        ]);
+        
+        setUsersList(usersRes.data);
+        setJabatansList(jabatanRes.data);
       } catch (error) {
         toast.error('Gagal memuat turun data pengguna.');
       } finally {
@@ -67,10 +73,10 @@ function UrusPengguna() {
   const handleOpenModal = (user = null) => {
     if (user) {
       setEditMode(true);
-      setFormData({ id: user.id, name: user.name, email: user.email, password: '', peranan: user.peranan, no_telefon: user.no_telefon || '' });
+      setFormData({ id: user.id, name: user.name, email: user.email, password: '', peranan: user.peranan, no_telefon: user.no_telefon || '', id_jabatan: user.id_jabatan || '' });
     } else {
       setEditMode(false);
-      setFormData({ id: '', name: '', email: '', password: '', peranan: 'komuniti', no_telefon: '' });
+      setFormData({ id: '', name: '', email: '', password: '', peranan: 'komuniti', no_telefon: '', id_jabatan: '' });
     }
     setIsModalOpen(true);
   };
@@ -83,12 +89,12 @@ function UrusPengguna() {
       if (editMode) {
         // Update Pengguna sedia ada
         const res = await axios.put(`http://localhost:8000/api/admin/users/${formData.id}`, formData, { headers: { Authorization: `Bearer ${token}` } });
-        setUsersList(usersList.map(u => u.id === formData.id ? res.data.user : u));
+        setUsersList(usersList.map(u => u.id === formData.id ? { ...res.data.user, jabatan: jabatansList.find(j => j.id_jabatan === res.data.user.id_jabatan) } : u));
         toast.success('Pengguna berjaya dikemaskini!');
       } else {
         // Tambah Pengguna baharu
         const res = await axios.post('http://localhost:8000/api/admin/users', formData, { headers: { Authorization: `Bearer ${token}` } });
-        setUsersList([res.data.user, ...usersList]);
+        setUsersList([{ ...res.data.user, jabatan: jabatansList.find(j => j.id_jabatan === res.data.user.id_jabatan) }, ...usersList]);
         toast.success('Pengguna baharu berjaya ditambah!');
       }
       setIsModalOpen(false);
@@ -96,6 +102,19 @@ function UrusPengguna() {
       toast.error('Ralat semasa menyimpan data.');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleToggleStatus = async (user) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.patch(`http://localhost:8000/api/admin/users/${user.id}/status`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setUsersList(usersList.map(u => u.id === user.id ? { ...u, status: res.data.status } : u));
+      toast.success(res.data.message);
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Ralat semasa menukar status pengguna.');
     }
   };
 
@@ -172,7 +191,7 @@ function UrusPengguna() {
                       <tr className="bg-white border-b border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-wider">
                         <th className="p-5">Profil Pengguna</th>
                         <th className="p-5">Hubungan</th>
-                        <th className="p-5">Peranan (Akses)</th>
+                        <th className="p-5">Peranan & Status</th>
                         <th className="p-5">Tarikh Daftar</th>
                         <th className="p-5 text-right">Tindakan</th>
                       </tr>
@@ -192,9 +211,26 @@ function UrusPengguna() {
                             </div>
                           </td>
                           <td className="p-5 font-medium text-sm text-slate-600">{user.no_telefon || '-'}</td>
-                          <td className="p-5">{getRoleBadge(user.peranan)}</td>
+                          <td className="p-5">
+                            <div className="flex flex-col items-start gap-2">
+                              {getRoleBadge(user.peranan)}
+                              <span className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider ${
+                                user.status === 'tidak_aktif' ? 'bg-red-100 text-red-600' : 'bg-emerald-100 text-emerald-600'
+                              }`}>
+                                {user.status === 'tidak_aktif' ? 'Tidak Aktif' : 'Aktif'}
+                              </span>
+                            </div>
+                            {user.peranan === 'pegawai' && user.jabatan && (
+                              <p className="text-[10px] mt-1 text-slate-500 font-bold uppercase tracking-wider">{user.jabatan.nama_jabatan}</p>
+                            )}
+                          </td>
                           <td className="p-5 text-sm text-slate-500">{new Date(user.created_at).toLocaleDateString('ms-MY')}</td>
-                          <td className="p-5 text-right">
+                          <td className="p-5 text-right space-x-2">
+                            <button onClick={() => handleToggleStatus(user)} className={`p-2 rounded-lg transition-colors border ${
+                              user.status === 'tidak_aktif' ? 'text-emerald-500 hover:bg-emerald-50 border-transparent hover:border-emerald-100' : 'text-red-500 hover:bg-red-50 border-transparent hover:border-red-100'
+                            }`} title={user.status === 'tidak_aktif' ? 'Aktifkan Akaun' : 'Nyahaktifkan Akaun'}>
+                              <Power className="w-4 h-4" />
+                            </button>
                             <button onClick={() => handleOpenModal(user)} className="text-slate-400 hover:text-teal-600 p-2 bg-white hover:bg-teal-50 rounded-lg transition-colors border border-transparent hover:border-teal-100">
                               <Edit2 className="w-4 h-4" />
                             </button>
@@ -240,13 +276,26 @@ function UrusPengguna() {
                   </div>
                   <div>
                     <label className="text-xs font-bold text-slate-600 uppercase ml-1">Tetapan Peranan Sistem</label>
-                    <select value={formData.peranan} onChange={(e) => setFormData({...formData, peranan: e.target.value})} className="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-teal-500 outline-none font-bold text-slate-700 transition-colors">
+                    <select value={formData.peranan} onChange={(e) => setFormData({...formData, peranan: e.target.value, id_jabatan: e.target.value !== 'pegawai' ? '' : formData.id_jabatan})} className="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-teal-500 outline-none font-bold text-slate-700 transition-colors">
                       <option value="komuniti">Komuniti (Pengguna Biasa)</option>
                       <option value="kontraktor">Kontraktor (Akses Arahan Kerja)</option>
                       <option value="pegawai">Pegawai Jabatan (Akses Bajet)</option>
                       <option value="pentadbir">Pentadbir Sistem (Akses Penuh)</option>
                     </select>
                   </div>
+                  
+                  {/* Pilihan Jabatan (Hanya muncul jika peranan == 'pegawai') */}
+                  {formData.peranan === 'pegawai' && (
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
+                      <label className="text-xs font-bold text-teal-600 uppercase ml-1">Tugasan Jabatan (Wajib Untuk Pegawai)</label>
+                      <select required value={formData.id_jabatan} onChange={(e) => setFormData({...formData, id_jabatan: e.target.value})} className="w-full mt-1 px-4 py-3 bg-teal-50 border border-teal-200 rounded-xl focus:border-teal-500 outline-none font-bold text-teal-800 transition-colors">
+                        <option value="">-- Sila Pilih Jabatan --</option>
+                        {jabatansList.map(jab => (
+                          <option key={jab.id_jabatan} value={jab.id_jabatan}>{jab.nama_jabatan}</option>
+                        ))}
+                      </select>
+                    </motion.div>
+                  )}
                   <div>
                     <label className="text-xs font-bold text-slate-600 uppercase ml-1">Katalaluan {editMode && <span className="text-slate-400 normal-case font-normal">(Biar kosong jika tidak mahu tukar)</span>}</label>
                     <input type="password" required={!editMode} value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} placeholder="********" className="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-teal-500 outline-none transition-colors" />

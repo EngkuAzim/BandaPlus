@@ -24,6 +24,12 @@ class ArahanKerja extends Model
         'gambar_selepas',
         'status_kerja',
         'nota_kontraktor',
+        'log_kemajuan',
+    ];
+
+    protected $casts = [
+        'tarikh_jangkaan_siap' => 'date',
+        'log_kemajuan' => 'array',
     ];
 
     // ---- Relationships ----

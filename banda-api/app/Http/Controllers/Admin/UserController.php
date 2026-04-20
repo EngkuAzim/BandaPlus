@@ -15,7 +15,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::orderBy('created_at', 'desc')->get();
+        $users = User::with('jabatan')->orderBy('created_at', 'desc')->get();
         return response()->json($users);
     }
 
@@ -98,5 +98,27 @@ class UserController extends Controller
 
         $user->delete();
         return response()->json(['message' => 'Pengguna berjaya dipadam.']);
+    }
+
+    /**
+     * Toggle active/inactive status.
+     * Route: PATCH /api/admin/users/{id}/status
+     */
+    public function toggleStatus($id)
+    {
+        $user = User::findOrFail($id);
+        
+        // Prevent admin from deactivating themselves
+        if ($user->id === auth()->id()) {
+            return response()->json(['message' => 'Anda tidak boleh menyahaktifkan akaun anda sendiri.'], 403);
+        }
+
+        $user->status = $user->status === 'aktif' ? 'tidak_aktif' : 'aktif';
+        $user->save();
+
+        return response()->json([
+            'message' => 'Status pengguna berjaya dikemaskini.', 
+            'status' => $user->status
+        ]);
     }
 }

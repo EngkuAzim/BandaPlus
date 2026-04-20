@@ -7,6 +7,8 @@ use App\Models\Aduan;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Services\PriorityScoreService;
+use App\Services\JabatanMappingService;
 
 class AduanController extends Controller
 {
@@ -42,16 +44,27 @@ class AduanController extends Controller
             ? DB::raw("ST_PointFromText('POINT({$lng} {$lat})')")
             : null;
 
+        // Calculate Priority Score
+        $priorityService = new PriorityScoreService();
+        $priorityResult = $priorityService->calculateScore($request->jenis_kerosakan);
+
+        // Suggest Jabatan
+        $jabatanService = new JabatanMappingService();
+        $suggestedJabatan = $jabatanService->suggest($request->jenis_kerosakan);
+
         $aduan = Aduan::create([
             'id_aduan'         => $id_aduan,
             'id_pengguna'      => $request->user()->id,
             'id_zon'           => $request->id_zon,
+            'id_jabatan'       => $suggestedJabatan === 'J00' ? null : $suggestedJabatan,
             'jenis_kerosakan'  => $request->jenis_kerosakan,
             'alamat_lokasi'    => $request->alamat_lokasi,
             'keterangan_aduan' => $request->keterangan_aduan,
             'lokasi_gps'       => $lokasi_gps,
             'gambar_bukti'     => $imagePath,
             'status'           => 'Baru',
+            'skor_ai'          => $priorityResult['skor'],
+            'label_prioriti'   => $priorityResult['label'],
         ]);
 
         return response()->json([

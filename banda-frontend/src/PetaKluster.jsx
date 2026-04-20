@@ -1,12 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import 'leaflet.heat';
 import { motion } from 'framer-motion';
-import { Loader2, Map as MapIcon, BrainCircuit, AlertTriangle, Layers, Navigation } from 'lucide-react';
+import { Loader2, Map as MapIcon, BrainCircuit, AlertTriangle, Layers, Navigation, Activity } from 'lucide-react';
 import Sidebar from './Sidebar';
+
+function HeatmapLayer({ points }) {
+  const map = useMap();
+  useEffect(() => {
+    if (!points || points.length === 0) return;
+    const heat = L.heatLayer(points, {
+      radius: 25,
+      blur: 15,
+      maxZoom: 17,
+      gradient: {0.4: 'blue', 0.6: 'cyan', 0.7: 'lime', 0.8: 'yellow', 1.0: 'red'}
+    }).addTo(map);
+
+    return () => { map.removeLayer(heat); };
+  }, [map, points]);
+  return null;
+}
 
 // Rekaan Ikon Penanda BANDA+ Tersuai (Elakkan ralat imej default Leaflet)
 const createCustomIcon = (status) => {
@@ -49,10 +66,10 @@ function PetaKluster() {
           navigate('/dashboard'); return;
         }
 
-        const aduanRes = await axios.get('http://localhost:8000/api/admin/aduan', { headers: { Authorization: `Bearer ${token}` } });
+        const aduanRes = await axios.get('http://localhost:8000/api/pegawai/aduan-geo', { headers: { Authorization: `Bearer ${token}` } });
         
         // Tapis hanya aduan yang mempunyai koordinat GPS
-        const aduanDenganGPS = aduanRes.data.filter(a => a.lat && a.lng);
+        const aduanDenganGPS = aduanRes.data.filter(a => a.lat && a.lon);
         setAduans(aduanDenganGPS);
 
       } catch (error) {
@@ -99,10 +116,13 @@ function PetaKluster() {
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
                   />
                   
+                  {/* Heatmap Layer */}
+                  <HeatmapLayer points={aduans.map(a => [a.lat, a.lon, (a.weight / 100) || 0.5])} />
+
                   {aduans.map(aduan => (
                     <Marker 
-                      key={aduan.id_aduan} 
-                      position={[aduan.lat, aduan.lng]} 
+                      key={aduan.id} 
+                      position={[aduan.lat, aduan.lon]} 
                       icon={createCustomIcon(aduan.status)}
                     >
                       <Popup className="custom-popup rounded-2xl overflow-hidden border-none shadow-xl">
@@ -115,8 +135,8 @@ function PetaKluster() {
                           />
                           <div className="p-2">
                             <span className="text-[10px] font-black uppercase text-teal-600 bg-teal-50 px-2 py-0.5 rounded">{aduan.status}</span>
-                            <h4 className="font-bold text-slate-800 mt-2 leading-tight">{aduan.jenis_kerosakan}</h4>
-                            <p className="text-xs text-slate-500 mt-1 line-clamp-2">{aduan.alamat_lokasi}</p>
+                            <h4 className="font-bold text-slate-800 mt-2 leading-tight">{aduan.jenis}</h4>
+                            <p className="text-xs text-slate-500 mt-1 line-clamp-2">Skor AI: <span className="font-bold text-teal-600">{aduan.weight}%</span></p>
                             <button onClick={() => navigate('/urus-aduan')} className="mt-3 w-full bg-slate-900 text-white text-xs font-bold py-2 rounded-lg hover:bg-teal-600 transition-colors">
                               Saring Kerosakan Ini
                             </button>

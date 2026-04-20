@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { motion } from 'framer-motion';
 import { 
   HardHat, 
@@ -6,15 +7,37 @@ import {
   Camera, 
   CheckSquare, 
   Clock, 
-  AlertCircle 
+  AlertCircle,
+  Loader2
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 function KontraktorDashboard({ userData, stats }) {
+  const [tugasanList, setTugasanList] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTugasan = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await axios.get('http://localhost:8000/api/kontraktor/tugasan', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setTugasanList(res.data.slice(0, 5)); // Just show top 5 latest
+      } catch (error) {
+        console.error('Gagal memuatkan senarai tugasan');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchTugasan();
+  }, []);
+
   const containerVariants = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } };
   const itemVariants = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } } };
 
   return (
-    <motion.div variants={containerVariants} initial="hidden" animate="show" className="max-w-7xl mx-auto w-full">
+    <motion.div variants={containerVariants} initial="hidden" animate="show" className="max-w-2xl mx-auto w-full px-4 md:px-0 pb-20">
       <motion.div variants={itemVariants} className="mb-8">
         <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
           <HardHat className="w-6 h-6 text-amber-600" />
@@ -29,8 +52,8 @@ function KontraktorDashboard({ userData, stats }) {
             <AlertCircle className="w-7 h-7" />
           </div>
           <div>
-            <p className="text-slate-500 font-bold text-[11px] uppercase tracking-wider mb-1">Tugasan Baharu</p>
-            <h4 className="text-3xl font-black text-slate-900">2</h4>
+            <p className="text-slate-500 font-bold text-[11px] uppercase tracking-wider mb-1">Tugasan Dalam Proses</p>
+            <h4 className="text-3xl font-black text-slate-900">{stats?.tugasan_baru || 0}</h4>
           </div>
         </motion.div>
 
@@ -39,38 +62,42 @@ function KontraktorDashboard({ userData, stats }) {
             <CheckSquare className="w-7 h-7" />
           </div>
           <div>
-            <p className="text-slate-500 font-bold text-[11px] uppercase tracking-wider mb-1">Tugasan Selesai (Bulan Ini)</p>
-            <h4 className="text-3xl font-black text-slate-900">5</h4>
+            <p className="text-slate-500 font-bold text-[11px] uppercase tracking-wider mb-1">Tugasan Selesai (Keseluruhan)</p>
+            <h4 className="text-3xl font-black text-slate-900">{stats?.tugasan_selesai || 0}</h4>
           </div>
         </motion.div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <motion.div variants={itemVariants} className="lg:col-span-2 bg-white rounded-3xl shadow-sm border border-slate-200 p-8 overflow-hidden">
+      <div className="flex flex-col gap-6">
+        <motion.div variants={itemVariants} className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 md:p-8 overflow-hidden">
           <h4 className="text-lg font-black text-slate-900 mb-6">Senarai Arahan Kerja Semasa</h4>
           <div className="space-y-4">
-            {/* Mokap Kad Tugasan */}
-            <div className="border border-slate-100 bg-slate-50 p-5 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:border-teal-200 transition-colors">
-              <div>
-                <span className="px-2 py-1 bg-amber-100 text-amber-700 text-[10px] font-black rounded uppercase">Dalam Proses</span>
-                <h5 className="font-bold text-slate-800 mt-2">Pembaikan Jalan Berlubang (Zon 3)</h5>
-                <p className="text-xs text-slate-500 mt-1 flex items-center gap-1"><MapPin className="w-3 h-3" /> Jalan Ampang Utama 2/1</p>
-              </div>
-              <button className="bg-slate-900 hover:bg-teal-600 text-white font-bold text-sm px-5 py-2.5 rounded-xl transition-all w-full sm:w-auto">
-                Kemas Kini Status
-              </button>
-            </div>
-            
-            <div className="border border-slate-100 bg-slate-50 p-5 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:border-teal-200 transition-colors">
-              <div>
-                <span className="px-2 py-1 bg-blue-100 text-blue-700 text-[10px] font-black rounded uppercase">Tugasan Baharu</span>
-                <h5 className="font-bold text-slate-800 mt-2">Lampu Jalan Tidak Berfungsi</h5>
-                <p className="text-xs text-slate-500 mt-1 flex items-center gap-1"><MapPin className="w-3 h-3" /> Taman Kosas</p>
-              </div>
-              <button className="bg-slate-900 hover:bg-teal-600 text-white font-bold text-sm px-5 py-2.5 rounded-xl transition-all w-full sm:w-auto">
-                Kemas Kini Status
-              </button>
-            </div>
+            {isLoading ? (
+              <div className="flex justify-center p-10"><Loader2 className="w-8 h-8 animate-spin text-teal-600" /></div>
+            ) : tugasanList.length === 0 ? (
+              <div className="bg-slate-50 p-6 rounded-2xl text-center text-slate-400 font-medium border border-slate-100">Tiada arahan kerja pada masa ini.</div>
+            ) : (
+              tugasanList.map(t => (
+                <div key={t.id_arahan} className="border border-slate-100 bg-slate-50 p-5 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:border-teal-200 transition-colors">
+                  <div>
+                    <span className={`px-2 py-1 text-[10px] font-black rounded uppercase ${
+                      t.status_kerja === 'Selesai' ? 'bg-emerald-100 text-emerald-700' :
+                      t.status_kerja === 'Dalam Proses' ? 'bg-amber-100 text-amber-700' :
+                      'bg-blue-100 text-blue-700'
+                    }`}>
+                      {t.status_kerja}
+                    </span>
+                    <h5 className="font-bold text-slate-800 mt-2">{t.aduan?.jenis_kerosakan || 'Kerja Pembaikan'}</h5>
+                    <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
+                      <MapPin className="w-3 h-3" /> {t.aduan?.alamat_lokasi || 'Lokasi tidak dinyatakan'}
+                    </p>
+                  </div>
+                  <Link to="/pembaikan" className="bg-slate-900 hover:bg-teal-600 text-center text-white font-bold text-sm px-5 py-2.5 rounded-xl transition-all w-full sm:w-auto">
+                    Kemas Kini / Bukti
+                  </Link>
+                </div>
+              ))
+            )}
           </div>
         </motion.div>
 

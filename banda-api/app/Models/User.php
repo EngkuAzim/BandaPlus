@@ -20,6 +20,7 @@ class User extends Authenticatable
         'no_telefon',
         'peranan',
         'id_jabatan',   // FK → jabatans.id_jabatan (pegawai sahaja)
+        'status',
         'alamat_1',
         'alamat_2',
         'poskod',

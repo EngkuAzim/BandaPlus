@@ -107,7 +107,7 @@ function Profile() {
       const token = localStorage.getItem('token');
       
       // Send the data to your new Laravel endpoint!
-      await axios.put('http://localhost:8000/api/user/profile', formData, {
+      await axios.put('http://localhost:8000/api/profil', formData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       

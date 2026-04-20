@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\AduanAdminController;
 use App\Http\Controllers\Pegawai\ArahanKerjaController;
 use App\Http\Controllers\Pegawai\JabatanController;
+use App\Http\Controllers\Pegawai\BajetController;
 use App\Http\Controllers\Kontraktor\KontraktorController;
 
 // ============================================================
@@ -32,6 +33,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout',   [AuthController::class, 'logout']);
 
     // --------------------------------------------------------
+    // NOTIFIKASI
+    // --------------------------------------------------------
+    Route::get('/notifikasi', [\App\Http\Controllers\NotifikasiController::class, 'index']);
+    Route::put('/notifikasi/{id}/baca', [\App\Http\Controllers\NotifikasiController::class, 'markAsRead']);
+    Route::put('/notifikasi/baca-semua', [\App\Http\Controllers\NotifikasiController::class, 'markAllAsRead']);
+
+    // --------------------------------------------------------
     // KOMUNITI — submit & track own reports
     // --------------------------------------------------------
     Route::post('/aduan',            [AduanController::class, 'store']);
@@ -50,6 +58,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/users',           [UserController::class, 'store']);
         Route::put('/users/{id}',       [UserController::class, 'update']);
         Route::delete('/users/{id}',    [UserController::class, 'destroy']);
+        Route::patch('/users/{id}/status', [UserController::class, 'toggleStatus']);
+        Route::get('/laporan-prestasi', [AduanAdminController::class, 'getLaporanPrestasi']);
     });
 
     // --------------------------------------------------------
@@ -58,12 +68,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:pegawai,pentadbir')->prefix('pegawai')->group(function () {
         Route::get('/dashboard/stats',          [AduanAdminController::class, 'getStats']);
         Route::get('/aduan',                    [AduanAdminController::class, 'index']);
-        Route::get('/aduan-pending',            [ArahanKerjaController::class, 'pendingAduan']); // aduan belum ada AK
+        Route::get('/aduan-pending',            [ArahanKerjaController::class, 'pendingAduan']);
         Route::get('/kontraktor-list',          [ArahanKerjaController::class, 'getKontraktorList']);
         Route::get('/jabatan',                  [JabatanController::class, 'index']);
         Route::get('/arahan-kerja',             [ArahanKerjaController::class, 'index']);
         Route::put('/arahan-kerja/{id}',        [ArahanKerjaController::class, 'update']);
+        Route::post('/arahan-kerja/{id}/log',   [ArahanKerjaController::class, 'tambahLog']);
+        Route::put('/arahan-kerja/{id}/sahkan', [ArahanKerjaController::class, 'sahkan']);
         Route::put('/aduan/{id}/tugaskan',      [ArahanKerjaController::class, 'tugaskan']);
+        Route::get('/bajet',                    [BajetController::class, 'index']);
+        Route::get('/aduan-geo',                [AduanAdminController::class, 'getAduanGeo']);
     });
 
     // --------------------------------------------------------
@@ -74,5 +88,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/tugasan',                  [KontraktorController::class, 'getTugasan']);
         Route::put('/tugasan/{id}',             [KontraktorController::class, 'updateStatus']);
         Route::post('/tugasan/{id}/bukti',      [KontraktorController::class, 'uploadBukti']);
+        Route::post('/tugasan/{id}/log',        [KontraktorController::class, 'tambahLog']);
     });
 });

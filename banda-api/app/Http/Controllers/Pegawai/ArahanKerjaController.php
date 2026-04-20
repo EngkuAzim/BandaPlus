@@ -19,7 +19,7 @@ class ArahanKerjaController extends Controller
         $user = $request->user();
 
         $query = ArahanKerja::with([
-                'aduan:id_aduan,jenis_kerosakan,alamat_lokasi',
+                'aduan:id_aduan,jenis_kerosakan,alamat_lokasi,gambar_bukti,id_zon',
                 'kontraktor:id,name',
                 'jabatan:id_jabatan,nama_jabatan',
             ])
@@ -141,21 +141,74 @@ class ArahanKerjaController extends Controller
     }
 
     /**
-     * Update an arahan kerja (e.g. mark as complete from pegawai side).
-     * Route: PUT /api/pegawai/arahan-kerja/{id}
+     * Tambah log / komen dari Pegawai
+     * Route: POST /api/pegawai/arahan-kerja/{id}/log
      */
-    public function update(Request $request, string $id)
+    public function tambahLog(Request $request, string $id)
     {
         $request->validate([
-            'status_kerja'    => 'required|in:Dalam Proses,Selesai,Ditolak',
-            'nota_kontraktor' => 'nullable|string|max:1000',
+            'nota' => 'required|string|max:1000',
         ]);
 
         $arahan = ArahanKerja::where('id_arahan', $id)->firstOrFail();
-        $arahan->update($request->only('status_kerja', 'nota_kontraktor'));
+        $logs = $arahan->log_kemajuan ?? [];
+        
+        $logs[] = [
+            'tarikh' => now()->toIso8601String(),
+            'nota'   => $request->nota,
+            'role'   => 'pegawai'
+        ];
+
+        $arahan->update(['log_kemajuan' => $logs]);
 
         return response()->json([
-            'message' => 'Arahan kerja dikemaskini.',
+            'message' => 'Komen berjaya ditambah.',
+            'log_kemajuan' => $logs
+        ]);
+    }
+
+    /**
+     * Sahkan kerja oleh Pegawai (Validation workflow)
+     * Route: PUT /api/pegawai/arahan-kerja/{id}/sahkan
+     */
+    public function sahkan(Request $request, string $id)
+    {
+        $request->validate([
+            'lawatan_tapak' => 'required|boolean',
+            'spesifikasi'   => 'required|boolean',
+            'catatan'       => 'nullable|string|max:1000',
+        ]);
+
+        if (!$request->lawatan_tapak && !$request->spesifikasi) {
+            return response()->json(['message' => 'Sila buat pengesahan sebelum menutup kes.'], 400);
+        }
+
+        $arahan = ArahanKerja::where('id_arahan', $id)->firstOrFail();
+        
+        // Log pengesahan
+        $logs = $arahan->log_kemajuan ?? [];
+        $notaPengesahan = "Kerja telah disemak dan DISAHKAN oleh Pegawai.";
+        if ($request->catatan) {
+            $notaPengesahan .= " Catatan: " . $request->catatan;
+        }
+
+        $logs[] = [
+            'tarikh' => now()->toIso8601String(),
+            'nota'   => $notaPengesahan,
+            'role'   => 'pegawai',
+            'tindakan' => 'pengesahan'
+        ];
+
+        $arahan->update([
+            'status_kerja' => 'Disahkan',
+            'log_kemajuan' => $logs
+        ]);
+
+        // Tutup Aduan Induk
+        $arahan->aduan()->update(['status' => 'Selesai']);
+
+        return response()->json([
+            'message' => 'Kerja pembaikan telah disahkan dan aduan ditutup.',
             'arahan'  => $arahan
         ]);
     }

@@ -13,6 +13,10 @@ import UrusPengguna from './UrusPengguna';
 import PetaKluster from './PetaKluster';
 import TetapanSistem from './TetapanSistem';
 import ArahanKerja from './ArahanKerja';
+import LogBajet from './LogBajet';
+import LaporanTugasan from './LaporanTugasan';
+import LaporanPrestasi from './LaporanPrestasi';
+import SenaraiPembaikan from './SenaraiPembaikan';
 
 function App() {
   return (
@@ -35,6 +39,10 @@ function App() {
         <Route path="/peta-kluster" element={<PetaKluster />} />
         <Route path="/tetapan" element={<TetapanSistem />} />
         <Route path="/arahan-kerja" element={<ArahanKerja />} />
+        <Route path="/laporan-prestasi" element={<LaporanPrestasi />} />
+        <Route path="/laporan-tugasan" element={<LaporanTugasan />} />
+        <Route path="/bajet" element={<LogBajet />} />
+        <Route path="/pembaikan" element={<SenaraiPembaikan />} />
       </Routes>
     </>
   );
