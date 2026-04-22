@@ -3,7 +3,7 @@ import axios from 'axios';
 import { motion } from 'framer-motion';
 import {
   Wallet, TrendingDown, CheckCircle2, Wrench,
-  Loader2, Building2, Receipt, AlertTriangle, ArrowDownLeft
+  Loader2, Building2, Receipt, AlertTriangle, ArrowDownLeft, BrainCircuit
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Sidebar from './Sidebar';
@@ -44,10 +44,11 @@ export default function LogBajet() {
   const [loading,   setLoading]   = useState(true);
 
   useEffect(() => {
-    const fetchAll = async () => {
+    const fetchAll = async (isInitial = true) => {
       const token = localStorage.getItem('token');
       const h = { Authorization: `Bearer ${token}` };
       try {
+        if (isInitial) setLoading(true);
         const [userRes, bajetRes] = await Promise.all([
           axios.get('http://localhost:8000/api/user',         { headers: h }),
           axios.get('http://localhost:8000/api/pegawai/bajet',{ headers: h }),
@@ -55,12 +56,14 @@ export default function LogBajet() {
         setUserData(userRes.data);
         setData(bajetRes.data);
       } catch (err) {
-        toast.error('Gagal memuatkan data bajet.');
+        console.error("Ralat memuatkan data bajet:", err);
       } finally {
-        setLoading(false);
+        if (isInitial) setLoading(false);
       }
     };
-    fetchAll();
+    fetchAll(true);
+    const interval = setInterval(() => fetchAll(false), 10000);
+    return () => clearInterval(interval);
   }, []);
 
   if (loading) {
@@ -194,7 +197,7 @@ export default function LogBajet() {
             </motion.div>
 
             {/* ── Stat Cards ── */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-5 mb-8">
               <StatCard
                 icon={Receipt} label="Jumlah Kerja" value={ringkasan.bilangan_kerja}
                 sub="arahan kerja dikeluarkan"
@@ -214,6 +217,11 @@ export default function LogBajet() {
                 icon={TrendingDown} label="Perbelanjaan" value={`RM ${fmt(ringkasan.jumlah_dibelanjakan)}`}
                 sub={`baki RM ${fmt(jabatan.baki_semasa)}`}
                 color="text-rose-600" bg="bg-rose-50" border="border-rose-100"
+              />
+              <StatCard
+                icon={BrainCircuit} label="Penjimatan AI" value={`RM ${fmt(ringkasan.jumlah_penjimatan)}`}
+                sub="kos dielakkan dari kluster"
+                color="text-purple-600" bg="bg-purple-50" border="border-purple-100"
               />
             </div>
 
@@ -244,6 +252,7 @@ export default function LogBajet() {
                         <th className="px-6 py-4">Jenis Kerja</th>
                         <th className="px-6 py-4">Kontraktor</th>
                         <th className="px-6 py-4 text-right">Kos Anggaran (RM)</th>
+                        <th className="px-6 py-4 text-right">Penjimatan Kluster (RM)</th>
                         <th className="px-6 py-4 text-center">Status</th>
                       </tr>
                     </thead>
@@ -267,6 +276,10 @@ export default function LogBajet() {
                           <td className="px-6 py-4 text-right font-black text-slate-800">
                             RM {fmt(t.kos_anggaran)}
                           </td>
+                          <td className="px-6 py-4 text-right font-bold text-purple-600">
+                            {t.penjimatan_ai > 0 ? `+ RM ${fmt(t.penjimatan_ai)}` : '-'}
+                            {t.anak_aduan_count > 0 && <p className="text-[10px] text-purple-400 font-medium">({t.anak_aduan_count} kluster)</p>}
+                          </td>
                           <td className="px-6 py-4 text-center">
                             <span className={`px-3 py-1 rounded-full text-xs font-bold border ${statusStyle[t.status_kerja] || 'bg-slate-50 text-slate-600 border-slate-200'}`}>
                               {t.status_kerja}
@@ -283,6 +296,9 @@ export default function LogBajet() {
                         </td>
                         <td className="px-6 py-4 text-right font-black text-slate-900 text-base">
                           RM {fmt(ringkasan.jumlah_dibelanjakan)}
+                        </td>
+                        <td className="px-6 py-4 text-right font-black text-purple-600 text-base">
+                          RM {fmt(ringkasan.jumlah_penjimatan)}
                         </td>
                         <td />
                       </tr>

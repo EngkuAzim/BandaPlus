@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Filter, X, Save, Loader2, MapPin, Building2, BrainCircuit } from 'lucide-react';
+import { Search, Filter, X, Save, Loader2, MapPin, Building2, BrainCircuit, Layers, ChevronDown, ChevronUp } from 'lucide-react';
 import { toast } from 'sonner';
 import Sidebar from './Sidebar';
 
@@ -23,13 +23,15 @@ function UrusAduan() {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('Semua');
+  const [expandedCluster, setExpandedCluster] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) { navigate('/login'); return; }
 
-    const fetchData = async () => {
+    const fetchData = async (isInitial = true) => {
       try {
+        if (isInitial) setIsLoading(true);
         const userRes = await axios.get('http://localhost:8000/api/user', { headers: { Authorization: `Bearer ${token}` } });
         setUserData(userRes.data);
 
@@ -40,13 +42,19 @@ function UrusAduan() {
 
         const aduanRes = await axios.get('http://localhost:8000/api/admin/aduan', { headers: { Authorization: `Bearer ${token}` } });
         setAduans(aduanRes.data);
+        setSelectedAduan(prev => {
+          if (prev) return aduanRes.data.find(a => a.id_aduan === prev.id_aduan) || prev;
+          return prev;
+        });
       } catch (error) {
-        toast.error('Gagal memuat turun data aduan.');
+        console.error("Ralat menarik data:", error);
       } finally {
-        setIsLoading(false);
+        if (isInitial) setIsLoading(false);
       }
     };
-    fetchData();
+    fetchData(true);
+    const interval = setInterval(() => fetchData(false), 10000);
+    return () => clearInterval(interval);
   }, [navigate]);
 
   const handleOpenModal = (aduan) => {
@@ -77,7 +85,10 @@ function UrusAduan() {
     }
   };
 
-  const filteredAduans = aduans.filter(aduan => {
+  // Filter parents first
+  const parentAduans = aduans.filter(aduan => !aduan.id_aduan_induk);
+
+  const filteredAduans = parentAduans.filter(aduan => {
     const matchesSearch = aduan.id_aduan.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           (aduan.pengguna?.name && aduan.pengguna.name.toLowerCase().includes(searchTerm.toLowerCase()));
     const matchesStatus = filterStatus === 'Semua' || aduan.status === filterStatus;
@@ -123,37 +134,103 @@ function UrusAduan() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {filteredAduans.map(aduan => (
-                    <tr key={aduan.id_aduan} className="hover:bg-slate-50 transition-colors">
-                      <td className="p-5 font-mono text-sm font-bold text-teal-700">{aduan.id_aduan}</td>
-                      <td className="p-5">
-                        <p className="font-bold text-slate-900">{aduan.pengguna?.name}</p>
-                        <p className="text-xs text-slate-500">Zon: {aduan.id_zon || 'N/A'}</p>
-                      </td>
-                      <td className="p-5">
-                        <div className="flex items-center gap-2">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase ${
-                            aduan.label_prioriti === 'Tinggi' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600'
-                          }`}>
-                            {aduan.label_prioriti || 'Sederhana'}
-                          </span>
-                          <span className="text-xs font-bold text-slate-400">{aduan.skor_ai || '0'}% AI</span>
-                        </div>
-                      </td>
-                      <td className="p-5">
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                          aduan.status === 'Baru' ? 'bg-teal-100 text-teal-700' : 'bg-slate-100 text-slate-600'
-                        }`}>
-                          {aduan.status}
-                        </span>
-                      </td>
-                      <td className="p-5 text-right">
-                        <button onClick={() => handleOpenModal(aduan)} className="text-sm font-bold text-white bg-slate-900 px-4 py-2 rounded-xl hover:bg-teal-600 transition-all">
-                          Saring
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  {filteredAduans.map(aduan => {
+                    const hasCluster = aduan.anak_aduan_count > 0;
+                    const isExpanded = expandedCluster === aduan.id_aduan;
+                    
+                    return (
+                      <React.Fragment key={aduan.id_aduan}>
+                        <tr className="hover:bg-slate-50 transition-colors border-b border-slate-100">
+                          <td className="p-5">
+                            <div className="font-mono text-sm font-bold text-teal-700">{aduan.id_aduan}</div>
+                            {hasCluster && (
+                              <div className="flex items-center gap-1 text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded font-bold uppercase mt-1 w-max border border-purple-200">
+                                <Layers className="w-2.5 h-2.5" />
+                                {aduan.anak_aduan_count} Aduan Kluster
+                              </div>
+                            )}
+                          </td>
+                          <td className="p-5">
+                            <p className="font-bold text-slate-900">{aduan.pengguna?.name}</p>
+                            <p className="text-xs text-slate-500">Zon: {aduan.id_zon || 'N/A'}</p>
+                          </td>
+                          <td className="p-5">
+                            <div className="flex items-center gap-2">
+                              <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase ${
+                                aduan.label_prioriti === 'Tinggi' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600'
+                              }`}>
+                                {aduan.label_prioriti || 'Sederhana'}
+                              </span>
+                              <span className="text-xs font-bold text-slate-400">{aduan.skor_ai || '0'}% AI</span>
+                            </div>
+                          </td>
+                          <td className="p-5">
+                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                              aduan.status === 'Baru' ? 'bg-teal-100 text-teal-700' : 'bg-slate-100 text-slate-600'
+                            }`}>
+                              {aduan.status}
+                            </span>
+                          </td>
+                          <td className="p-5 text-right flex justify-end gap-2">
+                            {hasCluster && (
+                              <button
+                                onClick={() => setExpandedCluster(prev => prev === aduan.id_aduan ? null : aduan.id_aduan)}
+                                className={`flex items-center gap-1 text-xs font-bold px-3 py-2 rounded-xl transition-all ${
+                                  isExpanded ? 'bg-purple-600 text-white' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                                }`}
+                              >
+                                {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                                Kluster
+                              </button>
+                            )}
+                            <button onClick={() => handleOpenModal(aduan)} className="text-sm font-bold text-white bg-slate-900 px-4 py-2 rounded-xl hover:bg-teal-600 transition-all">
+                              Saring
+                            </button>
+                          </td>
+                        </tr>
+                        
+                        {/* Expandable Child Rows */}
+                        {hasCluster && isExpanded && (aduan.anak_aduan || []).map((anak, idx) => (
+                          <tr key={anak.id_aduan} className="bg-purple-50/50 border-b border-purple-100/50">
+                            <td className="p-5 pl-12">
+                              <div className="flex items-center gap-2">
+                                <div className="w-4 h-4 rounded-full bg-purple-200 text-purple-700 text-[9px] font-black flex items-center justify-center shrink-0">
+                                  {idx + 1}
+                                </div>
+                                <span className="font-mono text-xs font-bold text-purple-600">{anak.id_aduan}</span>
+                              </div>
+                            </td>
+                            <td className="p-5">
+                              <p className="font-bold text-slate-700">{anak.pengguna?.name || 'Pengguna Komuniti'}</p>
+                              <p className="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5 truncate max-w-[200px]">
+                                <MapPin className="w-2.5 h-2.5 shrink-0" />
+                                {anak.alamat_lokasi}
+                              </p>
+                            </td>
+                            <td className="p-5">
+                              <div className="flex items-center gap-2">
+                                <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-blue-100 text-blue-600">
+                                  {anak.label_prioriti || 'Sederhana'}
+                                </span>
+                              </div>
+                            </td>
+                            <td className="p-5">
+                              <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${
+                                anak.status === 'Baru' ? 'bg-teal-100 text-teal-700' : 'bg-slate-100 text-slate-600'
+                              }`}>
+                                {anak.status}
+                              </span>
+                            </td>
+                            <td className="p-5 text-right">
+                              <button onClick={() => handleOpenModal(anak)} className="text-xs font-bold text-slate-600 bg-white border border-slate-200 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-all">
+                                Saring Anak Aduan
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </React.Fragment>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

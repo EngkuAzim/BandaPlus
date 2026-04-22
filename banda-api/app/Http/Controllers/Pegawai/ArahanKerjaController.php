@@ -49,8 +49,13 @@ class ArahanKerjaController extends Controller
                 'id_aduan', 'id_jabatan', 'jenis_kerosakan',
                 'alamat_lokasi', 'gambar_bukti', 'status', 'tarikh_lapor'
             )
+            ->withCount('anakAduan')
+            ->with(['anakAduan' => function($q) {
+                $q->select('id_aduan', 'id_aduan_induk', 'jenis_kerosakan', 'alamat_lokasi', 'gambar_bukti', 'status', 'tarikh_lapor');
+            }])
             ->whereNotIn('id_aduan', $sudahAda)
-            ->whereIn('status', ['Baru', 'Dalam Tindakan'])  // aduan yang sedang aktif
+            ->whereIn('status', ['Baru', 'Dalam Tindakan'])
+            ->whereNull('id_aduan_induk') // Hanya aduan induk
             ->orderBy('tarikh_lapor', 'desc');
 
         // Scope to pegawai's jabatan only

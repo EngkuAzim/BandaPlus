@@ -27,33 +27,38 @@ function LaporanTugasan() {
   const [isSahkan, setIsSahkan] = useState(false);
 
   useEffect(() => {
-    fetchData();
+    fetchData(true);
+    const interval = setInterval(() => fetchData(false), 2000); // 2 saat untuk live-chat feeling
+    return () => clearInterval(interval);
   }, []);
 
-  const fetchData = async () => {
+  const fetchData = async (isInitial = true) => {
     try {
       const token = localStorage.getItem('token');
       
-      // Fetch user data
-      const userRes = await axios.get('http://localhost:8000/api/user', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setUserData(userRes.data);
+      if (isInitial) {
+        setIsLoading(true);
+        // Fetch user data ONLY on initial load to prevent server choking
+        const userRes = await axios.get('http://localhost:8000/api/user', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setUserData(userRes.data);
+      }
 
       // Fetch arahan kerja
-      const res = await axios.get('http://localhost:8000/api/pegawai/arahan-kerja', {
-        headers: { Authorization: `Bearer ${token}` }
+      const res = await axios.get(`http://localhost:8000/api/pegawai/arahan-kerja?t=${Date.now()}`, {
+        headers: { Authorization: `Bearer ${token}`, 'Cache-Control': 'no-cache' }
       });
       setTugasanList(res.data);
       
-      if (selectedTask) {
-        const updated = res.data.find(t => t.id_arahan === selectedTask.id_arahan);
-        if (updated) setSelectedTask(updated);
-      }
+      setSelectedTask(prev => {
+        if (prev) return res.data.find(t => t.id_arahan === prev.id_arahan) || prev;
+        return prev;
+      });
     } catch (error) {
-      toast.error('Gagal memuat turun data laporan.');
+      console.error('Gagal memuat turun data laporan.', error);
     } finally {
-      setIsLoading(false);
+      if (isInitial) setIsLoading(false);
     }
   };
 

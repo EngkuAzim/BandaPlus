@@ -11,7 +11,11 @@ import {
   AlertTriangle,
   TrendingUp,
   MoreVertical,
-  Wrench
+  Wrench,
+  Layers,
+  ChevronDown,
+  ChevronUp,
+  MapPin
 } from 'lucide-react';
 
 function PegawaiDashboard({ userData }) {
@@ -19,6 +23,7 @@ function PegawaiDashboard({ userData }) {
   const [statsData, setStatsData] = useState(null);
   const [recentAduan, setRecentAduan] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [expandedCluster, setExpandedCluster] = useState(null);
 
   // Data Bajet dari DB atau Fallback Mokap
   const bajet = { 
@@ -28,8 +33,9 @@ function PegawaiDashboard({ userData }) {
   };
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
+    const fetchDashboardData = async (isInitial = true) => {
       try {
+        if (isInitial) setLoading(true);
         // Guna token dari localStorage (sesuaikan jika anda guna cara lain)
         const token = localStorage.getItem('token');
         const headers = { Authorization: `Bearer ${token}` };
@@ -41,16 +47,19 @@ function PegawaiDashboard({ userData }) {
         ]);
 
         setStatsData(statsRes.data);
-        // Ambil 5 aduan terbaru sahaja untuk jadual
-        setRecentAduan(aduanRes.data.slice(0, 5));
+        // Ambil 5 aduan terbaru (hanya aduan induk) untuk jadual
+        const parentOnly = aduanRes.data.filter(a => !a.id_aduan_induk);
+        setRecentAduan(parentOnly.slice(0, 5));
       } catch (error) {
         console.error("Ralat menarik data:", error);
       } finally {
-        setLoading(false);
+        if (isInitial) setLoading(false);
       }
     };
 
-    fetchDashboardData();
+    fetchDashboardData(true);
+    const interval = setInterval(() => fetchDashboardData(false), 10000);
+    return () => clearInterval(interval);
   }, []);
 
   const containerVariants = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } };
@@ -144,38 +153,90 @@ function PegawaiDashboard({ userData }) {
                   <th className="px-6 py-4 text-center">Tindakan</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
-                {recentAduan.map((aduan, i) => (
-                  <tr key={i} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-6 py-4 font-bold text-slate-700">{aduan.id_aduan}</td>
-                    <td className="px-6 py-4">
-                      <div className="flex flex-col">
-                        <span className="font-semibold text-slate-800">{aduan.jenis_kerosakan}</span>
-                        <span className="text-xs text-slate-500 truncate max-w-[200px]">{aduan.alamat_lokasi}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getStatusStyle(aduan.status)}`}>
-                        {aduan.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      {/* INI ADALAH BUTANG YANG DIKEMASKINI */}
-                      {aduan.status === 'Baru' || aduan.status === 'Dalam Tindakan' ? (
-                        <button 
-                          onClick={() => navigate('/arahan-kerja')}
-                          className="bg-slate-900 hover:bg-teal-600 text-white text-xs font-bold px-4 py-2 rounded-lg transition-all shadow-sm whitespace-nowrap"
-                        >
-                          Arahan Kerja
-                        </button>
-                      ) : (
-                        <button className="p-2 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-teal-600 transition-colors">
-                          <MoreVertical className="w-5 h-5" />
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
+              <tbody>
+                {recentAduan.map((aduan, i) => {
+                  const hasCluster = aduan.anak_aduan_count > 0;
+                  const isExpanded = expandedCluster === aduan.id_aduan;
+                  return (
+                    <React.Fragment key={i}>
+                      <tr className="hover:bg-slate-50 transition-colors border-b border-slate-100">
+                        <td className="px-6 py-4">
+                          <div className="font-bold text-slate-700">{aduan.id_aduan}</div>
+                          {hasCluster && (
+                            <div className="flex items-center gap-1 text-[9px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded font-bold uppercase mt-1 w-max border border-purple-200">
+                              <Layers className="w-2.5 h-2.5" />
+                              {aduan.anak_aduan_count} Aduan Kluster
+                            </div>
+                          )}
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex flex-col">
+                            <span className="font-semibold text-slate-800">{aduan.jenis_kerosakan}</span>
+                            <span className="text-xs text-slate-500 truncate max-w-[200px]">{aduan.alamat_lokasi}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getStatusStyle(aduan.status)}`}>
+                            {aduan.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          {hasCluster ? (
+                            <button
+                              onClick={() => setExpandedCluster(prev => prev === aduan.id_aduan ? null : aduan.id_aduan)}
+                              className={`flex items-center gap-1 mx-auto text-xs font-bold px-3 py-1.5 rounded-xl transition-all ${
+                                isExpanded ? 'bg-purple-600 text-white' : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                              }`}
+                            >
+                              {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                              Kluster
+                            </button>
+                          ) : aduan.status === 'Baru' || aduan.status === 'Dalam Tindakan' ? (
+                            <button 
+                              onClick={() => navigate('/arahan-kerja')}
+                              className="bg-slate-900 hover:bg-teal-600 text-white text-xs font-bold px-4 py-2 rounded-lg transition-all shadow-sm whitespace-nowrap"
+                            >
+                              Arahan Kerja
+                            </button>
+                          ) : (
+                            <button className="p-2 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-teal-600 transition-colors">
+                              <MoreVertical className="w-5 h-5" />
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                      {/* Expandable cluster rows */}
+                      {hasCluster && isExpanded && (aduan.anak_aduan || []).map((anak, idx) => (
+                        <tr key={anak.id_aduan} className="bg-purple-50 border-b border-purple-100">
+                          <td className="px-6 py-3 pl-10">
+                            <div className="flex items-center gap-2">
+                              <div className="w-4 h-4 rounded-full bg-purple-200 text-purple-700 text-[9px] font-black flex items-center justify-center shrink-0">
+                                {idx + 1}
+                              </div>
+                              <span className="font-mono text-[10px] font-bold text-purple-600">{anak.id_aduan}</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-3">
+                            <div className="flex flex-col">
+                              <span className="text-xs font-semibold text-slate-700">{anak.jenis_kerosakan}</span>
+                              <span className="text-[10px] text-slate-400 truncate max-w-[200px] flex items-center gap-1">
+                                <MapPin className="w-2.5 h-2.5 shrink-0" />{anak.alamat_lokasi}
+                              </span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-3">
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${getStatusStyle(anak.status)}`}>
+                              {anak.status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-3 text-center">
+                            <span className="text-[9px] text-purple-500 font-bold">Aduan Kluster</span>
+                          </td>
+                        </tr>
+                      ))}
+                    </React.Fragment>
+                  );
+                })}
                 {recentAduan.length === 0 && (
                   <tr>
                     <td colSpan="4" className="px-6 py-8 text-center text-slate-500">Tiada aduan direkodkan.</td>

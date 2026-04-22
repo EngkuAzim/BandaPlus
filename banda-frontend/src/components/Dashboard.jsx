@@ -23,26 +23,30 @@ function Dashboard() {
   }, []);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData = async (isInitial = true) => {
       const token = localStorage.getItem('token');
       if (!token) { navigate('/login'); return; }
 
       try {
-        const userRes = await axios.get('http://localhost:8000/api/user', { headers: { Authorization: `Bearer ${token}` } });
-        const user = userRes.data;
-        setUserData(user);
+        let user = userData;
+        if (isInitial || !user) {
+          if (isInitial) setIsLoading(true);
+          const userRes = await axios.get('http://localhost:8000/api/user', { headers: { Authorization: `Bearer ${token}` } });
+          user = userRes.data;
+          setUserData(user);
+        }
 
         // Pilih URL stats berdasarkan peranan — JANGAN guna /admin/* untuk pegawai
         let statsUrl;
         if (user.peranan === 'pentadbir') {
-          statsUrl = 'http://localhost:8000/api/admin/dashboard/stats';
+          statsUrl = `http://localhost:8000/api/admin/dashboard/stats?t=${Date.now()}`;
         } else if (user.peranan === 'pegawai') {
-          statsUrl = 'http://localhost:8000/api/pegawai/dashboard/stats';
+          statsUrl = `http://localhost:8000/api/pegawai/dashboard/stats?t=${Date.now()}`;
         } else {
-          statsUrl = 'http://localhost:8000/api/dashboard/stats';
+          statsUrl = `http://localhost:8000/api/dashboard/stats?t=${Date.now()}`;
         }
 
-        const statsRes = await axios.get(statsUrl, { headers: { Authorization: `Bearer ${token}` } });
+        const statsRes = await axios.get(statsUrl, { headers: { Authorization: `Bearer ${token}`, 'Cache-Control': 'no-cache' } });
         setStats(statsRes.data);
         
       } catch (error) {
@@ -54,11 +58,13 @@ function Dashboard() {
           console.error("Gagal mendapatkan data dashboard:", error);
         }
       } finally {
-        setIsLoading(false);
+        if (isInitial) setIsLoading(false);
       }
     };
     
-    fetchData();
+    fetchData(true);
+    const interval = setInterval(() => fetchData(false), 2000);
+    return () => clearInterval(interval);
   }, [navigate]);
 
   if (isLoading || !userData) {

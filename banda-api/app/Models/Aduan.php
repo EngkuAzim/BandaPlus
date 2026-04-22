@@ -49,4 +49,9 @@ class Aduan extends Model
     {
         return $this->belongsTo(Aduan::class, 'id_aduan_induk', 'id_aduan');
     }
+
+    public function anakAduan()
+    {
+        return $this->hasMany(Aduan::class, 'id_aduan_induk', 'id_aduan');
+    }
 }

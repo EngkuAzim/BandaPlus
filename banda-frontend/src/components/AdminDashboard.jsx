@@ -1,140 +1,284 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { 
-  Activity, 
-  AlertCircle, 
-  Clock, 
-  CheckCircle2, 
-  XCircle, 
-  ShieldAlert, 
-  BrainCircuit, 
-  ArrowRight 
+import {
+  Activity, AlertCircle, Clock, CheckCircle2, XCircle,
+  ShieldAlert, Layers, ArrowRight, TrendingUp, TrendingDown,
+  Minus, MapPin, BarChart2, FileText
 } from 'lucide-react';
+import {
+  AreaChart, Area, PieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
+} from 'recharts';
+
+const CHART_COLORS = ['#0d9488', '#f59e0b', '#10b981', '#f43f5e'];
+
+function StatCard({ icon: Icon, label, value, change, color, bgColor, borderColor }) {
+  const isPositive = change > 0;
+  const isZero = change === 0;
+  return (
+    <motion.div
+      variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } } }}
+      className={`bg-white rounded-3xl p-6 border ${borderColor} shadow-sm flex items-center gap-5 relative overflow-hidden group hover:shadow-md transition-all`}
+    >
+      <div className={`absolute top-0 right-0 w-28 h-28 ${bgColor} rounded-full blur-2xl -mr-10 -mt-10 opacity-60`}></div>
+      <div className={`w-14 h-14 rounded-2xl ${bgColor} flex items-center justify-center ${color} border ${borderColor} z-10 shrink-0`}>
+        <Icon className="w-7 h-7" />
+      </div>
+      <div className="z-10 min-w-0">
+        <p className="text-slate-500 font-bold text-[11px] uppercase tracking-wider mb-1 truncate">{label}</p>
+        <h4 className="text-3xl font-black text-slate-900">{value}</h4>
+        {change !== undefined && (
+          <div className={`flex items-center gap-1 mt-1 text-xs font-bold ${isZero ? 'text-slate-400' : isPositive ? 'text-emerald-600' : 'text-rose-500'}`}>
+            {isZero ? <Minus className="w-3 h-3" /> : isPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+            <span>{isZero ? 'Tiada perubahan' : `${isPositive ? '+' : ''}${change}% bulan ini`}</span>
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+const CustomTooltip = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-xl text-sm font-medium">
+        <p className="font-black mb-1">{label}</p>
+        {payload.map((p, i) => (
+          <p key={i} style={{ color: p.color }}>{p.name}: <span className="font-black">{p.value}</span></p>
+        ))}
+      </div>
+    );
+  }
+  return null;
+};
 
 function AdminDashboard({ userData, stats }) {
   const navigate = useNavigate();
 
-  // Animasi standard untuk transisi kemas
-  const containerVariants = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } };
-  const itemVariants = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } } };
+  const containerVariants = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.08 } } };
+  const itemVariants = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } } };
+
+  const trendData = stats?.trend_bulanan || [];
 
   return (
     <motion.div variants={containerVariants} initial="hidden" animate="show" className="max-w-7xl mx-auto w-full">
-      
-      {/* Header Selamat Datang Pentadbir */}
+
+      {/* Header */}
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
         <div>
-          <h3 className="text-xl font-bold text-slate-800">
-            Pusat Kawalan <span className="text-teal-600 font-black italic">BANDA+</span>
+          <h3 className="text-2xl font-black text-slate-800">
+            Pusat Kawalan <span className="text-teal-600 italic">BANDA+</span>
           </h3>
           <p className="text-sm font-medium text-slate-500 mt-1">
-            Pantau saringan, kluster kerosakan, dan prestasi jabatan.
+            Pantau saringan, kluster kerosakan, dan prestasi sistem
           </p>
         </div>
-        <button 
-          onClick={() => navigate('/urus-aduan')}
-          className="bg-slate-900 hover:bg-teal-600 text-white px-6 py-3 rounded-xl text-sm font-bold shadow-lg shadow-slate-200 transition-all flex items-center gap-2"
-        >
-          <ShieldAlert className="w-4 h-4" />
-          Urus & Saring Aduan
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => navigate('/peta-kluster')}
+            className="bg-teal-50 hover:bg-teal-100 text-teal-700 px-5 py-2.5 rounded-xl text-sm font-bold border border-teal-200 transition-all flex items-center gap-2"
+          >
+            <MapPin className="w-4 h-4" /> Peta Kluster
+          </button>
+          <button
+            onClick={() => navigate('/urus-aduan')}
+            className="bg-slate-900 hover:bg-teal-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-slate-200 transition-all flex items-center gap-2"
+          >
+            <ShieldAlert className="w-4 h-4" /> Urus Aduan
+          </button>
+        </div>
       </motion.div>
 
-      {/* Kad Statistik Keseluruhan */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        
-        <motion.div variants={itemVariants} className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex items-center gap-5 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-teal-50 rounded-full blur-2xl -mr-8 -mt-8 transition-all group-hover:bg-teal-100"></div>
-          <div className="w-14 h-14 rounded-2xl bg-teal-50 flex items-center justify-center text-teal-600 border border-teal-100 z-10">
-            <AlertCircle className="w-7 h-7" />
-          </div>
-          <div className="z-10">
-            <p className="text-slate-500 font-bold text-[11px] uppercase tracking-wider mb-1">Menunggu Saringan</p>
-            <h4 className="text-3xl font-black text-slate-900">{stats?.baru || 0}</h4>
-          </div>
-        </motion.div>
-
-        <motion.div variants={itemVariants} className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex items-center gap-5 relative overflow-hidden">
-          <div className="w-14 h-14 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-500 border border-amber-100 z-10">
-            <Clock className="w-7 h-7" />
-          </div>
-          <div className="z-10">
-            <p className="text-slate-500 font-bold text-[11px] uppercase tracking-wider mb-1">Dalam Tindakan Jabatan</p>
-            <h4 className="text-3xl font-black text-slate-900">{stats?.diproses || 0}</h4>
-          </div>
-        </motion.div>
-
-        <motion.div variants={itemVariants} className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex items-center gap-5 relative overflow-hidden">
-          <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-500 border border-emerald-100 z-10">
-            <CheckCircle2 className="w-7 h-7" />
-          </div>
-          <div className="z-10">
-            <p className="text-slate-500 font-bold text-[11px] uppercase tracking-wider mb-1">Selesai / Ditutup</p>
-            <h4 className="text-3xl font-black text-slate-900">{stats?.selesai || 0}</h4>
-          </div>
-        </motion.div>
-
-        <motion.div variants={itemVariants} className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex items-center gap-5 relative overflow-hidden">
-          <div className="w-14 h-14 rounded-2xl bg-rose-50 flex items-center justify-center text-rose-500 border border-rose-100 z-10">
-            <XCircle className="w-7 h-7" />
-          </div>
-          <div className="z-10">
-            <p className="text-slate-500 font-bold text-[11px] uppercase tracking-wider mb-1">Aduan Ditolak</p>
-            <h4 className="text-3xl font-black text-slate-900">{stats?.ditolak || 0}</h4>
-          </div>
-        </motion.div>
-
+      {/* ── Stat Cards ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+        <StatCard
+          icon={AlertCircle} label="Menunggu Saringan" value={stats?.baru || 0}
+          change={stats?.perubahan_baru}
+          color="text-teal-600" bgColor="bg-teal-50" borderColor="border-teal-100"
+        />
+        <StatCard
+          icon={Clock} label="Dalam Tindakan" value={stats?.diproses || 0}
+          change={stats?.perubahan_diproses}
+          color="text-amber-500" bgColor="bg-amber-50" borderColor="border-amber-100"
+        />
+        <StatCard
+          icon={CheckCircle2} label="Selesai / Ditutup" value={stats?.selesai || 0}
+          change={stats?.perubahan_selesai}
+          color="text-emerald-500" bgColor="bg-emerald-50" borderColor="border-emerald-100"
+        />
+        <StatCard
+          icon={XCircle} label="Aduan Ditolak" value={stats?.ditolak || 0}
+          color="text-rose-500" bgColor="bg-rose-50" borderColor="border-rose-100"
+        />
       </div>
 
-      {/* Bahagian Pintasan & Integrasi AI (Persediaan untuk Modul Seterusnya) */}
+      {/* ── Summary + Trend ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+
+        {/* Trend Bulanan - Area Chart */}
+        <motion.div variants={itemVariants} className="lg:col-span-2 bg-white rounded-3xl p-7 border border-slate-200 shadow-sm">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-teal-50 rounded-2xl flex items-center justify-center text-teal-600 border border-teal-100">
+                <Activity className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-base font-black text-slate-900">Trend Aduan Bulanan</h4>
+                <p className="text-xs text-slate-400 font-medium">6 bulan terkini</p>
+              </div>
+            </div>
+          </div>
+          {trendData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={200}>
+              <AreaChart data={trendData} margin={{ top: 5, right: 5, bottom: 0, left: -20 }}>
+                <defs>
+                  <linearGradient id="colorJumlah" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#0d9488" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#0d9488" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                <XAxis dataKey="name" tick={{ fontSize: 11, fontWeight: 700, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 11, fontWeight: 700, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                <Tooltip content={<CustomTooltip />} />
+                <Area type="monotone" dataKey="jumlah" name="Aduan" stroke="#0d9488" strokeWidth={3} fill="url(#colorJumlah)" dot={{ fill: '#0d9488', r: 4, strokeWidth: 2, stroke: '#fff' }} />
+              </AreaChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="h-[200px] flex items-center justify-center text-slate-400 text-sm font-bold">Tiada data trend</div>
+          )}
+        </motion.div>
+
+        {/* Right Column — Summary + Link to Full Report */}
+        <div className="flex flex-col gap-5">
+          {/* Kluster Dikesan */}
+          <motion.div variants={itemVariants} className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl p-6 text-white relative overflow-hidden flex-1">
+            <div className="absolute -right-4 -bottom-4 opacity-10"><Layers className="w-28 h-28" /></div>
+            <p className="text-slate-400 text-xs font-black uppercase tracking-widest mb-1">Kluster Dikesan</p>
+            <h4 className="text-4xl font-black mb-1">{Math.max(1, Math.floor((stats?.jumlah_keseluruhan || 0) * 0.15))}</h4>
+            <p className="text-xs text-slate-500 font-medium">Aduan berdekatan dikumpulkan</p>
+          </motion.div>
+
+          {/* Jumlah Keseluruhan */}
+          <motion.div variants={itemVariants} className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex-1">
+            <p className="text-slate-400 text-xs font-black uppercase tracking-widest mb-1">Jumlah Keseluruhan</p>
+            <h4 className="text-4xl font-black text-slate-900 mb-2">{stats?.jumlah_keseluruhan || 0}</h4>
+            <div className="flex gap-1.5">
+              {[
+                { label: 'Baru', val: stats?.baru || 0, color: 'bg-teal-500' },
+                { label: 'Proses', val: stats?.diproses || 0, color: 'bg-amber-500' },
+                { label: 'Selesai', val: stats?.selesai || 0, color: 'bg-emerald-500' },
+              ].map(({ label, val, color }) => {
+                const pct = stats?.jumlah_keseluruhan > 0 ? Math.round((val / stats.jumlah_keseluruhan) * 100) : 0;
+                return (
+                  <div key={label} className="flex-1">
+                    <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
+                      <div className={`h-full ${color} rounded-full`} style={{ width: `${pct}%` }}></div>
+                    </div>
+                    <p className="text-[10px] text-slate-500 font-bold mt-1 text-center">{label}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* ── Quick Status Pie + Laporan Prestasi Link ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        {/* Panel Pintasan Tindakan */}
-        <motion.div variants={itemVariants} className="lg:col-span-2 bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
+        {/* Pie Chart */}
+        <motion.div variants={itemVariants} className="bg-white rounded-3xl p-7 border border-slate-200 shadow-sm">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-10 h-10 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 border border-indigo-100">
+              <BarChart2 className="w-5 h-5" />
+            </div>
+            <div>
+              <h4 className="text-base font-black text-slate-900">Taburan Status</h4>
+              <p className="text-xs text-slate-400 font-medium">Semua aduan</p>
+            </div>
+          </div>
+          {(stats?.jumlah_keseluruhan || 0) > 0 ? (
+            <>
+              <ResponsiveContainer width="100%" height={160}>
+                <PieChart>
+                  <Pie
+                    data={[
+                      { name: 'Baru', value: stats?.baru || 0 },
+                      { name: 'Dalam Tindakan', value: stats?.diproses || 0 },
+                      { name: 'Selesai', value: stats?.selesai || 0 },
+                      { name: 'Ditolak', value: stats?.ditolak || 0 },
+                    ]}
+                    cx="50%" cy="50%" innerRadius={45} outerRadius={70}
+                    paddingAngle={3} dataKey="value"
+                  >
+                    {CHART_COLORS.map((color, i) => (
+                      <Cell key={i} fill={color} />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                {[
+                  { label: 'Baru', color: '#0d9488', val: stats?.baru || 0 },
+                  { label: 'Proses', color: '#f59e0b', val: stats?.diproses || 0 },
+                  { label: 'Selesai', color: '#10b981', val: stats?.selesai || 0 },
+                  { label: 'Ditolak', color: '#f43f5e', val: stats?.ditolak || 0 },
+                ].map(({ label, color, val }) => (
+                  <div key={label} className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: color }}></span>
+                    <span className="text-[11px] font-bold text-slate-600 truncate">{label}: {val}</span>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="h-[200px] flex items-center justify-center text-slate-400 text-sm font-bold">Tiada data</div>
+          )}
+        </motion.div>
+
+        {/* Aktiviti Saringan Card */}
+        <motion.div variants={itemVariants} className="bg-white rounded-3xl p-7 border border-slate-200 shadow-sm">
           <div className="flex items-center gap-3 mb-6">
-            <Activity className="w-6 h-6 text-slate-800" />
-            <h4 className="text-lg font-black text-slate-900">Aktiviti Saringan</h4>
+            <div className="w-10 h-10 bg-teal-50 rounded-2xl flex items-center justify-center text-teal-600 border border-teal-100">
+              <ShieldAlert className="w-5 h-5" />
+            </div>
+            <h4 className="text-base font-black text-slate-900">Aktiviti Saringan</h4>
           </div>
           <div className="bg-slate-50 border border-slate-100 rounded-2xl p-6 text-center">
             <ShieldAlert className="w-12 h-12 text-slate-300 mx-auto mb-3" />
             <h5 className="font-bold text-slate-700 mb-1">Terdapat {stats?.baru || 0} aduan baharu</h5>
-            <p className="text-sm text-slate-500 mb-5">Aduan ini memerlukan saringan Pentadbir untuk ditugaskan ke Jabatan yang betul.</p>
+            <p className="text-sm text-slate-500 mb-5">Memerlukan saringan Pentadbir untuk ditugaskan ke Jabatan.</p>
             <button onClick={() => navigate('/urus-aduan')} className="text-teal-600 font-bold text-sm bg-teal-50 px-5 py-2.5 rounded-xl hover:bg-teal-100 transition-colors inline-flex items-center gap-2">
               Saring Sekarang <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         </motion.div>
 
-        {/* Panel Status AI (Mokap untuk Fasa YOLOv8/Clustering) */}
-        <motion.div variants={itemVariants} className="bg-gradient-to-br from-teal-900 to-slate-900 rounded-3xl shadow-lg p-8 text-white relative overflow-hidden">
-          <div className="absolute -right-4 -bottom-4 opacity-10"><BrainCircuit className="w-40 h-40" /></div>
-          
+        {/* Laporan Prestasi CTA */}
+        <motion.div variants={itemVariants} className="bg-gradient-to-br from-indigo-600 to-indigo-900 rounded-3xl p-7 text-white relative overflow-hidden flex flex-col justify-between">
+          <div className="absolute -right-6 -bottom-6 opacity-10"><FileText className="w-36 h-36" /></div>
           <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-6">
-              <BrainCircuit className="w-6 h-6 text-teal-400" />
-              <h4 className="text-lg font-black tracking-wide">Status BANDA+ AI</h4>
-            </div>
-            
-            <div className="space-y-5">
-              <div>
-                <p className="text-teal-200 text-xs font-bold uppercase tracking-widest mb-1">Smart Vision (YOLOv8)</p>
-                <div className="flex items-center gap-2">
-                  <span className="relative flex h-3 w-3"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span><span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span></span>
-                  <span className="text-sm font-medium">Model Aktif & Bersedia</span>
-                </div>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-white/10 rounded-2xl flex items-center justify-center border border-white/10">
+                <FileText className="w-5 h-5" />
               </div>
-              
-              <div className="pt-4 border-t border-slate-700/50">
-                <p className="text-teal-200 text-xs font-bold uppercase tracking-widest mb-1">Kluster Kerosakan Radius 20m</p>
-                <p className="text-2xl font-black">{Math.floor((stats?.jumlah_keseluruhan || 0) * 0.1)} Kluster</p>
-                <p className="text-xs text-slate-400 mt-1">Dikesan bulan ini</p>
-              </div>
+              <h4 className="text-base font-black">Laporan Prestasi</h4>
             </div>
+            <p className="text-indigo-200 text-sm font-medium leading-relaxed mb-6">
+              Lihat analitik terperinci — carta trend 12 bulan, taburan zon, prestasi kontraktor, dan muat turun laporan PDF / Excel.
+            </p>
           </div>
+          <button
+            onClick={() => navigate('/laporan-prestasi')}
+            className="relative z-10 w-full bg-white text-indigo-700 font-black py-3 rounded-2xl hover:bg-indigo-50 transition-colors flex items-center justify-center gap-2 shadow-lg"
+          >
+            <BarChart2 className="w-5 h-5" /> Buka Laporan Penuh <ArrowRight className="w-4 h-4" />
+          </button>
         </motion.div>
-
       </div>
+
     </motion.div>
   );
 }

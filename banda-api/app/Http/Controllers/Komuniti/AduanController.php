@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Services\PriorityScoreService;
 use App\Services\JabatanMappingService;
+use App\Services\ClusteringService;
 
 class AduanController extends Controller
 {
@@ -52,6 +53,17 @@ class AduanController extends Controller
         $jabatanService = new JabatanMappingService();
         $suggestedJabatan = $jabatanService->suggest($request->jenis_kerosakan);
 
+        // Check for spatial clustering (Radius 20m)
+        $clusteringService = new ClusteringService();
+        $id_aduan_induk = null;
+        if ($lat && $lng) {
+            $id_aduan_induk = $clusteringService->findParentCluster(
+                (float) $lat, 
+                (float) $lng, 
+                $request->jenis_kerosakan
+            );
+        }
+
         $aduan = Aduan::create([
             'id_aduan'         => $id_aduan,
             'id_pengguna'      => $request->user()->id,
@@ -65,6 +77,7 @@ class AduanController extends Controller
             'status'           => 'Baru',
             'skor_ai'          => $priorityResult['skor'],
             'label_prioriti'   => $priorityResult['label'],
+            'id_aduan_induk'   => $id_aduan_induk,
         ]);
 
         return response()->json([

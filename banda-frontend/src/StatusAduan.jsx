@@ -21,26 +21,32 @@ function StatusAduan() {
       return;
     }
 
-    const fetchData = async () => {
+    const fetchData = async (isInitial = true) => {
       try {
+        if (isInitial) setIsLoading(true);
         const [userRes, aduanRes] = await Promise.all([
           axios.get('http://localhost:8000/api/user', { headers: { Authorization: `Bearer ${token}` } }),
           axios.get('http://localhost:8000/api/aduan', { headers: { Authorization: `Bearer ${token}` } })
         ]);
         setUserData(userRes.data);
         setAduans(aduanRes.data);
-        setIsLoading(false);
+        setSelectedAduan(prev => {
+          if (prev) return aduanRes.data.find(a => a.id_aduan === prev.id_aduan) || prev;
+          return prev;
+        });
       } catch (error) {
         console.error("API Error:", error);
         // Only navigate to login if it's an actual 401 Unauthorized error
         if (error.response && error.response.status === 401) {
           navigate('/login');
-        } else {
-          setIsLoading(false); // Stop loading so user sees an empty list instead of crashing
         }
+      } finally {
+        if (isInitial) setIsLoading(false);
       }
     };
-    fetchData();
+    fetchData(true);
+    const interval = setInterval(() => fetchData(false), 10000);
+    return () => clearInterval(interval);
   }, [navigate]);
 
   const getStatusBadge = (status) => {

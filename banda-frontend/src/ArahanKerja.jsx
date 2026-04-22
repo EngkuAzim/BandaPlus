@@ -4,7 +4,8 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Building2, HardHat, Calendar, FileText, Save, 
-  Loader2, MapPin, Search, Filter, CheckCircle2, Clock, Wallet, AlertTriangle
+  Loader2, MapPin, CheckCircle2, Clock, Wallet, AlertTriangle,
+  ChevronDown, ChevronUp, Layers, Users
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Sidebar from './Sidebar';
@@ -16,11 +17,9 @@ function ArahanKerja() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedAduan, setSelectedAduan] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [expandedCluster, setExpandedCluster] = useState(null); // which cluster is expanded
 
-  // Senarai kontraktor dari pangkalan data
   const [senaraiKontraktor, setSenaraiKontraktor] = useState([]);
-
-  // Form untuk melantik kontraktor
   const [form, setForm] = useState({
     id_kontraktor: '',
     tarikh_jangkaan_siap: '',
@@ -29,31 +28,42 @@ function ArahanKerja() {
   });
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData = async (isInitial = true) => {
       try {
+        if (isInitial) setIsLoading(true);
         const token = localStorage.getItem('token');
         const [userRes, aduanRes, kontraktorRes] = await Promise.all([
           axios.get('http://localhost:8000/api/user', { headers: { Authorization: `Bearer ${token}` } }),
-          // Guna /aduan-pending: aduan dari jabatan pegawai ini yang BELUM ada arahan kerja
           axios.get('http://localhost:8000/api/pegawai/aduan-pending', { headers: { Authorization: `Bearer ${token}` } }),
           axios.get('http://localhost:8000/api/pegawai/kontraktor-list', { headers: { Authorization: `Bearer ${token}` } })
         ]);
-
         setUserData(userRes.data);
         setAduans(aduanRes.data);
         setSenaraiKontraktor(kontraktorRes.data);
+        
+        setSelectedAduan(prev => {
+          if (prev) return aduanRes.data.find(a => a.id_aduan === prev.id_aduan) || prev;
+          return prev;
+        });
       } catch (error) {
-        toast.error('Gagal memuatkan data aduan.');
+        console.error("Ralat menarik data:", error);
       } finally {
-        setIsLoading(false);
+        if (isInitial) setIsLoading(false);
       }
     };
-    fetchData();
+    fetchData(true);
+    const interval = setInterval(() => fetchData(false), 10000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleSelectAduan = (aduan) => {
     setSelectedAduan(aduan);
     setForm({ id_kontraktor: '', tarikh_jangkaan_siap: '', nota_pegawai: '', kos_anggaran: '' });
+  };
+
+  const handleToggleCluster = (e, id_aduan) => {
+    e.stopPropagation(); // Don't trigger card click
+    setExpandedCluster(prev => prev === id_aduan ? null : id_aduan);
   };
 
   const handleSubmit = async (e) => {
@@ -64,15 +74,11 @@ function ArahanKerja() {
       await axios.put(`http://localhost:8000/api/pegawai/aduan/${selectedAduan.id_aduan}/tugaskan`, form, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      
       toast.success('Arahan Kerja Dikeluarkan!', { description: `Kontraktor telah dilantik untuk ${selectedAduan.id_aduan}.` });
-      // Buang aduan yang sudah dilantik dari senarai
       setAduans(aduans.filter(a => a.id_aduan !== selectedAduan.id_aduan));
       setSelectedAduan(null);
     } catch (error) {
-      toast.error('Ralat', { 
-        description: error.response?.data?.message || 'Gagal menghantar arahan kerja.' 
-      });
+      toast.error('Ralat', { description: error.response?.data?.message || 'Gagal menghantar arahan kerja.' });
     } finally {
       setIsSaving(false);
     }
@@ -102,8 +108,8 @@ function ArahanKerja() {
 
         <main className="flex-1 overflow-auto p-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
           
-          {/* SEBELAH KIRI: SENARAI ADUAN */}
-          <div className="space-y-6">
+          {/* LEFT: ADUAN LIST */}
+          <div className="space-y-6 overflow-y-auto pr-1">
             <h4 className="text-sm font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
               <Clock className="w-4 h-4" /> Aduan Menunggu Penugasan ({aduans.length})
             </h4>
@@ -112,32 +118,128 @@ function ArahanKerja() {
               <div className="flex justify-center py-20"><Loader2 className="w-10 h-10 animate-spin text-teal-600" /></div>
             ) : (
               <div className="space-y-4">
-                {aduans.map(aduan => (
-                  <motion.div 
-                    key={aduan.id_aduan}
-                    whileHover={{ scale: 1.01 }}
-                    onClick={() => handleSelectAduan(aduan)}
-                    className={`p-6 rounded-3xl border-2 transition-all cursor-pointer shadow-sm ${
-                      selectedAduan?.id_aduan === aduan.id_aduan 
-                      ? 'bg-white border-teal-500 ring-4 ring-teal-50' 
-                      : 'bg-white border-slate-100 hover:border-teal-200'
-                    }`}
-                  >
-                    <div className="flex justify-between items-start mb-3">
-                      <span className="font-mono text-xs font-black text-teal-600">{aduan.id_aduan}</span>
-                      <span className="px-2 py-1 bg-amber-100 text-amber-700 text-[10px] font-black rounded uppercase">Tindakan Pegawai</span>
-                    </div>
-                    <h5 className="font-bold text-slate-800 text-lg mb-1">{aduan.jenis_kerosakan}</h5>
-                    <div className="flex items-center gap-2 text-slate-500 mb-4">
-                      <MapPin className="w-3 h-3" />
-                      <span className="text-xs font-medium truncate">{aduan.alamat_lokasi}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Dilaporkan pada: {new Date(aduan.tarikh_lapor).toLocaleDateString()}</p>
-                      <span className="text-teal-600 font-black text-xs flex items-center gap-1">Lantik Kontraktor →</span>
-                    </div>
-                  </motion.div>
-                ))}
+                {aduans.map(aduan => {
+                  const hasCluster = aduan.anak_aduan_count > 0;
+                  const isExpanded = expandedCluster === aduan.id_aduan;
+                  const isSelected = selectedAduan?.id_aduan === aduan.id_aduan;
+
+                  return (
+                    <motion.div
+                      key={aduan.id_aduan}
+                      layout
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={`rounded-3xl border-2 transition-all shadow-sm overflow-hidden ${
+                        isSelected 
+                        ? 'border-teal-500 ring-4 ring-teal-50' 
+                        : 'border-slate-100 hover:border-teal-200'
+                      } bg-white`}
+                    >
+                      {/* Main card — click to select for assignment */}
+                      <div
+                        className="p-6 cursor-pointer"
+                        onClick={() => handleSelectAduan(aduan)}
+                      >
+                        <div className="flex justify-between items-start mb-3">
+                          <span className="font-mono text-xs font-black text-teal-600">{aduan.id_aduan}</span>
+                          <span className="px-2 py-1 bg-amber-100 text-amber-700 text-[10px] font-black rounded uppercase">Tindakan Pegawai</span>
+                        </div>
+
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <h5 className="font-bold text-slate-800 text-lg">{aduan.jenis_kerosakan}</h5>
+                          {hasCluster && (
+                            <span className="flex items-center gap-1 px-2 py-0.5 bg-purple-100 text-purple-700 text-[10px] font-bold rounded-full border border-purple-200 whitespace-nowrap">
+                              <Layers className="w-3 h-3" />
+                              {aduan.anak_aduan_count} Aduan dalam Kluster
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-2 text-slate-500 mb-4">
+                          <MapPin className="w-3 h-3 shrink-0" />
+                          <span className="text-xs font-medium truncate">{aduan.alamat_lokasi}</span>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">
+                            Dilaporkan: {new Date(aduan.tarikh_lapor).toLocaleDateString('ms-MY')}
+                          </p>
+                          {hasCluster ? (
+                            // Cluster expand toggle button
+                            <button
+                              onClick={(e) => handleToggleCluster(e, aduan.id_aduan)}
+                              className={`flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-xl transition-all ${
+                                isExpanded 
+                                ? 'bg-purple-600 text-white' 
+                                : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
+                              }`}
+                            >
+                              {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                              {isExpanded ? 'Tutup Kluster' : 'Lihat Kluster'}
+                            </button>
+                          ) : (
+                            <span className="text-teal-600 font-black text-xs flex items-center gap-1">Lantik Kontraktor →</span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Expandable cluster panel */}
+                      <AnimatePresence>
+                        {hasCluster && isExpanded && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.25, ease: 'easeInOut' }}
+                            className="overflow-hidden"
+                          >
+                            <div className="mx-4 mb-4 rounded-2xl border border-purple-100 bg-purple-50 overflow-hidden">
+                              {/* Cluster header */}
+                              <div className="px-4 py-3 bg-purple-100 flex items-center gap-2 border-b border-purple-200">
+                                <Users className="w-4 h-4 text-purple-600" />
+                                <span className="text-xs font-black text-purple-700 uppercase tracking-wider">
+                                  {aduan.anak_aduan_count} Aduan Kluster dalam Radius 20m
+                                </span>
+                              </div>
+                              {/* Child aduan list */}
+                              <div className="divide-y divide-purple-100">
+                                {(aduan.anak_aduan || []).map((anak, idx) => (
+                                  <div key={anak.id_aduan} className="px-4 py-3 flex items-start gap-3">
+                                    <div className="w-5 h-5 rounded-full bg-purple-200 text-purple-700 text-[10px] font-black flex items-center justify-center shrink-0 mt-0.5">
+                                      {idx + 1}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-center gap-2 mb-0.5">
+                                        <span className="font-mono text-[10px] font-bold text-purple-600">{anak.id_aduan}</span>
+                                        <span className={`px-1.5 py-0.5 text-[9px] font-bold rounded-full ${
+                                          anak.status === 'Baru' ? 'bg-blue-100 text-blue-600' : 'bg-amber-100 text-amber-600'
+                                        }`}>{anak.status}</span>
+                                      </div>
+                                      <p className="text-xs font-semibold text-slate-700">{anak.jenis_kerosakan}</p>
+                                      <p className="text-[10px] text-slate-400 truncate flex items-center gap-1 mt-0.5">
+                                        <MapPin className="w-2.5 h-2.5 shrink-0" />
+                                        {anak.alamat_lokasi}
+                                      </p>
+                                      <p className="text-[9px] text-slate-400 mt-0.5">
+                                        {new Date(anak.tarikh_lapor).toLocaleDateString('ms-MY')}
+                                      </p>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                              {/* Note */}
+                              <div className="px-4 py-2.5 bg-purple-100/60 border-t border-purple-200">
+                                <p className="text-[9px] text-purple-600 font-bold">
+                                  ℹ️ Satu Arahan Kerja akan menyelesaikan semua {1 + aduan.anak_aduan_count} aduan dalam kluster ini.
+                                </p>
+                              </div>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </motion.div>
+                  );
+                })}
                 {aduans.length === 0 && (
                   <div className="bg-white rounded-3xl p-12 text-center border border-slate-200 border-dashed">
                     <p className="text-slate-400 font-medium">Tiada aduan menunggu penugasan buat masa ini.</p>
@@ -147,7 +249,7 @@ function ArahanKerja() {
             )}
           </div>
 
-          {/* SEBELAH KANAN: BORANG LANTIKAN */}
+          {/* RIGHT: ASSIGNMENT FORM */}
           <div className="relative">
             <AnimatePresence mode="wait">
               {selectedAduan ? (
@@ -159,7 +261,7 @@ function ArahanKerja() {
                   className="sticky top-0 space-y-6"
                 >
                   <div className="bg-white rounded-[40px] border border-slate-200 shadow-xl overflow-hidden">
-                    {/* Preview Gambar */}
+                    {/* Image preview */}
                     <div className="h-48 bg-slate-100 relative">
                       <img 
                         src={`http://localhost:8000/storage/${selectedAduan.gambar_bukti}`} 
@@ -170,6 +272,12 @@ function ArahanKerja() {
                       <div className="absolute bottom-6 left-8">
                         <h3 className="text-white font-black text-xl leading-none">{selectedAduan.id_aduan}</h3>
                         <p className="text-teal-300 text-xs font-bold mt-1 uppercase tracking-widest">{selectedAduan.jenis_kerosakan}</p>
+                        {selectedAduan.anak_aduan_count > 0 && (
+                          <span className="mt-2 inline-flex items-center gap-1 px-2 py-1 bg-purple-600/80 text-white text-[10px] font-bold rounded-lg">
+                            <Layers className="w-3 h-3" />
+                            Kluster: {1 + selectedAduan.anak_aduan_count} aduan berkaitan
+                          </span>
+                        )}
                       </div>
                     </div>
 
@@ -217,7 +325,7 @@ function ArahanKerja() {
                         />
                       </div>
 
-                      {/* Paparan Kalkulator Bajet Automatik */}
+                      {/* Budget calculator */}
                       <div className={`p-5 rounded-2xl border-2 transition-all ${isOverBudget ? 'bg-rose-50 border-rose-200' : 'bg-slate-50 border-slate-200'}`}>
                         <div className="flex items-center gap-3 mb-3">
                           <Wallet className={`w-5 h-5 ${isOverBudget ? 'text-rose-500' : 'text-slate-400'}`} />

@@ -89,7 +89,9 @@ function SenaraiPembaikan() {
   const hasAccepted = selectedTask?.log_kemajuan?.some(log => log.nota.includes('Kerja telah diterima'));
 
   useEffect(() => {
-    fetchData();
+    fetchData(true);
+    const interval = setInterval(() => fetchData(false), 2000); // 2 saat untuk live-chat feeling
+
     // Initialize Speech Recognition
     if (SpeechRecognition) {
       const recognition = new SpeechRecognition();
@@ -120,27 +122,33 @@ function SenaraiPembaikan() {
 
       recognitionRef.current = recognition;
     }
+
+    return () => clearInterval(interval);
   }, []);
 
-  const fetchData = async () => {
+  const fetchData = async (isInitial = true) => {
     try {
       const token = localStorage.getItem('token');
-      const [userRes, tugasanRes] = await Promise.all([
-        axios.get('http://localhost:8000/api/user', { headers: { Authorization: `Bearer ${token}` } }),
-        axios.get('http://localhost:8000/api/kontraktor/tugasan', { headers: { Authorization: `Bearer ${token}` } })
-      ]);
-      setUserData(userRes.data);
+      
+      if (isInitial) {
+        setIsLoading(true);
+        const userRes = await axios.get('http://localhost:8000/api/user', { headers: { Authorization: `Bearer ${token}` } });
+        setUserData(userRes.data);
+      }
+
+      const tugasanRes = await axios.get(`http://localhost:8000/api/kontraktor/tugasan?t=${Date.now()}`, { 
+        headers: { Authorization: `Bearer ${token}`, 'Cache-Control': 'no-cache' } 
+      });
       setTugasanList(tugasanRes.data);
       
-      // Update selected task if it's currently open
-      if (selectedTask) {
-        const updated = tugasanRes.data.find(t => t.id_arahan === selectedTask.id_arahan);
-        if (updated) setSelectedTask(updated);
-      }
+      setSelectedTask(prev => {
+        if (prev) return tugasanRes.data.find(t => t.id_arahan === prev.id_arahan) || prev;
+        return prev;
+      });
     } catch (error) {
-      toast.error('Gagal memuat turun data tugasan.');
+      console.error('Gagal memuat turun data tugasan.', error);
     } finally {
-      setIsLoading(false);
+      if (isInitial) setIsLoading(false);
     }
   };
 
@@ -528,11 +536,14 @@ function SenaraiPembaikan() {
                     ) : (
                       selectedTask.log_kemajuan.slice().reverse().map((log, idx) => (
                         <div key={idx} className="relative flex items-start">
-                          <div className="w-10 h-10 rounded-full bg-teal-50 border-4 border-slate-50 flex items-center justify-center shrink-0 z-10 text-teal-600 shadow-sm mt-0.5">
-                            <Clock className="w-4 h-4" />
+                          <div className={`w-10 h-10 rounded-full border-4 border-slate-50 flex items-center justify-center shrink-0 z-10 shadow-sm mt-0.5 ${log.role === 'pegawai' ? 'bg-amber-100 text-amber-600' : 'bg-teal-50 text-teal-600'}`}>
+                            {log.role === 'pegawai' ? <CheckCircle2 className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
                           </div>
-                          <div className="bg-white p-4 rounded-3xl border border-slate-200 ml-3 flex-1 shadow-sm">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">{new Date(log.tarikh).toLocaleString('ms-MY', { dateStyle: 'medium', timeStyle: 'short' })}</p>
+                          <div className={`p-4 rounded-3xl border ml-3 flex-1 shadow-sm ${log.role === 'pegawai' ? 'bg-amber-50 border-amber-200' : 'bg-white border-slate-200'}`}>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">
+                              {new Date(log.tarikh).toLocaleString('ms-MY', { dateStyle: 'medium', timeStyle: 'short' })}
+                              {log.role === 'pegawai' && <span className="ml-2 text-amber-600">PEGAWAI</span>}
+                            </p>
                             <p className="text-sm font-medium text-slate-800 leading-relaxed mb-2">{log.nota}</p>
                             {log.audio && (
                               <audio controls src={`http://localhost:8000/storage/${log.audio}`} className="w-full h-10 mt-2 outline-none" />

@@ -30,7 +30,9 @@ class BajetController extends Controller
 
         // All arahan kerja for this jabatan = spending transactions
         $transaksi = ArahanKerja::with([
-                'aduan:id_aduan,jenis_kerosakan,alamat_lokasi',
+                'aduan' => function($q) {
+                    $q->select('id_aduan', 'jenis_kerosakan', 'alamat_lokasi')->withCount('anakAduan');
+                },
                 'kontraktor:id,name,no_pengguna',
             ])
             ->where('id_jabatan', $jabatan->id_jabatan)
@@ -45,9 +47,12 @@ class BajetController extends Controller
                 'no_pengguna_kontraktor' => $ak->kontraktor->no_pengguna ?? '-',
                 'kos_anggaran'         => (float) $ak->kos_anggaran,
                 'status_kerja'         => $ak->status_kerja,
+                'anak_aduan_count'     => $ak->aduan->anak_aduan_count ?? 0,
+                'penjimatan_ai'        => ($ak->aduan->anak_aduan_count ?? 0) * (float) $ak->kos_anggaran,
             ]);
 
         $jumlah_dibelanjakan = $transaksi->sum('kos_anggaran');
+        $jumlah_penjimatan   = $transaksi->sum('penjimatan_ai');
         $peratus_penggunaan  = $jabatan->bajet_tahunan > 0
             ? round(($jumlah_dibelanjakan / $jabatan->bajet_tahunan) * 100, 1)
             : 0;
@@ -61,6 +66,7 @@ class BajetController extends Controller
             ],
             'ringkasan' => [
                 'jumlah_dibelanjakan' => $jumlah_dibelanjakan,
+                'jumlah_penjimatan'   => $jumlah_penjimatan,
                 'peratus_penggunaan'  => $peratus_penggunaan,
                 'bilangan_kerja'      => $transaksi->count(),
                 'kerja_selesai'       => $transaksi->where('status_kerja', 'Selesai')->count(),

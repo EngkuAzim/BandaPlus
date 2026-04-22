@@ -57,8 +57,9 @@ function PetaKluster() {
     const token = localStorage.getItem('token');
     if (!token) { navigate('/login'); return; }
 
-    const fetchMapData = async () => {
+    const fetchMapData = async (isInitial = true) => {
       try {
+        if (isInitial) setIsLoading(true);
         const userRes = await axios.get('http://localhost:8000/api/user', { headers: { Authorization: `Bearer ${token}` } });
         setUserData(userRes.data);
 
@@ -75,10 +76,12 @@ function PetaKluster() {
       } catch (error) {
         console.error("Gagal memuat turun data peta:", error);
       } finally {
-        setIsLoading(false);
+        if (isInitial) setIsLoading(false);
       }
     };
-    fetchMapData();
+    fetchMapData(true);
+    const interval = setInterval(() => fetchMapData(false), 10000);
+    return () => clearInterval(interval);
   }, [navigate]);
 
   return (
@@ -137,6 +140,12 @@ function PetaKluster() {
                             <span className="text-[10px] font-black uppercase text-teal-600 bg-teal-50 px-2 py-0.5 rounded">{aduan.status}</span>
                             <h4 className="font-bold text-slate-800 mt-2 leading-tight">{aduan.jenis}</h4>
                             <p className="text-xs text-slate-500 mt-1 line-clamp-2">Skor AI: <span className="font-bold text-teal-600">{aduan.weight}%</span></p>
+                            {aduan.anak_aduan_count > 0 && (
+                              <div className="mt-2 flex items-center gap-1 bg-purple-100 text-purple-700 px-2 py-1 rounded text-[10px] font-bold">
+                                <Layers className="w-3 h-3" />
+                                {aduan.anak_aduan_count} Aduan dalam Kluster
+                              </div>
+                            )}
                             <button onClick={() => navigate('/urus-aduan')} className="mt-3 w-full bg-slate-900 text-white text-xs font-bold py-2 rounded-lg hover:bg-teal-600 transition-colors">
                               Saring Kerosakan Ini
                             </button>
@@ -171,31 +180,39 @@ function PetaKluster() {
                 <div className="p-6 flex-1">
                   <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Amaran Kluster (Radius 20m)</h4>
                   
-                  {/* Mokap data Kluster BANDA+ */}
                   <div className="space-y-4">
-                    <div className="bg-rose-50 border border-rose-100 p-4 rounded-2xl relative overflow-hidden">
-                      <div className="absolute top-0 right-0 w-16 h-16 bg-rose-500/10 rounded-full -mr-8 -mt-8"></div>
-                      <div className="flex items-start gap-3 relative z-10">
-                        <AlertTriangle className="w-5 h-5 text-rose-500 shrink-0" />
-                        <div>
-                          <h5 className="font-bold text-rose-900 text-sm">Kluster Berisiko Tinggi</h5>
-                          <p className="text-xs text-rose-700/80 font-medium mt-1">3 laporan jalan berlubang dikesan berdekatan SMK Taman Kosas.</p>
-                          <div className="mt-3 flex items-center gap-2">
-                            <span className="text-[10px] bg-rose-200 text-rose-800 px-2 py-1 rounded font-black uppercase">Prioriti AI: Tinggi</span>
+                    {aduans.filter(a => a.anak_aduan_count > 0).map((kluster, idx) => {
+                      const totalAduan = 1 + kluster.anak_aduan_count;
+                      const isHighRisk = kluster.label_prioriti === 'Tinggi' || totalAduan >= 3;
+                      
+                      return (
+                        <div key={kluster.id} className={`${isHighRisk ? 'bg-rose-50 border-rose-100' : 'bg-amber-50 border-amber-100'} border p-4 rounded-2xl relative overflow-hidden`}>
+                          {isHighRisk && <div className="absolute top-0 right-0 w-16 h-16 bg-rose-500/10 rounded-full -mr-8 -mt-8"></div>}
+                          <div className="flex items-start gap-3 relative z-10">
+                            {isHighRisk ? <AlertTriangle className="w-5 h-5 text-rose-500 shrink-0" /> : <Navigation className="w-5 h-5 text-amber-500 shrink-0" />}
+                            <div>
+                              <h5 className={`font-bold text-sm ${isHighRisk ? 'text-rose-900' : 'text-amber-900'}`}>
+                                {isHighRisk ? 'Kluster Berisiko Tinggi' : 'Pertindihan Dikesan'}
+                              </h5>
+                              <p className={`text-xs font-medium mt-1 ${isHighRisk ? 'text-rose-700/80' : 'text-amber-700/80'}`}>
+                                {totalAduan} aduan {kluster.jenis} dikesan berdekatan {kluster.alamat_lokasi}.
+                              </p>
+                              <div className="mt-3 flex items-center gap-2">
+                                <span className={`text-[10px] px-2 py-1 rounded font-black uppercase ${isHighRisk ? 'bg-rose-200 text-rose-800' : 'bg-amber-200 text-amber-800'}`}>
+                                  Prioriti: {kluster.label_prioriti || 'Sederhana'}
+                                </span>
+                              </div>
+                            </div>
                           </div>
                         </div>
+                      );
+                    })}
+                    
+                    {aduans.filter(a => a.anak_aduan_count > 0).length === 0 && (
+                      <div className="text-center p-4 bg-slate-50 border border-slate-100 rounded-2xl">
+                        <p className="text-xs font-bold text-slate-400">Tiada kluster dikesan setakat ini.</p>
                       </div>
-                    </div>
-
-                    <div className="bg-amber-50 border border-amber-100 p-4 rounded-2xl">
-                      <div className="flex items-start gap-3">
-                        <Navigation className="w-5 h-5 text-amber-500 shrink-0" />
-                        <div>
-                          <h5 className="font-bold text-amber-900 text-sm">Pertindihan Dikesan</h5>
-                          <p className="text-xs text-amber-700/80 font-medium mt-1">2 aduan tiang lampu tidak berfungsi di persimpangan Ampang Point.</p>
-                        </div>
-                      </div>
-                    </div>
+                    )}
                   </div>
                   
                   <div className="mt-8 p-4 bg-slate-900 text-white rounded-2xl text-xs leading-relaxed opacity-80">
