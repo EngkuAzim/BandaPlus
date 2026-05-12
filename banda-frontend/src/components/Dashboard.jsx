@@ -29,18 +29,21 @@ function Dashboard() {
 
       try {
         let user = userData;
-        if (isInitial || !user) {
-          if (isInitial) setIsLoading(true);
+        if (isInitial) {
+          setIsLoading(true);
           const userRes = await axios.get('http://localhost:8000/api/user', { headers: { Authorization: `Bearer ${token}` } });
           user = userRes.data;
           setUserData(user);
         }
 
+        // Use localStorage role for polling if user object isn't available in closure
+        const role = user?.peranan || localStorage.getItem('userRole');
+
         // Pilih URL stats berdasarkan peranan — JANGAN guna /admin/* untuk pegawai
         let statsUrl;
-        if (user.peranan === 'pentadbir') {
+        if (role === 'pentadbir') {
           statsUrl = `http://localhost:8000/api/admin/dashboard/stats?t=${Date.now()}`;
-        } else if (user.peranan === 'pegawai') {
+        } else if (role === 'pegawai') {
           statsUrl = `http://localhost:8000/api/pegawai/dashboard/stats?t=${Date.now()}`;
         } else {
           statsUrl = `http://localhost:8000/api/dashboard/stats?t=${Date.now()}`;

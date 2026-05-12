@@ -49,6 +49,16 @@ class AuthController extends Controller
         $user  = User::with('jabatan:id_jabatan,nama_jabatan,baki_semasa,bajet_tahunan')
                      ->where('email', $request->email)
                      ->firstOrFail();
+
+        // Check if user is active
+        if ($user->status === 'tidak_aktif') {
+            $request->user()->currentAccessToken()?->delete(); // just in case
+            Auth::guard('web')->logout();
+            return response()->json([
+                'message' => 'Akaun anda telah dinyahaktifkan oleh Pentadbir.'
+            ], 403);
+        }
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
