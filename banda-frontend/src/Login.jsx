@@ -32,7 +32,8 @@ const Login = () => {
             setTimeout(() => navigate('/dashboard'), 1000);
 
         } catch (error) {
-            toast.error('Log Masuk Gagal', { description: 'Sila semak e-mel dan kata laluan anda.' });
+            const errorMessage = error.response?.data?.message || 'Sila semak e-mel dan kata laluan anda.';
+            toast.error('Log Masuk Gagal', { description: errorMessage });
         } finally {
             setLoading(false);
         }
