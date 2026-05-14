@@ -7,6 +7,7 @@ use App\Models\ArahanKerja;
 use App\Models\Aduan;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ArahanKerjaController extends Controller
 {
@@ -102,47 +103,82 @@ class ArahanKerjaController extends Controller
             }
         }
 
-        // Deduct from budget logic
-        if ($aduan->id_jabatan) {
-            $jabatan = \App\Models\Jabatan::where('id_jabatan', $aduan->id_jabatan)->first();
-            if ($jabatan) {
-                if ($jabatan->baki_semasa < $request->kos_anggaran) {
-                    return response()->json([
-                        'message' => 'Baki jabatan tidak mencukupi untuk kos kerja ini.'
-                    ], 400); // 400 Bad Request
+        // Wrap the critical operation in DB::transaction
+        try {
+            DB::beginTransaction();
+
+            // Check budget
+            $isBudgetSufficient = true;
+            if ($aduan->id_jabatan) {
+                $jabatan = \App\Models\Jabatan::where('id_jabatan', $aduan->id_jabatan)->lockForUpdate()->first();
+                if ($jabatan) {
+                    if ($jabatan->baki_semasa < $request->kos_anggaran) {
+                        $isBudgetSufficient = false;
+                    } else {
+                        $jabatan->baki_semasa -= $request->kos_anggaran;
+                        $jabatan->save();
+                        // DEBIT Audit Trail
+                        \Log::channel('single')->info("DEBIT: RM{$request->kos_anggaran} deducted from Jabatan {$jabatan->id_jabatan} for Aduan {$id_aduan}");
+                    }
                 }
-                $jabatan->baki_semasa -= $request->kos_anggaran;
-                $jabatan->save();
             }
+
+            // Generate AK ID: AK-2026-001
+            $year = Carbon::now()->format('Y');
+            $last = ArahanKerja::where('id_arahan', 'like', "AK-{$year}-%")
+                                ->orderBy('id_arahan', 'desc')
+                                ->lockForUpdate()
+                                ->first();
+            $num  = $last
+                ? str_pad(intval(substr($last->id_arahan, -3)) + 1, 3, '0', STR_PAD_LEFT)
+                : '001';
+
+            $statusKerja = $isBudgetSufficient ? 'Dalam Proses' : 'KIV';
+            $statusAduan = $isBudgetSufficient ? 'Dalam Tindakan' : 'KIV';
+
+            $arahan = ArahanKerja::create([
+                'id_arahan'            => "AK-{$year}-{$num}",
+                'id_aduan'             => $id_aduan,
+                'id_kontraktor'        => $request->id_kontraktor,
+                'id_jabatan'           => $aduan->id_jabatan,
+                'kos_anggaran'         => $request->kos_anggaran,
+                'tarikh_jangkaan_siap' => $request->tarikh_jangkaan_siap,
+                'nota_pegawai'         => $request->nota_pegawai,
+                'status_kerja'         => $statusKerja,
+            ]);
+
+            // Update parent aduan status
+            $aduan->update(['status' => $statusAduan]);
+
+            if (!$isBudgetSufficient) {
+                // Find Admin (Datuk Bandar/Pentadbir)
+                $admin = \App\Models\User::where('peranan', 'pentadbir')->first();
+                if ($admin) {
+                    \App\Models\Notifikasi::create([
+                        'id_pengguna' => $admin->id,
+                        'mesej'       => "Bajet tidak mencukupi untuk aduan {$id_aduan}. Kelulusan dana khas diperlukan.",
+                        'jenis'       => 'sistem',
+                        'status_baca' => false,
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'message' => $isBudgetSufficient 
+                    ? 'Arahan kerja berjaya dikeluarkan.' 
+                    : 'Arahan kerja disimpan sebagai KIV kerana bajet tidak mencukupi. Notifikasi telah dihantar kepada Pentadbir.',
+                'arahan'  => $arahan
+            ], 201);
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Ralat pangkalan data berlaku semasa mencipta Arahan Kerja. Transaksi dibatalkan.',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        // Generate AK ID: AK-2026-001
-        $year = Carbon::now()->format('Y');
-        $last = ArahanKerja::where('id_arahan', 'like', "AK-{$year}-%")
-                            ->orderBy('id_arahan', 'desc')
-                            ->first();
-        $num  = $last
-            ? str_pad(intval(substr($last->id_arahan, -3)) + 1, 3, '0', STR_PAD_LEFT)
-            : '001';
-
-        $arahan = ArahanKerja::create([
-            'id_arahan'            => "AK-{$year}-{$num}",
-            'id_aduan'             => $id_aduan,
-            'id_kontraktor'        => $request->id_kontraktor,
-            'id_jabatan'           => $aduan->id_jabatan,
-            'kos_anggaran'         => $request->kos_anggaran,
-            'tarikh_jangkaan_siap' => $request->tarikh_jangkaan_siap,
-            'nota_pegawai'         => $request->nota_pegawai,
-            'status_kerja'         => 'Dalam Proses',
-        ]);
-
-        // Update parent aduan status
-        $aduan->update(['status' => 'Dalam Tindakan']);
-
-        return response()->json([
-            'message' => 'Arahan kerja berjaya dikeluarkan.',
-            'arahan'  => $arahan
-        ], 201);
     }
 
     /**

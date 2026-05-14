@@ -47,8 +47,9 @@ function PegawaiDashboard({ userData }) {
         ]);
 
         setStatsData(statsRes.data);
+        const fetchedAduans = aduanRes.data.data ? aduanRes.data.data : aduanRes.data;
         // Ambil 5 aduan terbaru (hanya aduan induk) untuk jadual
-        const parentOnly = aduanRes.data.filter(a => !a.id_aduan_induk);
+        const parentOnly = fetchedAduans.filter(a => !a.id_aduan_induk);
         setRecentAduan(parentOnly.slice(0, 5));
       } catch (error) {
         console.error("Ralat menarik data:", error);

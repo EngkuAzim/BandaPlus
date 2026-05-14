@@ -41,9 +41,11 @@ function UrusAduan() {
         }
 
         const aduanRes = await axios.get('http://localhost:8000/api/admin/aduan', { headers: { Authorization: `Bearer ${token}` } });
-        setAduans(aduanRes.data);
+        // Handle both paginated (.data.data) and non-paginated (.data) responses
+        const fetchedAduans = aduanRes.data.data ? aduanRes.data.data : aduanRes.data;
+        setAduans(fetchedAduans);
         setSelectedAduan(prev => {
-          if (prev) return aduanRes.data.find(a => a.id_aduan === prev.id_aduan) || prev;
+          if (prev) return fetchedAduans.find(a => a.id_aduan === prev.id_aduan) || prev;
           return prev;
         });
       } catch (error) {

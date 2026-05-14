@@ -20,7 +20,7 @@ class AduanController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'jenis_kerosakan'  => 'required|string|max:255',
+            'jenis_kerosakan'  => 'required', // Can be string or JSON array
             'id_zon'           => 'required|integer',
             'alamat_lokasi'    => 'required|string|max:255',
             'keterangan_aduan' => 'nullable|string',
@@ -29,61 +29,126 @@ class AduanController extends Controller
 
         $imagePath = $request->file('gambar_bukti')->store('aduan_images', 'public');
 
-        // Generate Custom Primary Key (ADU-2026-0001)
-        $year      = Carbon::now()->format('Y');
-        $lastAduan = Aduan::where('id_aduan', 'like', "ADU-{$year}-%")
-                          ->orderBy('id_aduan', 'desc')
-                          ->first();
-        $newNumber = $lastAduan
-            ? str_pad(intval(substr($lastAduan->id_aduan, -4)) + 1, 4, '0', STR_PAD_LEFT)
-            : '0001';
-        $id_aduan  = "ADU-{$year}-{$newNumber}";
-
-        $lat       = $request->input('lat');
-        $lng       = $request->input('lng');
+        $lat = $request->input('lat');
+        $lng = $request->input('lng');
         $lokasi_gps = ($lat && $lng)
             ? DB::raw("ST_PointFromText('POINT({$lng} {$lat})')")
             : null;
 
-        // Calculate Priority Score
-        $priorityService = new PriorityScoreService();
-        $priorityResult = $priorityService->calculateScore($request->jenis_kerosakan);
-
-        // Suggest Jabatan
-        $jabatanService = new JabatanMappingService();
-        $suggestedJabatan = $jabatanService->suggest($request->jenis_kerosakan);
-
-        // Check for spatial clustering (Radius 20m)
-        $clusteringService = new ClusteringService();
-        $id_aduan_induk = null;
-        if ($lat && $lng) {
-            $id_aduan_induk = $clusteringService->findParentCluster(
-                (float) $lat, 
-                (float) $lng, 
-                $request->jenis_kerosakan
-            );
+        // Parse labels
+        $rawJenis = $request->jenis_kerosakan;
+        if (is_string($rawJenis) && str_starts_with(trim($rawJenis), '[')) {
+            $labels = json_decode($rawJenis, true) ?: [$rawJenis];
+        } else {
+            $labels = is_array($rawJenis) ? $rawJenis : [$rawJenis];
         }
 
-        $aduan = Aduan::create([
-            'id_aduan'         => $id_aduan,
-            'id_pengguna'      => $request->user()->id,
-            'id_zon'           => $request->id_zon,
-            'id_jabatan'       => $suggestedJabatan === 'J00' ? null : $suggestedJabatan,
-            'jenis_kerosakan'  => $request->jenis_kerosakan,
-            'alamat_lokasi'    => $request->alamat_lokasi,
-            'keterangan_aduan' => $request->keterangan_aduan,
-            'lokasi_gps'       => $lokasi_gps,
-            'gambar_bukti'     => $imagePath,
-            'status'           => 'Baru',
-            'skor_ai'          => $priorityResult['skor'],
-            'label_prioriti'   => $priorityResult['label'],
-            'id_aduan_induk'   => $id_aduan_induk,
-        ]);
+        if (empty($labels)) {
+            $labels = ['Unknown'];
+        }
 
-        return response()->json([
-            'message' => 'Aduan berjaya dihantar!',
-            'aduan'   => $aduan
-        ], 201);
+        DB::beginTransaction();
+        try {
+            // Helper to generate ID
+            $year = Carbon::now()->format('Y');
+            $generateId = function() use ($year) {
+                $lastAduan = Aduan::where('id_aduan', 'like', "ADU-{$year}-%")
+                                  ->orderBy('id_aduan', 'desc')
+                                  ->lockForUpdate()
+                                  ->first();
+                $newNumber = $lastAduan
+                    ? str_pad(intval(substr($lastAduan->id_aduan, -4)) + 1, 4, '0', STR_PAD_LEFT)
+                    : '0001';
+                return "ADU-{$year}-{$newNumber}";
+            };
+
+            $priorityService = new PriorityScoreService();
+            $jabatanService = new JabatanMappingService();
+            $clusteringService = new ClusteringService();
+
+            if (count($labels) === 1) {
+                // Single label logic
+                $label = $labels[0];
+                $priorityResult = $priorityService->calculateScore($label, $lat, $lng);
+                $mapped = $jabatanService->mapLabel($label);
+
+                $id_aduan_induk = null;
+                if ($lat && $lng) {
+                    $id_aduan_induk = $clusteringService->findParentCluster((float)$lat, (float)$lng, $label);
+                }
+
+                $aduan = Aduan::create([
+                    'id_aduan'         => $generateId(),
+                    'id_pengguna'      => $request->user()->id,
+                    'id_zon'           => $request->id_zon,
+                    'id_jabatan'       => $mapped['id'] === 'J00' ? null : $mapped['id'],
+                    'jenis_kerosakan'  => $label,
+                    'alamat_lokasi'    => $request->alamat_lokasi,
+                    'keterangan_aduan' => $request->keterangan_aduan,
+                    'lokasi_gps'       => $lokasi_gps,
+                    'gambar_bukti'     => $imagePath,
+                    'status'           => 'Baru',
+                    'skor_ai'          => $priorityResult['skor'],
+                    'label_prioriti'   => $priorityResult['label'],
+                    'id_aduan_induk'   => $id_aduan_induk,
+                ]);
+                $mainAduan = $aduan;
+            } else {
+                // Multi-label Split Logic
+                // 1. Create Main Aduan (Pelbagai Kerosakan)
+                $mainAduan = Aduan::create([
+                    'id_aduan'         => $generateId(),
+                    'id_pengguna'      => $request->user()->id,
+                    'id_zon'           => $request->id_zon,
+                    'id_jabatan'       => null, // Will be handled via children
+                    'jenis_kerosakan'  => 'Pelbagai Kerosakan',
+                    'alamat_lokasi'    => $request->alamat_lokasi,
+                    'keterangan_aduan' => $request->keterangan_aduan,
+                    'lokasi_gps'       => $lokasi_gps,
+                    'gambar_bukti'     => $imagePath,
+                    'status'           => 'Dalam Tindakan', // Induk sentiasa Dalam Tindakan jika ada anak
+                    'skor_ai'          => 0, // Induk doesn't need score
+                    'label_prioriti'   => 'N/A',
+                    'id_aduan_induk'   => null,
+                ]);
+
+                // 2. Create Anak Aduan for each label
+                foreach ($labels as $label) {
+                    $priorityResult = $priorityService->calculateScore($label, $lat, $lng);
+                    $mapped = $jabatanService->mapLabel($label);
+
+                    Aduan::create([
+                        'id_aduan'         => $generateId(),
+                        'id_pengguna'      => $request->user()->id,
+                        'id_zon'           => $request->id_zon,
+                        'id_jabatan'       => $mapped['id'] === 'J00' ? null : $mapped['id'],
+                        'jenis_kerosakan'  => $label,
+                        'alamat_lokasi'    => $request->alamat_lokasi,
+                        'keterangan_aduan' => $request->keterangan_aduan,
+                        'lokasi_gps'       => $lokasi_gps,
+                        'gambar_bukti'     => $imagePath,
+                        'status'           => 'Baru',
+                        'skor_ai'          => $priorityResult['skor'],
+                        'label_prioriti'   => $priorityResult['label'],
+                        'id_aduan_induk'   => $mainAduan->id_aduan, // Link to parent
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'message' => count($labels) > 1 ? 'Aduan berbilang kerosakan berjaya dihantar dan diasingkan!' : 'Aduan berjaya dihantar!',
+                'aduan'   => $mainAduan
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Ralat pangkalan data.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

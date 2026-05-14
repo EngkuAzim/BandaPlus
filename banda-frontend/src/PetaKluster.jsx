@@ -69,8 +69,10 @@ function PetaKluster() {
 
         const aduanRes = await axios.get('http://localhost:8000/api/pegawai/aduan-geo', { headers: { Authorization: `Bearer ${token}` } });
         
-        // Tapis hanya aduan yang mempunyai koordinat GPS
-        const aduanDenganGPS = aduanRes.data.filter(a => a.lat && a.lon);
+        // Tapis hanya aduan yang mempunyai koordinat GPS dan setel pembolehubah yang betul
+        const aduanDenganGPS = aduanRes.data
+          .filter(a => a.lat && a.lng)
+          .map(a => ({ ...a, lon: a.lng, weight: a.skor_ai }));
         setAduans(aduanDenganGPS);
 
       } catch (error) {

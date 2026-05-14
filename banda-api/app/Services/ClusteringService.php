@@ -10,7 +10,7 @@ class ClusteringService
      * Checks if there's an existing active Aduan within $radius meters of the same type.
      * Returns the ID of the parent Aduan if found, otherwise null.
      */
-    public function findParentCluster(float $lat, float $lon, string $jenisKerosakan, int $radius = 20): ?string
+    public function findParentCluster(float $lat, float $lon, string $jenisKerosakan, int $radius = 500): ?string
     {
         // Haversine formula to find the closest active aduan of the same type within $radius meters
         $sql = "
