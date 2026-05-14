@@ -11,15 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('zones', function (Blueprint $table) {
-            $table->id('id_zon');
-            $table->string('nama_zon', 50);
-            $table->polygon('sempadan_geo')->nullable();
-            $table->string('nama_ahli_majlis', 255)->nullable();
-            $table->string('email_rasmi', 100)->nullable();
-            $table->string('notel_ahli_majlis', 15)->nullable();
-            $table->timestamps();
-        });
+        if (!Schema::hasTable('zones')) {
+            Schema::create('zones', function (Blueprint $table) {
+                $table->id('id_zon');
+                $table->string('nama_zon', 50);
+                $table->polygon('sempadan_geo')->nullable();
+                $table->string('nama_ahli_majlis', 255)->nullable();
+                $table->string('email_rasmi', 100)->nullable();
+                $table->string('notel_ahli_majlis', 15)->nullable();
+                $table->timestamps();
+            });
+        }
     }
 
     /**

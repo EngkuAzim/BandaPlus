@@ -11,16 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('notifikasis', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('id_pengguna');
-            $table->string('mesej', 500);
-            $table->enum('jenis', ['tugasan', 'status', 'pengesahan', 'sistem'])->default('sistem');
-            $table->boolean('status_baca')->default(false);
-            $table->timestamps();
-            
-            $table->foreign('id_pengguna')->references('id')->on('users')->onDelete('cascade');
-        });
+        if (!Schema::hasTable('notifikasis')) {
+            Schema::create('notifikasis', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedBigInteger('id_pengguna');
+                $table->string('mesej', 500);
+                $table->enum('jenis', ['tugasan', 'status', 'pengesahan', 'sistem'])->default('sistem');
+                $table->boolean('status_baca')->default(false);
+                $table->timestamps();
+                $table->foreign('id_pengguna')->references('id')->on('users')->onDelete('cascade');
+            });
+        }
     }
 
     /**

@@ -13,6 +13,7 @@ use App\Http\Controllers\Pegawai\ArahanKerjaController;
 use App\Http\Controllers\Pegawai\JabatanController;
 use App\Http\Controllers\Pegawai\BajetController;
 use App\Http\Controllers\Kontraktor\KontraktorController;
+use App\Http\Controllers\Admin\PoiController;
 
 // ============================================================
 // PUBLIC ROUTES — No authentication required
@@ -63,6 +64,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/users/{id}',    [UserController::class, 'destroy']);
         Route::patch('/users/{id}/status', [UserController::class, 'toggleStatus']);
         Route::get('/laporan-prestasi', [AduanAdminController::class, 'getLaporanPrestasi']);
+
+        // POI Management
+        Route::get('/pois',               [PoiController::class, 'index']);
+        Route::post('/pois',              [PoiController::class, 'store']);
+        Route::patch('/pois/{poi}/toggle',[PoiController::class, 'toggle']);
+        Route::delete('/pois/{poi}',      [PoiController::class, 'destroy']);
     });
 
     // --------------------------------------------------------
@@ -81,6 +88,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/aduan/{id}/tugaskan',      [ArahanKerjaController::class, 'tugaskan']);
         Route::get('/bajet',                    [BajetController::class, 'index']);
         Route::get('/aduan-geo',                [AduanAdminController::class, 'getAduanGeo']);
+        Route::get('/pois',                     [PoiController::class, 'index']); // For map viewing
     });
 
     // --------------------------------------------------------

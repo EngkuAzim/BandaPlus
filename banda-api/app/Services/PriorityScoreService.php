@@ -44,15 +44,16 @@ class PriorityScoreService
     {
         if (!$lat || !$lng) return 40;
 
-        $pois = [
-            ['lat' => 3.128, 'lng' => 101.763], // Hospital Ampang
-            ['lat' => 3.159, 'lng' => 101.761]  // Balai Polis
-        ];
+        // Fetch active POIs from DB with 5-min cache to avoid repeated queries
+        $pois = \Illuminate\Support\Facades\Cache::remember('active_pois', 300, function () {
+            return \App\Models\PointOfInterest::where('is_aktif', true)->get(['lat', 'lng']);
+        });
+
+        if ($pois->isEmpty()) return 40;
 
         $minDistance = PHP_FLOAT_MAX;
-
         foreach ($pois as $poi) {
-            $distance = $this->haversine($lat, $lng, $poi['lat'], $poi['lng']);
+            $distance = $this->haversine($lat, $lng, $poi->lat, $poi->lng);
             if ($distance < $minDistance) {
                 $minDistance = $distance;
             }

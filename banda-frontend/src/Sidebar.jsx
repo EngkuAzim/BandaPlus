@@ -20,7 +20,8 @@ import {
   LayoutDashboard,
   ShieldAlert,
   Search,
-  FileText
+  FileText,
+  MapPin
 } from 'lucide-react';
 import NotificationBell from './components/NotificationBell';
 
@@ -50,6 +51,7 @@ const Sidebar = ({ userData }) => {
       { name: 'Saringan & Agihan', path: '/urus-aduan', icon: Search },
       { name: 'Urus Pengguna', path: '/urus-pengguna', icon: Users },
       { name: 'Pemetaan AI', path: '/peta-kluster', icon: Map },
+      { name: 'Urus POI Analitik', path: '/urus-poi', icon: MapPin },
       { name: 'Laporan Prestasi', path: '/laporan-prestasi', icon: FileText },
       { name: 'Tetapan Sistem', path: '/tetapan', icon: Settings },
     ],
