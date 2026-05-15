@@ -10,7 +10,7 @@ import {
 import { toast } from 'sonner';
 import Sidebar from './Sidebar';
 
-const API = `${import.meta.env.VITE_API_URL}`;
+const API = `/api`;
 
 const KATEGORI_CONFIG = {
   hospital:    { label: 'Hospital',     icon: Hospital,       color: '#ef4444', bg: 'bg-red-100',    text: 'text-red-700',    border: 'border-red-300' },

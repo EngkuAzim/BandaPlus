@@ -28,7 +28,7 @@ function LaporAduan() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) navigate('/login');
-    axios.get(`${import.meta.env.VITE_API_URL}/user`, {
+    axios.get(`/api/user`, {
       headers: { Authorization: `Bearer ${token}` }
     }).then(res => setUserData(res.data)).catch(() => navigate('/login'));
   }, [navigate]);
@@ -118,7 +118,7 @@ function LaporAduan() {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`${import.meta.env.VITE_API_URL}/aduan`, submitData, {
+      await axios.post(`/api/aduan`, submitData, {
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' }
       });
       toast.success('Aduan Berjaya Dihantar!');

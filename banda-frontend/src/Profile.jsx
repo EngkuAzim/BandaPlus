@@ -35,7 +35,7 @@ function Profile() {
       }
 
       try {
-        const response = await axios.get(`${import.meta.env.VITE_API_URL}/user`, {
+        const response = await axios.get(`/api/user`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         
@@ -107,7 +107,7 @@ function Profile() {
       const token = localStorage.getItem('token');
       
       // Send the data to your new Laravel endpoint!
-      await axios.put(`${import.meta.env.VITE_API_URL}/profil`, formData, {
+      await axios.put(`/api/profil`, formData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       

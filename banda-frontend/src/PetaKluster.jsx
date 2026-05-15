@@ -74,14 +74,14 @@ function PetaKluster() {
     const fetchMapData = async (isInitial = true) => {
       try {
         if (isInitial) setIsLoading(true);
-        const userRes = await axios.get(`${import.meta.env.VITE_API_URL}/user`, { headers: { Authorization: `Bearer ${token}` } });
+        const userRes = await axios.get(`/api/user`, { headers: { Authorization: `Bearer ${token}` } });
         setUserData(userRes.data);
 
         if (userRes.data.peranan !== 'pentadbir') {
           navigate('/dashboard'); return;
         }
 
-        const aduanRes = await axios.get(`${import.meta.env.VITE_API_URL}/pegawai/aduan-geo`, { headers: { Authorization: `Bearer ${token}` } });
+        const aduanRes = await axios.get(`/api/pegawai/aduan-geo`, { headers: { Authorization: `Bearer ${token}` } });
         
         const aduanDenganGPS = aduanRes.data
           .filter(a => a.lat && a.lon);
@@ -189,7 +189,7 @@ function PetaKluster() {
                     >
                       <div className="p-1">
                         <img 
-                          src={`${import.meta.env.VITE_API_URL.replace('/api', '')}/storage/${popupInfo.gambar_bukti}`} 
+                          src={`/storage/${popupInfo.gambar_bukti}`} 
                           alt="Bukti Kerosakan" 
                           className="w-full h-32 object-cover rounded-t-lg mb-2 bg-slate-100"
                           onError={(e) => e.target.src = 'https://via.placeholder.com/300x200?text=Tiada+Imej'}
