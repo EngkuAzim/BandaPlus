@@ -31,7 +31,7 @@ function TetapanSistem() {
 
     const verifyAdmin = async () => {
       try {
-        const res = await axios.get('http://localhost:8000/api/user', { headers: { Authorization: `Bearer ${token}` } });
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/user`, { headers: { Authorization: `Bearer ${token}` } });
         if (res.data.peranan !== 'pentadbir') {
           navigate('/dashboard');
         } else {
@@ -61,7 +61,7 @@ function TetapanSistem() {
 
     // Kod sebenar apabila API Backend siap:
     // try {
-    //   await axios.put('http://localhost:8000/api/admin/settings', form, { headers: { Authorization: `Bearer ${token}` } });
+    //   await axios.put(`${import.meta.env.VITE_API_URL}/admin/settings`, form, { headers: { Authorization: `Bearer ${token}` } });
     // } catch (err) { ... }
   };
 

@@ -57,7 +57,7 @@ const Register = () => {
         setLoading(true);
 
         try {
-            await axios.post('http://localhost:8000/api/register', formData);
+            await axios.post(`${import.meta.env.VITE_API_URL}/register`, formData);
             
             toast.success('Pendaftaran Berjaya!', { description: 'Akaun anda telah dicipta. Sila log masuk.' });
             setTimeout(() => navigate('/login'), 1500);

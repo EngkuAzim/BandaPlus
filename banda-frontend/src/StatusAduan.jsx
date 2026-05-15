@@ -25,8 +25,8 @@ function StatusAduan() {
       try {
         if (isInitial) setIsLoading(true);
         const [userRes, aduanRes] = await Promise.all([
-          axios.get('http://localhost:8000/api/user', { headers: { Authorization: `Bearer ${token}` } }),
-          axios.get('http://localhost:8000/api/aduan', { headers: { Authorization: `Bearer ${token}` } })
+          axios.get(`${import.meta.env.VITE_API_URL}/user`, { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get(`${import.meta.env.VITE_API_URL}/aduan`, { headers: { Authorization: `Bearer ${token}` } })
         ]);
         setUserData(userRes.data);
         setAduans(aduanRes.data);
@@ -106,7 +106,7 @@ function StatusAduan() {
                         className="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-teal-300 transition-all overflow-hidden flex flex-col md:flex-row cursor-pointer group"
                       >
                         <div className="w-full md:w-48 h-48 md:h-auto bg-slate-100 flex-shrink-0 relative overflow-hidden">
-                          <img src={`http://localhost:8000/storage/${aduan.gambar_bukti}`} alt={aduan.jenis_kerosakan} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                          <img src={`${import.meta.env.VITE_API_URL.replace('/api', '')}/storage/${aduan.gambar_bukti}`} alt={aduan.jenis_kerosakan} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                         </div>
 
                         <div className="p-6 flex-1 flex flex-col justify-center relative">
@@ -173,7 +173,7 @@ function StatusAduan() {
                 <div className="p-8 overflow-y-auto">
                   <div className="flex flex-col sm:flex-row gap-8 mb-8">
                     <div className="w-full sm:w-1/3 aspect-square rounded-2xl overflow-hidden border border-slate-200 shrink-0">
-                      <img src={`http://localhost:8000/storage/${selectedAduan.gambar_bukti}`} className="w-full h-full object-cover" alt="Bukti Kerosakan" />
+                      <img src={`${import.meta.env.VITE_API_URL.replace('/api', '')}/storage/${selectedAduan.gambar_bukti}`} className="w-full h-full object-cover" alt="Bukti Kerosakan" />
                     </div>
                     <div className="flex-1 space-y-4">
                       <div>

@@ -42,8 +42,8 @@ function PegawaiDashboard({ userData }) {
 
         // Tarik data stat & aduan serentak
         const [statsRes, aduanRes] = await Promise.all([
-          axios.get('http://localhost:8000/api/pegawai/dashboard/stats', { headers }),
-          axios.get('http://localhost:8000/api/pegawai/aduan', { headers })
+          axios.get(`${import.meta.env.VITE_API_URL}/pegawai/dashboard/stats`, { headers }),
+          axios.get(`${import.meta.env.VITE_API_URL}/pegawai/aduan`, { headers })
         ]);
 
         setStatsData(statsRes.data);

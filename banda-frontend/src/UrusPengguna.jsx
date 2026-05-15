@@ -35,7 +35,7 @@ function UrusPengguna() {
     const fetchUsers = async () => {
       try {
         // Dapatkan data admin yang sedang login
-        const userRes = await axios.get('http://localhost:8000/api/user', { headers: { Authorization: `Bearer ${token}` } });
+        const userRes = await axios.get(`${import.meta.env.VITE_API_URL}/user`, { headers: { Authorization: `Bearer ${token}` } });
         setUserData(userRes.data);
 
         // Halang akses jika bukan pentadbir
@@ -45,8 +45,8 @@ function UrusPengguna() {
 
         // Tarik senarai pengguna & senarai jabatan serentak
         const [usersRes, jabatanRes] = await Promise.all([
-          axios.get('http://localhost:8000/api/admin/users', { headers: { Authorization: `Bearer ${token}` } }),
-          axios.get('http://localhost:8000/api/pegawai/jabatan', { headers: { Authorization: `Bearer ${token}` } })
+          axios.get(`${import.meta.env.VITE_API_URL}/admin/users`, { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get(`${import.meta.env.VITE_API_URL}/pegawai/jabatan`, { headers: { Authorization: `Bearer ${token}` } })
         ]);
         
         setUsersList(usersRes.data);
@@ -88,12 +88,12 @@ function UrusPengguna() {
       const token = localStorage.getItem('token');
       if (editMode) {
         // Update Pengguna sedia ada
-        const res = await axios.put(`http://localhost:8000/api/admin/users/${formData.id}`, formData, { headers: { Authorization: `Bearer ${token}` } });
+        const res = await axios.put(`${import.meta.env.VITE_API_URL}/admin/users/${formData.id}`, formData, { headers: { Authorization: `Bearer ${token}` } });
         setUsersList(usersList.map(u => u.id === formData.id ? { ...res.data.user, jabatan: jabatansList.find(j => j.id_jabatan === res.data.user.id_jabatan) } : u));
         toast.success('Pengguna berjaya dikemaskini!');
       } else {
         // Tambah Pengguna baharu
-        const res = await axios.post('http://localhost:8000/api/admin/users', formData, { headers: { Authorization: `Bearer ${token}` } });
+        const res = await axios.post(`${import.meta.env.VITE_API_URL}/admin/users`, formData, { headers: { Authorization: `Bearer ${token}` } });
         setUsersList([{ ...res.data.user, jabatan: jabatansList.find(j => j.id_jabatan === res.data.user.id_jabatan) }, ...usersList]);
         toast.success('Pengguna baharu berjaya ditambah!');
       }
@@ -108,7 +108,7 @@ function UrusPengguna() {
   const handleToggleStatus = async (user) => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.patch(`http://localhost:8000/api/admin/users/${user.id}/status`, {}, {
+      const res = await axios.patch(`${import.meta.env.VITE_API_URL}/admin/users/${user.id}/status`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUsersList(usersList.map(u => u.id === user.id ? { ...u, status: res.data.status } : u));

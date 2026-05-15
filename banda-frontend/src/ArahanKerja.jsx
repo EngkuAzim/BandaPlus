@@ -33,9 +33,9 @@ function ArahanKerja() {
         if (isInitial) setIsLoading(true);
         const token = localStorage.getItem('token');
         const [userRes, aduanRes, kontraktorRes] = await Promise.all([
-          axios.get('http://localhost:8000/api/user', { headers: { Authorization: `Bearer ${token}` } }),
-          axios.get('http://localhost:8000/api/pegawai/aduan-pending', { headers: { Authorization: `Bearer ${token}` } }),
-          axios.get('http://localhost:8000/api/pegawai/kontraktor-list', { headers: { Authorization: `Bearer ${token}` } })
+          axios.get(`${import.meta.env.VITE_API_URL}/user`, { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get(`${import.meta.env.VITE_API_URL}/pegawai/aduan-pending`, { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get(`${import.meta.env.VITE_API_URL}/pegawai/kontraktor-list`, { headers: { Authorization: `Bearer ${token}` } })
         ]);
         setUserData(userRes.data);
         setAduans(aduanRes.data);
@@ -71,7 +71,7 @@ function ArahanKerja() {
     setIsSaving(true);
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`http://localhost:8000/api/pegawai/aduan/${selectedAduan.id_aduan}/tugaskan`, form, {
+      await axios.put(`${import.meta.env.VITE_API_URL}/pegawai/aduan/${selectedAduan.id_aduan}/tugaskan`, form, {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success('Arahan Kerja Dikeluarkan!', { description: `Kontraktor telah dilantik untuk ${selectedAduan.id_aduan}.` });
@@ -264,7 +264,7 @@ function ArahanKerja() {
                     {/* Image preview */}
                     <div className="h-48 bg-slate-100 relative">
                       <img 
-                        src={`http://localhost:8000/storage/${selectedAduan.gambar_bukti}`} 
+                        src={`${import.meta.env.VITE_API_URL.replace('/api', '')}/storage/${selectedAduan.gambar_bukti}`} 
                         className="w-full h-full object-cover" 
                         alt="Bukti" 
                       />

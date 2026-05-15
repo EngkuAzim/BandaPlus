@@ -61,10 +61,10 @@ export default function LaporanPrestasi() {
       const token = localStorage.getItem('token');
       const h = { Authorization: `Bearer ${token}`, 'Cache-Control': 'no-cache' };
       if (isInitial) {
-        const u = await axios.get('http://localhost:8000/api/user', { headers: h });
+        const u = await axios.get(`${import.meta.env.VITE_API_URL}/user`, { headers: h });
         setUserData(u.data);
       }
-      const r = await axios.get(`http://localhost:8000/api/admin/laporan-prestasi?month=${filterMonth}&t=${Date.now()}`, { headers: h });
+      const r = await axios.get(`${import.meta.env.VITE_API_URL}/admin/laporan-prestasi?month=${filterMonth}&t=${Date.now()}`, { headers: h });
       setData(r.data);
     } catch { console.error('Gagal memuat data.'); }
     finally { if (isInitial) setIsLoading(false); }

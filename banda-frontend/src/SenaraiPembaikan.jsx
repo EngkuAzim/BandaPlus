@@ -132,11 +132,11 @@ function SenaraiPembaikan() {
       
       if (isInitial) {
         setIsLoading(true);
-        const userRes = await axios.get('http://localhost:8000/api/user', { headers: { Authorization: `Bearer ${token}` } });
+        const userRes = await axios.get(`${import.meta.env.VITE_API_URL}/user`, { headers: { Authorization: `Bearer ${token}` } });
         setUserData(userRes.data);
       }
 
-      const tugasanRes = await axios.get(`http://localhost:8000/api/kontraktor/tugasan?t=${Date.now()}`, { 
+      const tugasanRes = await axios.get(`${import.meta.env.VITE_API_URL}/kontraktor/tugasan?t=${Date.now()}`, { 
         headers: { Authorization: `Bearer ${token}`, 'Cache-Control': 'no-cache' } 
       });
       setTugasanList(tugasanRes.data);
@@ -218,7 +218,7 @@ function SenaraiPembaikan() {
       }
 
       await axios.post(
-        `http://localhost:8000/api/kontraktor/tugasan/${selectedTask.id_arahan}/log`,
+        `${import.meta.env.VITE_API_URL}/kontraktor/tugasan/${selectedTask.id_arahan}/log`,
         formData,
         { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' } }
       );
@@ -260,7 +260,7 @@ function SenaraiPembaikan() {
 
       // 1. Update status
       await axios.put(
-        `http://localhost:8000/api/kontraktor/tugasan/${selectedTask.id_arahan}`, 
+        `${import.meta.env.VITE_API_URL}/kontraktor/tugasan/${selectedTask.id_arahan}`, 
         { status_kerja: statusKerja, nota_kontraktor: '' }, 
         { headers }
       );
@@ -273,7 +273,7 @@ function SenaraiPembaikan() {
         formData.append('lon_kontraktor', userLon);
         
         await axios.post(
-          `http://localhost:8000/api/kontraktor/tugasan/${selectedTask.id_arahan}/bukti`, 
+          `${import.meta.env.VITE_API_URL}/kontraktor/tugasan/${selectedTask.id_arahan}/bukti`, 
           formData, 
           { headers: { ...headers, 'Content-Type': 'multipart/form-data' } }
         );
@@ -290,7 +290,7 @@ function SenaraiPembaikan() {
       // Jika bukti gagal (cth: lokasi tidak sah), kita kembalikan status ke Dalam Proses supaya mereka boleh cuba lagi
       if (error.response?.status === 422 && error.response?.data?.message?.includes('Lokasi tidak sah')) {
           await axios.put(
-            `http://localhost:8000/api/kontraktor/tugasan/${selectedTask.id_arahan}`, 
+            `${import.meta.env.VITE_API_URL}/kontraktor/tugasan/${selectedTask.id_arahan}`, 
             { status_kerja: 'Dalam Proses', nota_kontraktor: '' }, 
             { headers }
           );
@@ -404,7 +404,7 @@ function SenaraiPembaikan() {
                   {/* Photo Bukti Aduan */}
                   {selectedTask.aduan?.gambar_bukti ? (
                     <div className="w-full h-48 bg-slate-200 relative">
-                      <img src={`http://localhost:8000/storage/${selectedTask.aduan.gambar_bukti}`} alt="Kerosakan" className="w-full h-full object-cover" />
+                      <img src={`${import.meta.env.VITE_API_URL.replace('/api', '')}/storage/${selectedTask.aduan.gambar_bukti}`} alt="Kerosakan" className="w-full h-full object-cover" />
                       <div className="absolute top-4 right-4 bg-black/60 backdrop-blur text-white text-[10px] font-bold px-3 py-1 rounded-full border border-white/20">
                         Laporan Komuniti
                       </div>
@@ -464,7 +464,7 @@ function SenaraiPembaikan() {
                       onSwipe={async () => {
                         const token = localStorage.getItem('token');
                         await axios.post(
-                          `http://localhost:8000/api/kontraktor/tugasan/${selectedTask.id_arahan}/log`,
+                          `${import.meta.env.VITE_API_URL}/kontraktor/tugasan/${selectedTask.id_arahan}/log`,
                           { nota: 'Kerja telah diterima rasmi oleh pihak kontraktor.' },
                           { headers: { Authorization: `Bearer ${token}` } }
                         );
@@ -546,7 +546,7 @@ function SenaraiPembaikan() {
                             </p>
                             <p className="text-sm font-medium text-slate-800 leading-relaxed mb-2">{log.nota}</p>
                             {log.audio && (
-                              <audio controls src={`http://localhost:8000/storage/${log.audio}`} className="w-full h-10 mt-2 outline-none" />
+                              <audio controls src={`${import.meta.env.VITE_API_URL.replace('/api', '')}/storage/${log.audio}`} className="w-full h-10 mt-2 outline-none" />
                             )}
                           </div>
                         </div>

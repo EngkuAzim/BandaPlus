@@ -50,8 +50,8 @@ export default function LogBajet() {
       try {
         if (isInitial) setLoading(true);
         const [userRes, bajetRes] = await Promise.all([
-          axios.get('http://localhost:8000/api/user',         { headers: h }),
-          axios.get('http://localhost:8000/api/pegawai/bajet',{ headers: h }),
+          axios.get(`${import.meta.env.VITE_API_URL}/user`,         { headers: h }),
+          axios.get(`${import.meta.env.VITE_API_URL}/pegawai/bajet`,{ headers: h }),
         ]);
         setUserData(userRes.data);
         setData(bajetRes.data);

@@ -12,7 +12,7 @@ function NotificationBell() {
     try {
       const token = localStorage.getItem('token');
       if (!token) return;
-      const res = await axios.get('http://localhost:8000/api/notifikasi', {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/notifikasi`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setNotifications(res.data);
@@ -31,7 +31,7 @@ function NotificationBell() {
   const markAsRead = async (id) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`http://localhost:8000/api/notifikasi/${id}/baca`, {}, {
+      await axios.put(`${import.meta.env.VITE_API_URL}/notifikasi/${id}/baca`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchNotifications();
@@ -43,7 +43,7 @@ function NotificationBell() {
   const markAllAsRead = async () => {
     try {
       const token = localStorage.getItem('token');
-      await axios.put('http://localhost:8000/api/notifikasi/baca-semua', {}, {
+      await axios.put(`${import.meta.env.VITE_API_URL}/notifikasi/baca-semua`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchNotifications();

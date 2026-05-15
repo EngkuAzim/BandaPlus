@@ -20,7 +20,7 @@ function KontraktorDashboard({ userData, stats }) {
     const fetchTugasan = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get('http://localhost:8000/api/kontraktor/tugasan', {
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/kontraktor/tugasan`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setTugasanList(res.data.slice(0, 5)); // Just show top 5 latest

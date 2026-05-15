@@ -13,7 +13,7 @@ const ReviewCarousel = () => {
         const fetchReviews = async () => {
             try {
                 // You will build this endpoint in Laravel later!
-                const response = await axios.get('http://localhost:8000/api/public/reviews');
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/public/reviews`);
                 if (response.data && response.data.length > 0) {
                     setReviews(response.data);
                 }

@@ -32,7 +32,7 @@ function UrusAduan() {
     const fetchData = async (isInitial = true) => {
       try {
         if (isInitial) setIsLoading(true);
-        const userRes = await axios.get('http://localhost:8000/api/user', { headers: { Authorization: `Bearer ${token}` } });
+        const userRes = await axios.get(`${import.meta.env.VITE_API_URL}/user`, { headers: { Authorization: `Bearer ${token}` } });
         setUserData(userRes.data);
 
         if (userRes.data.peranan !== 'pentadbir') {
@@ -40,7 +40,7 @@ function UrusAduan() {
           return;
         }
 
-        const aduanRes = await axios.get('http://localhost:8000/api/admin/aduan', { headers: { Authorization: `Bearer ${token}` } });
+        const aduanRes = await axios.get(`${import.meta.env.VITE_API_URL}/admin/aduan`, { headers: { Authorization: `Bearer ${token}` } });
         // Handle both paginated (.data.data) and non-paginated (.data) responses
         const fetchedAduans = aduanRes.data.data ? aduanRes.data.data : aduanRes.data;
         setAduans(fetchedAduans);
@@ -73,7 +73,7 @@ function UrusAduan() {
     setIsSaving(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.put(`http://localhost:8000/api/admin/aduan/${selectedAduan.id_aduan}`, editForm, {
+      const res = await axios.put(`${import.meta.env.VITE_API_URL}/admin/aduan/${selectedAduan.id_aduan}`, editForm, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -250,7 +250,7 @@ function UrusAduan() {
                   {/* Bukti Digital */}
                   <div className="space-y-4">
                     <div className="aspect-video rounded-3xl overflow-hidden bg-slate-100 border-4 border-white shadow-lg">
-                      <img src={`http://localhost:8000/storage/${selectedAduan.gambar_bukti}`} className="w-full h-full object-cover" alt="Bukti" />
+                      <img src={`${import.meta.env.VITE_API_URL.replace('/api', '')}/storage/${selectedAduan.gambar_bukti}`} className="w-full h-full object-cover" alt="Bukti" />
                     </div>
                     <div className="bg-slate-50 p-5 rounded-3xl border border-slate-100">
                       <h4 className="flex items-center gap-2 font-black text-slate-900 mb-2 text-sm uppercase tracking-widest"><MapPin className="w-4 h-4 text-teal-600" /> Lokasi & Keterangan</h4>

@@ -39,14 +39,14 @@ function LaporanTugasan() {
       if (isInitial) {
         setIsLoading(true);
         // Fetch user data ONLY on initial load to prevent server choking
-        const userRes = await axios.get('http://localhost:8000/api/user', {
+        const userRes = await axios.get(`${import.meta.env.VITE_API_URL}/user`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setUserData(userRes.data);
       }
 
       // Fetch arahan kerja
-      const res = await axios.get(`http://localhost:8000/api/pegawai/arahan-kerja?t=${Date.now()}`, {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/pegawai/arahan-kerja?t=${Date.now()}`, {
         headers: { Authorization: `Bearer ${token}`, 'Cache-Control': 'no-cache' }
       });
       setTugasanList(res.data);
@@ -74,7 +74,7 @@ function LaporanTugasan() {
     try {
       const token = localStorage.getItem('token');
       await axios.post(
-        `http://localhost:8000/api/pegawai/arahan-kerja/${selectedTask.id_arahan}/log`,
+        `${import.meta.env.VITE_API_URL}/pegawai/arahan-kerja/${selectedTask.id_arahan}/log`,
         { nota: komen },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -98,7 +98,7 @@ function LaporanTugasan() {
     try {
       const token = localStorage.getItem('token');
       await axios.put(
-        `http://localhost:8000/api/pegawai/arahan-kerja/${selectedTask.id_arahan}/sahkan`,
+        `${import.meta.env.VITE_API_URL}/pegawai/arahan-kerja/${selectedTask.id_arahan}/sahkan`,
         sahkanData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -185,7 +185,7 @@ function LaporanTugasan() {
                       <div className="bg-white p-2 rounded-3xl border border-slate-200 shadow-sm relative overflow-hidden group">
                         <div className="absolute top-4 left-4 z-10 bg-rose-500 text-white text-[10px] font-black uppercase px-3 py-1 rounded-full shadow-md">Sebelum (Aduan)</div>
                         {selectedTask.aduan?.gambar_bukti ? (
-                          <img src={`http://localhost:8000/storage/${selectedTask.aduan.gambar_bukti}`} className="w-full h-48 object-cover rounded-2xl" />
+                          <img src={`${import.meta.env.VITE_API_URL.replace('/api', '')}/storage/${selectedTask.aduan.gambar_bukti}`} className="w-full h-48 object-cover rounded-2xl" />
                         ) : (
                           <div className="w-full h-48 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400 text-xs font-bold">Tiada Gambar</div>
                         )}
@@ -195,7 +195,7 @@ function LaporanTugasan() {
                       <div className="bg-white p-2 rounded-3xl border border-slate-200 shadow-sm relative overflow-hidden">
                         <div className="absolute top-4 right-4 z-10 bg-emerald-500 text-white text-[10px] font-black uppercase px-3 py-1 rounded-full shadow-md">Selepas (Pembaikan)</div>
                         {selectedTask.gambar_selepas ? (
-                          <img src={`http://localhost:8000/storage/${selectedTask.gambar_selepas}`} className="w-full h-48 object-cover rounded-2xl" />
+                          <img src={`${import.meta.env.VITE_API_URL.replace('/api', '')}/storage/${selectedTask.gambar_selepas}`} className="w-full h-48 object-cover rounded-2xl" />
                         ) : (
                           <div className="w-full h-48 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400 text-xs font-bold text-center px-4 border border-dashed border-slate-300">
                             Menunggu muat naik kontraktor
@@ -227,7 +227,7 @@ function LaporanTugasan() {
                               {log.audio && (
                                 <div className="mt-3 p-2 bg-white rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3">
                                   <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center text-teal-600 shrink-0"><Volume2 className="w-4 h-4" /></div>
-                                  <audio controls src={`http://localhost:8000/storage/${log.audio}`} className="w-full h-8 outline-none" />
+                                  <audio controls src={`${import.meta.env.VITE_API_URL.replace('/api', '')}/storage/${log.audio}`} className="w-full h-8 outline-none" />
                                 </div>
                               )}
                             </div>

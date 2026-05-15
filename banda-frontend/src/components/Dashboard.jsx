@@ -31,7 +31,7 @@ function Dashboard() {
         let user = userData;
         if (isInitial) {
           setIsLoading(true);
-          const userRes = await axios.get('http://localhost:8000/api/user', { headers: { Authorization: `Bearer ${token}` } });
+          const userRes = await axios.get(`${import.meta.env.VITE_API_URL}/user`, { headers: { Authorization: `Bearer ${token}` } });
           user = userRes.data;
           setUserData(user);
         }
@@ -42,11 +42,11 @@ function Dashboard() {
         // Pilih URL stats berdasarkan peranan — JANGAN guna /admin/* untuk pegawai
         let statsUrl;
         if (role === 'pentadbir') {
-          statsUrl = `http://localhost:8000/api/admin/dashboard/stats?t=${Date.now()}`;
+          statsUrl = `${import.meta.env.VITE_API_URL}/admin/dashboard/stats?t=${Date.now()}`;
         } else if (role === 'pegawai') {
-          statsUrl = `http://localhost:8000/api/pegawai/dashboard/stats?t=${Date.now()}`;
+          statsUrl = `${import.meta.env.VITE_API_URL}/pegawai/dashboard/stats?t=${Date.now()}`;
         } else {
-          statsUrl = `http://localhost:8000/api/dashboard/stats?t=${Date.now()}`;
+          statsUrl = `${import.meta.env.VITE_API_URL}/dashboard/stats?t=${Date.now()}`;
         }
 
         const statsRes = await axios.get(statsUrl, { headers: { Authorization: `Bearer ${token}`, 'Cache-Control': 'no-cache' } });

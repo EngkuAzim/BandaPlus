@@ -22,7 +22,7 @@ const Login = () => {
         setLoading(true);
 
         try {
-            const response = await axios.post('http://localhost:8000/api/login', formData);
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/login`, formData);
             
             localStorage.setItem('token', response.data.access_token);
             localStorage.setItem('userRole', response.data.user.peranan || 'komuniti');
