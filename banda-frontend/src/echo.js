@@ -12,12 +12,13 @@ const echo = new Echo({
     authorizer: (channel, options) => {
         return {
             authorize: (socketId, callback) => {
-                axios.post(import.meta.env.VITE_API_URL + '/broadcasting/auth', {
+                axios.post(import.meta.env.VITE_API_URL + '/api/broadcasting/auth', {
                     socket_id: socketId,
                     channel_name: channel.name
                 }, {
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        Accept: 'application/json'
                     }
                 })
                 .then(response => {
