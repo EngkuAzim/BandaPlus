@@ -1,0 +1,60 @@
+name: BandaPlus CI/CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  # --- Stage 1: Build & Test Backend ---
+  laravel-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+      - name: Install Dependencies
+        working-directory: ./banda-api
+        run: composer install --no-progress --prefer-dist
+
+  # --- Stage 2: Build Frontend ---
+  react-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Build Assets
+        working-directory: ./banda-frontend
+        run: |
+          npm install
+          npm run build
+
+  # --- Stage 3: Deploy to Server ---
+  deploy:
+    needs: [laravel-backend, react-frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Execute Remote Deployment
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /var/www/BandaPlus
+            git pull origin main
+            
+            # Backend Update
+            cd banda-api
+            composer install --optimize-autoloader --no-dev
+            php artisan migrate --force
+            php artisan config:cache
+            
+            # Frontend Update
+            cd ../banda-frontend
+            npm install
+            npm run build
