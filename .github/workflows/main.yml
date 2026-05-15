@@ -52,6 +52,7 @@ jobs:
             git config --global --add safe.directory /var/www/BandaPlus
             cd /var/www/BandaPlus
             git pull origin main
+            git reset --hard origin/main
             
             # Backend Update
             cd banda-api
