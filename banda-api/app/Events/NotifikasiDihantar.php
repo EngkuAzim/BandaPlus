@@ -37,4 +37,9 @@ class NotifikasiDihantar implements ShouldBroadcast
             new PrivateChannel('user.' . $this->userId),
         ];
     }
+
+    public function broadcastAs(): string
+    {
+        return 'NotifikasiBaru';
+    }
 }

@@ -61,7 +61,7 @@ function UrusAduan() {
     import('./echo').then(({ default: echo }) => {
       echoInstance = echo;
       echo.private('admin-dashboard')
-        .listen('AduanBaruDicipta', (e) => {
+        .listen('.AduanBaru', (e) => {
           if (!e.aduan) return;
           // Slide new complaint into the top of the list
           setAduans(prev => [e.aduan, ...prev]);

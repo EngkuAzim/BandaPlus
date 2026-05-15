@@ -37,4 +37,9 @@ class ArahanKerjaDitugaskan implements ShouldBroadcast
             new PrivateChannel('kontraktor.' . $this->kontraktorId),
         ];
     }
+
+    public function broadcastAs(): string
+    {
+        return 'ArahanKerjaBaru';
+    }
 }

@@ -37,4 +37,9 @@ class LogKemajuanDikemaskini implements ShouldBroadcast
             new PrivateChannel('arahan-kerja.' . $this->arahanKerjaId),
         ];
     }
+
+    public function broadcastAs(): string
+    {
+        return 'LogKemajuan';
+    }
 }

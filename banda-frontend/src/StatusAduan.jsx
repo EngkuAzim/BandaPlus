@@ -53,7 +53,7 @@ function StatusAduan() {
       import('./echo').then(({ default: echo }) => {
         aduans.forEach(aduan => {
           echo.channel(`aduan.${aduan.id_aduan}`)
-            .listen('StatusAduanBerubah', (e) => {
+            .listen('.StatusBerubah', (e) => {
               toast.info(`Status aduan ${e.aduanId} dikemaskini: ${e.status}`);
               // Panggil fetchData untuk dapatkan data baharu apabila status berubah
               const token = localStorage.getItem('token');

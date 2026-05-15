@@ -74,7 +74,7 @@ function LaporanTugasan() {
     import('./echo').then(({ default: echo }) => {
       echoInstance = echo;
       echo.private(`arahan-kerja.${selectedTask.id_arahan}`)
-        .listen('LogKemajuanDikemaskini', (e) => {
+        .listen('.LogKemajuan', (e) => {
           // Fetch silently to update the chat timeline
           fetchData(false);
         });

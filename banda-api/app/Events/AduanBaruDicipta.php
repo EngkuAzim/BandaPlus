@@ -35,4 +35,9 @@ class AduanBaruDicipta implements ShouldBroadcast
             new PrivateChannel('admin-dashboard'),
         ];
     }
+
+    public function broadcastAs(): string
+    {
+        return 'AduanBaru';
+    }
 }

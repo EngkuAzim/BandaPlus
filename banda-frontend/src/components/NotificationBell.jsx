@@ -40,7 +40,7 @@ function NotificationBell() {
             echoInstance = echoModule.default;
             
             echoInstance.private(`user.${userId}`)
-                .listen('NotifikasiDihantar', (e) => {
+                .listen('.NotifikasiBaru', (e) => {
                     toast.success('Notifikasi Baru', { description: e.notifikasi?.mesej });
                     fetchNotifications();
                 });

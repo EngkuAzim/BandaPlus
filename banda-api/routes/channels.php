@@ -22,7 +22,7 @@ Broadcast::channel('user.{id}', function ($user, $id) {
 });
 
 Broadcast::channel('admin-dashboard', function ($user) {
-    return in_array($user->peranan, ['Admin', 'Pegawai']);
+    return in_array($user->peranan, ['Pentadbir','Admin', 'Pegawai']);
 });
 
 Broadcast::channel('kontraktor.{id}', function ($user, $id) {

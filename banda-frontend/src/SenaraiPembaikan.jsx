@@ -167,7 +167,7 @@ function SenaraiPembaikan() {
     import('./echo').then(({ default: echo }) => {
       echoInstance = echo;
       echo.private(`arahan-kerja.${selectedTask.id_arahan}`)
-        .listen('LogKemajuanDikemaskini', (e) => {
+        .listen('.LogKemajuan', (e) => {
           // New log or message arrived — refresh the task data silently
           fetchData(false);
         });

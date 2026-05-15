@@ -37,4 +37,9 @@ class StatusAduanBerubah implements ShouldBroadcast
             new Channel('aduan.' . $this->aduanId),
         ];
     }
+
+    public function broadcastAs(): string
+    {
+        return 'StatusBerubah';
+    }
 }

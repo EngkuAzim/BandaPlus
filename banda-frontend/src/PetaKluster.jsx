@@ -100,7 +100,7 @@ function PetaKluster() {
     import('./echo').then(({ default: echo }) => {
       echoInstance = echo;
       echo.private('admin-dashboard')
-        .listen('AduanBaruDicipta', (e) => {
+        .listen('.AduanBaru', (e) => {
           if (!e.aduan || !e.aduan.lat || !e.aduan.lon) return;
           // Pop new GPS marker onto the map instantly
           setAduans(prev => [...prev, e.aduan]);

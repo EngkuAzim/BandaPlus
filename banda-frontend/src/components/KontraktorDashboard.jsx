@@ -42,7 +42,7 @@ function KontraktorDashboard({ userData, stats }) {
     import('../echo').then(({ default: echo }) => {
       echoInstance = echo;
       echo.private(`kontraktor.${userData.id}`)
-        .listen('ArahanKerjaDitugaskan', (e) => {
+        .listen('.ArahanKerjaBaru', (e) => {
           // Pop-up notification with task details
           toast.success('Arahan Kerja Baru Diterima!', {
             description: `${e.arahanKerja?.aduan?.jenis_kerosakan || 'Tugasan baru'} telah ditugaskan kepada anda.`,
