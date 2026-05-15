@@ -90,7 +90,6 @@ function SenaraiPembaikan() {
 
   useEffect(() => {
     fetchData(true);
-    const interval = setInterval(() => fetchData(false), 2000); // 2 saat untuk live-chat feeling
 
     // Initialize Speech Recognition
     if (SpeechRecognition) {
@@ -122,8 +121,6 @@ function SenaraiPembaikan() {
 
       recognitionRef.current = recognition;
     }
-
-    return () => clearInterval(interval);
   }, []);
 
   const fetchData = async (isInitial = true) => {
@@ -161,6 +158,27 @@ function SenaraiPembaikan() {
     setShowTutupKes(false);
     setView('details');
   };
+
+  // --- FEATURE 1: Echo listener for live log updates when a task is open ---
+  useEffect(() => {
+    if (!selectedTask) return;
+
+    let echoInstance = null;
+    import('./echo').then(({ default: echo }) => {
+      echoInstance = echo;
+      echo.private(`arahan-kerja.${selectedTask.id_arahan}`)
+        .listen('LogKemajuanDikemaskini', (e) => {
+          // New log or message arrived — refresh the task data silently
+          fetchData(false);
+        });
+    });
+
+    return () => {
+      if (echoInstance) {
+        echoInstance.leave(`arahan-kerja.${selectedTask.id_arahan}`);
+      }
+    };
+  }, [selectedTask?.id_arahan]);
 
   const toggleRecording = async () => {
     if (isRecording) {

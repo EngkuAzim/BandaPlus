@@ -28,8 +28,6 @@ function LaporanTugasan() {
 
   useEffect(() => {
     fetchData(true);
-    const interval = setInterval(() => fetchData(false), 2000); // 2 saat untuk live-chat feeling
-    return () => clearInterval(interval);
   }, []);
 
   const fetchData = async (isInitial = true) => {
@@ -67,6 +65,27 @@ function LaporanTugasan() {
     setKomen('');
     setSahkanData({ lawatan_tapak: false, spesifikasi: false, catatan: '' });
   };
+
+  // --- FEATURE 1: Echo listener for live log/chat on the open task ---
+  useEffect(() => {
+    if (!selectedTask) return;
+
+    let echoInstance = null;
+    import('./echo').then(({ default: echo }) => {
+      echoInstance = echo;
+      echo.private(`arahan-kerja.${selectedTask.id_arahan}`)
+        .listen('LogKemajuanDikemaskini', (e) => {
+          // Fetch silently to update the chat timeline
+          fetchData(false);
+        });
+    });
+
+    return () => {
+      if (echoInstance) {
+        echoInstance.leave(`arahan-kerja.${selectedTask.id_arahan}`);
+      }
+    };
+  }, [selectedTask?.id_arahan]);
 
   const hantarKomen = async () => {
     if (!komen.trim()) return;

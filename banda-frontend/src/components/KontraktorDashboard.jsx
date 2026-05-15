@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 import { 
   HardHat, 
   MapPin, 
@@ -32,6 +33,32 @@ function KontraktorDashboard({ userData, stats }) {
     };
     fetchTugasan();
   }, []);
+
+  // --- FEATURE 2: Echo listener for live task assignment notification ---
+  useEffect(() => {
+    if (!userData?.id) return;
+
+    let echoInstance = null;
+    import('../echo').then(({ default: echo }) => {
+      echoInstance = echo;
+      echo.private(`kontraktor.${userData.id}`)
+        .listen('ArahanKerjaDitugaskan', (e) => {
+          // Pop-up notification with task details
+          toast.success('Arahan Kerja Baru Diterima!', {
+            description: `${e.arahanKerja?.aduan?.jenis_kerosakan || 'Tugasan baru'} telah ditugaskan kepada anda.`,
+            duration: 8000,
+          });
+          // Refresh the job list instantly
+          fetchTugasan();
+        });
+    });
+
+    return () => {
+      if (echoInstance) {
+        echoInstance.leave(`kontraktor.${userData.id}`);
+      }
+    };
+  }, [userData?.id]);
 
   const containerVariants = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } };
   const itemVariants = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } } };

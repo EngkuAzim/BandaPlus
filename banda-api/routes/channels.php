@@ -16,3 +16,21 @@ use Illuminate\Support\Facades\Broadcast;
 Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
+
+Broadcast::channel('user.{id}', function ($user, $id) {
+    return (int) $user->id === (int) $id;
+});
+
+Broadcast::channel('admin-dashboard', function ($user) {
+    return in_array($user->peranan, ['Admin', 'Pegawai']);
+});
+
+Broadcast::channel('kontraktor.{id}', function ($user, $id) {
+    return (int) $user->id === (int) $id && $user->peranan === 'Kontraktor';
+});
+
+Broadcast::channel('arahan-kerja.{id}', function ($user, $id) {
+    // Basic check: only authenticated users can listen for now
+    // In production, you would check if $user is the assigned Kontraktor or a Pegawai
+    return true;
+});

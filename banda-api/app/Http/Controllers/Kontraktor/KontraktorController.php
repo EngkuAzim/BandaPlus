@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Kontraktor;
 
 use App\Http\Controllers\Controller;
 use App\Models\ArahanKerja;
+use App\Events\LogKemajuanDikemaskini;
+use App\Events\StatusAduanBerubah;
 use Illuminate\Http\Request;
 
 class KontraktorController extends Controller
@@ -62,6 +64,8 @@ class KontraktorController extends Controller
         // If selesai, cascade to parent aduan
         if ($request->status_kerja === 'Selesai') {
             $arahan->aduan()->update(['status' => 'Selesai']);
+            // FEATURE 4: Notify komuniti user their complaint is resolved
+            broadcast(new StatusAduanBerubah($arahan->id_aduan, 'Selesai'))->toOthers();
         }
 
         return response()->json([
@@ -142,6 +146,13 @@ class KontraktorController extends Controller
         ];
 
         $arahan->update(['log_kemajuan' => $logs]);
+
+        // FEATURE 1: Fire live broadcast to Pegawai watching this task
+        broadcast(new LogKemajuanDikemaskini($id, [
+            'tarikh' => now()->toIso8601String(),
+            'nota'   => $request->nota,
+            'audio'  => $audioPath,
+        ]))->toOthers();
 
         return response()->json([
             'message' => 'Log kemajuan berjaya ditambah.',

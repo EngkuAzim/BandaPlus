@@ -55,8 +55,26 @@ function UrusAduan() {
       }
     };
     fetchData(true);
-    const interval = setInterval(() => fetchData(false), 10000);
-    return () => clearInterval(interval);
+
+    // --- FEATURE 3: Echo listener for live incoming complaints ---
+    let echoInstance = null;
+    import('./echo').then(({ default: echo }) => {
+      echoInstance = echo;
+      echo.private('admin-dashboard')
+        .listen('AduanBaruDicipta', (e) => {
+          if (!e.aduan) return;
+          // Slide new complaint into the top of the list
+          setAduans(prev => [e.aduan, ...prev]);
+          toast.success('Aduan Baru Masuk!', {
+            description: `${e.aduan.jenis_kerosakan || 'Aduan baru'} diterima dari ${e.aduan.pengguna?.name || 'Pengguna Komuniti'}.`,
+            duration: 6000,
+          });
+        });
+    });
+
+    return () => {
+      if (echoInstance) echoInstance.leave('admin-dashboard');
+    };
   }, [navigate]);
 
   const handleOpenModal = (aduan) => {

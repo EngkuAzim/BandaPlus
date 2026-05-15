@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Komuniti;
 
 use App\Http\Controllers\Controller;
 use App\Models\Aduan;
+use App\Events\AduanBaruDicipta;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -136,6 +137,9 @@ class AduanController extends Controller
             }
 
             DB::commit();
+
+            // Fire live broadcast event to Admin/Pegawai dashboards
+            broadcast(new AduanBaruDicipta($mainAduan->load('pengguna')))->toOthers();
 
             return response()->json([
                 'message' => count($labels) > 1 ? 'Aduan berbilang kerosakan berjaya dihantar dan diasingkan!' : 'Aduan berjaya dihantar!',

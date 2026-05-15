@@ -94,8 +94,22 @@ function PetaKluster() {
       }
     };
     fetchMapData(true);
-    const interval = setInterval(() => fetchMapData(false), 10000);
-    return () => clearInterval(interval);
+
+    // --- FEATURE 3 (MAP): Echo listener for live new complaint markers ---
+    let echoInstance = null;
+    import('./echo').then(({ default: echo }) => {
+      echoInstance = echo;
+      echo.private('admin-dashboard')
+        .listen('AduanBaruDicipta', (e) => {
+          if (!e.aduan || !e.aduan.lat || !e.aduan.lon) return;
+          // Pop new GPS marker onto the map instantly
+          setAduans(prev => [...prev, e.aduan]);
+        });
+    });
+
+    return () => {
+      if (echoInstance) echoInstance.leave('admin-dashboard');
+    };
   }, [navigate]);
 
   return (

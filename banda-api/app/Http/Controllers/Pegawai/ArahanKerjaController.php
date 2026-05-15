@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Pegawai;
 use App\Http\Controllers\Controller;
 use App\Models\ArahanKerja;
 use App\Models\Aduan;
+use App\Events\ArahanKerjaDitugaskan;
+use App\Events\LogKemajuanDikemaskini;
+use App\Events\StatusAduanBerubah;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -165,6 +168,12 @@ class ArahanKerjaController extends Controller
 
             DB::commit();
 
+            // FEATURE 2: Fire live broadcast to the specific kontraktor's private channel
+            broadcast(new ArahanKerjaDitugaskan(
+                $request->id_kontraktor,
+                $arahan->load(['aduan:id_aduan,jenis_kerosakan,alamat_lokasi'])
+            ))->toOthers();
+
             return response()->json([
                 'message' => $isBudgetSufficient 
                     ? 'Arahan kerja berjaya dikeluarkan.' 
@@ -201,6 +210,13 @@ class ArahanKerjaController extends Controller
         ];
 
         $arahan->update(['log_kemajuan' => $logs]);
+
+        // FEATURE 1: Fire live broadcast to the arahan kerja channel
+        broadcast(new LogKemajuanDikemaskini($id, [
+            'tarikh' => now()->toIso8601String(),
+            'nota'   => $request->nota,
+            'role'   => 'pegawai'
+        ]))->toOthers();
 
         return response()->json([
             'message' => 'Komen berjaya ditambah.',
@@ -247,6 +263,9 @@ class ArahanKerjaController extends Controller
 
         // Tutup Aduan Induk
         $arahan->aduan()->update(['status' => 'Selesai']);
+
+        // FEATURE 4: Fire live broadcast so Komuniti user sees their status update
+        broadcast(new StatusAduanBerubah($arahan->id_aduan, 'Selesai'))->toOthers();
 
         return response()->json([
             'message' => 'Kerja pembaikan telah disahkan dan aduan ditutup.',

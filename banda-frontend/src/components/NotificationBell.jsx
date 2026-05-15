@@ -24,8 +24,38 @@ function NotificationBell() {
 
   useEffect(() => {
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 30000); // Poll every 30s
-    return () => clearInterval(interval);
+    
+    let echoInstance = null;
+    let userId = null;
+
+    const setupEcho = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            const res = await axios.get('/api/user', { headers: { Authorization: `Bearer ${token}` } });
+            userId = res.data.id;
+            
+            // Import echo dynamically to avoid issues if it's not needed
+            const echoModule = await import('../echo');
+            echoInstance = echoModule.default;
+            
+            echoInstance.private(`user.${userId}`)
+                .listen('NotifikasiDihantar', (e) => {
+                    toast.success('Notifikasi Baru', { description: e.notifikasi?.mesej });
+                    fetchNotifications();
+                });
+        } catch (error) {
+            console.error('Failed to setup echo', error);
+        }
+    };
+    
+    setupEcho();
+
+    return () => {
+        if (echoInstance && userId) {
+            echoInstance.leave(`user.${userId}`);
+        }
+    };
   }, []);
 
   const markAsRead = async (id) => {

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Clock, CheckCircle2, AlertCircle, XCircle, MapPin, Calendar, Activity, ChevronRight, X, MessageSquare, FileText } from 'lucide-react';
+import { toast } from 'sonner';
 import Sidebar from './Sidebar';
 
 function StatusAduan() {
@@ -45,9 +46,33 @@ function StatusAduan() {
       }
     };
     fetchData(true);
-    const interval = setInterval(() => fetchData(false), 10000);
-    return () => clearInterval(interval);
   }, [navigate]);
+
+  useEffect(() => {
+    if (aduans.length > 0) {
+      import('./echo').then(({ default: echo }) => {
+        aduans.forEach(aduan => {
+          echo.channel(`aduan.${aduan.id_aduan}`)
+            .listen('StatusAduanBerubah', (e) => {
+              toast.info(`Status aduan ${e.aduanId} dikemaskini: ${e.status}`);
+              // Panggil fetchData untuk dapatkan data baharu apabila status berubah
+              const token = localStorage.getItem('token');
+              axios.get(`/api/aduan`, { headers: { Authorization: `Bearer ${token}` } })
+                .then(res => {
+                  setAduans(res.data);
+                  setSelectedAduan(prev => prev ? res.data.find(a => a.id_aduan === prev.id_aduan) : null);
+                });
+            });
+        });
+      });
+    }
+
+    return () => {
+      import('./echo').then(({ default: echo }) => {
+        aduans.forEach(aduan => echo.leave(`aduan.${aduan.id_aduan}`));
+      });
+    };
+  }, [aduans]);
 
   const getStatusBadge = (status) => {
     switch (status) {
