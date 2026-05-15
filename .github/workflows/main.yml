@@ -17,7 +17,7 @@ jobs:
       - name: Create Test Environment File
         working-directory: ./banda-api
         run: cp .env.example .env
-        
+
       - name: Install Dependencies
         working-directory: ./banda-api
         run: composer install --no-progress --prefer-dist
@@ -49,6 +49,7 @@ jobs:
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            git config --global --add safe.directory /var/www/BandaPlus
             cd /var/www/BandaPlus
             git pull origin main
             
@@ -60,5 +61,8 @@ jobs:
             
             # Frontend Update
             cd ../banda-frontend
+            rm -rf node_modules
             npm install
+            chmod +x node_modules/.bin/vite
             npm run build
+            
