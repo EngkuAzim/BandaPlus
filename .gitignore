@@ -1,0 +1,14 @@
+# Virtual environments
+bandaplus_yolo/yolo_env/
+**/venv/
+**/env/
+
+# Large Model Weights
+*.pt
+
+# YOLO output directories
+runs/
+bandaplus_yolo/temp_processing/
+
+# Datasets
+bandaplus_yolo/pothole-detection-1/
