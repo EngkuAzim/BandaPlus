@@ -2,12 +2,14 @@ import os
 import time
 import requests
 import json
+# pyrefly: ignore [missing-import]
 from ultralytics import YOLO
 import urllib.request
 
 # --- CONFIGURATION ---
 # Replace this with your Droplet IP or Domain (e.g. http://142.93.x.x)
 API_BASE_URL = "http://146.190.86.94"
+
 API_PENDING_URL = f"{API_BASE_URL}/api/ai/pending"
 API_UPLOAD_URL = f"{API_BASE_URL}/api/ai/upload-detection"
 
