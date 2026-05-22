@@ -5,6 +5,12 @@
 		},
 		{
 			"path": "../banda-frontend"
+		},
+		{
+			"path": "../.github"
+		},
+		{
+			"path": "../bandaplus_yolo"
 		}
 	]
 }

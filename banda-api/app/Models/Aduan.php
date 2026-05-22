@@ -34,7 +34,13 @@ class Aduan extends Model
         'skor_ai',
         'label_prioriti',
         'status',
-        'maklum_balas'
+        'maklum_balas',
+        'detected_image_path',
+        'ai_predictions'
+    ];
+
+    protected $casts = [
+        'ai_predictions' => 'array',
     ];
     protected $hidden = [
         'lokasi_gps',

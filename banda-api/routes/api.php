@@ -14,11 +14,15 @@ use App\Http\Controllers\Pegawai\JabatanController;
 use App\Http\Controllers\Pegawai\BajetController;
 use App\Http\Controllers\Kontraktor\KontraktorController;
 use App\Http\Controllers\Admin\PoiController;
+use App\Http\Controllers\AiDetectionController;
 
 // ============================================================
 // PUBLIC ROUTES — No authentication required
 // ============================================================
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,1');
+// AI Worker API Endpoint (Authorized via Bearer token in Controller)
+Route::post('/ai/upload-detection', [AiDetectionController::class, 'uploadDetection']);
+Route::get('/ai/pending', [AiDetectionController::class, 'getPending']);
 Route::post('/login',    [AuthController::class, 'login'])->middleware('throttle:5,1');
 Route::get('/public/reviews', function() {
     return response()->json([]); // Empty for now to satisfy frontend carousel
