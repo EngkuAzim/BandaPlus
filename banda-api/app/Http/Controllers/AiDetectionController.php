@@ -101,8 +101,8 @@ class AiDetectionController extends Controller
             // Fetch complaints that don't have AI predictions yet and are 'Baru' or 'Dalam Tindakan'
             $pendingAduan = Aduan::whereNull('ai_predictions')
                 ->whereIn('status', ['Baru', 'Dalam Tindakan'])
-                ->select('id_aduan', 'gambar_bukti', 'status', 'created_at')
-                ->orderBy('created_at', 'asc')
+                ->select('id_aduan', 'gambar_bukti', 'status', 'tarikh_lapor')
+                ->orderBy('tarikh_lapor', 'asc')
                 ->limit(5)
                 ->get();
 
