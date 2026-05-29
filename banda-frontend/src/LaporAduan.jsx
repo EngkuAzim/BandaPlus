@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { motion } from 'framer-motion';
-import { UploadCloud, FileText, MapPin, Send, Loader2, AlertCircle, X, Image as ImageIcon, Map } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { UploadCloud, FileText, MapPin, Send, Loader2, Image as ImageIcon, Map, ChevronRight, ChevronLeft, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import Sidebar from './Sidebar';
 import exifr from 'exifr';
@@ -13,6 +13,10 @@ function LaporAduan() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
   
+  // WIZARD STATE
+  const [currentStep, setCurrentStep] = useState(1);
+  const totalSteps = 3;
+
   const [formData, setFormData] = useState({
     jenis_kerosakan: '',
     id_zon: '', 
@@ -24,6 +28,10 @@ function LaporAduan() {
   
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const [scanId, setScanId] = useState(null);
+  const [isScanning, setIsScanning] = useState(false);
+  const [aiPredictions, setAiPredictions] = useState(null);
+  const pollingIntervalRef = React.useRef(null);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -31,7 +39,16 @@ function LaporAduan() {
     axios.get(`/api/user`, {
       headers: { Authorization: `Bearer ${token}` }
     }).then(res => setUserData(res.data)).catch(() => navigate('/login'));
+
+    return () => stopPolling();
   }, [navigate]);
+
+  const stopPolling = () => {
+    if (pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+      pollingIntervalRef.current = null;
+    }
+  };
 
   const fetchAddressFromCoords = async (lat, lng) => {
     setIsLocating(true);
@@ -53,6 +70,83 @@ function LaporAduan() {
     }
   };
 
+  const uploadForScan = async (file) => {
+    setIsScanning(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.post('/api/aduan/pre-upload', formData, {
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' }
+      });
+      
+      const id = res.data.scan_id;
+      setScanId(id);
+      
+      pollingIntervalRef.current = setInterval(() => checkScanStatus(id), 2000);
+    } catch (error) {
+      setIsScanning(false);
+      toast.error('Gagal Memuat Naik AI', { description: 'Sila cuba lagi.' });
+    }
+  };
+
+  const checkScanStatus = async (id) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.get(`/api/aduan/scan-status/${id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      if (res.data.status === 'completed') {
+        stopPolling();
+        setIsScanning(false);
+        setAiPredictions(res.data.predictions);
+        
+        if (res.data.image_path) {
+            const apiUrl = import.meta.env.VITE_API_URL || 'http://banda-api.test';
+            setImagePreview(`${apiUrl}/storage/${res.data.image_path}`);
+        }
+        
+        if (res.data.predictions && res.data.predictions.length > 0) {
+            const sorted = [...res.data.predictions].sort((a, b) => b.confidence - a.confidence);
+            const topPrediction = sorted[0].class;
+            
+            let matchedValue = "Lain-lain";
+            const kerosakanMap = {
+                "Pothole": "Jalan Berlubang",
+                "Fallen Tree": "Pokok Tumbang",
+                "Flood": "Banjir",
+                "Stray Dog": "Anjing Liar / Haiwan Terbiar",
+                "Illegal Dumping": "Pembuangan Sampah Haram",
+                "Broken Streetlight": "Lampu Jalan Rosak",
+                "Clogged Drain": "Longkang Tersumbat/Pecah",
+                "Public Infrastructure": "Infrastruktur Awam"
+            };
+            
+            if (kerosakanMap[topPrediction]) {
+                matchedValue = kerosakanMap[topPrediction];
+            } else {
+                const validOptions = [
+                  "Jalan Berlubang", "Banjir", "Anjing Liar / Haiwan Terbiar", "Pembuangan Sampah Haram",
+                  "Lampu Jalan Rosak", "Longkang Tersumbat/Pecah", "Pokok Tumbang", "Infrastruktur Awam", "Lain-lain"
+                ];
+                if (validOptions.includes(topPrediction)) {
+                    matchedValue = topPrediction;
+                }
+            }
+
+            setFormData(prev => ({ ...prev, jenis_kerosakan: matchedValue }));
+            toast.success('Analisis AI Selesai!', { description: `AI dikesan: ${matchedValue}` });
+        } else {
+            toast.info('Analisis AI Selesai', { description: 'Sila pilih kategori secara manual.' });
+        }
+      }
+    } catch (error) {
+      console.error("Polling error:", error);
+    }
+  };
+
   const handleImageChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -62,18 +156,16 @@ function LaporAduan() {
       }
       setSelectedImage(file);
       setImagePreview(URL.createObjectURL(file));
+      
+      uploadForScan(file);
 
       try {
         const gpsData = await exifr.gps(file);
-        
         if (gpsData && gpsData.latitude && gpsData.longitude) {
           fetchAddressFromCoords(gpsData.latitude, gpsData.longitude);
-        } else {
-          toast.info('Tiada Data GPS', { description: 'Gambar ini tiada data lokasi. Sila gunakan butang peta.' });
         }
       } catch (error) {
         console.error('Ralat membaca EXIF:', error);
-        toast.info('Ralat GPS', { description: 'Tidak dapat membaca data lokasi gambar ini.' });
       }
     }
   };
@@ -82,12 +174,10 @@ function LaporAduan() {
     setIsLocating(true);
     if ("geolocation" in navigator) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
-          fetchAddressFromCoords(position.coords.latitude, position.coords.longitude);
-        },
-        (error) => {
+        (position) => fetchAddressFromCoords(position.coords.latitude, position.coords.longitude),
+        () => {
           setIsLocating(false);
-          toast.error('Akses Ditolak', { description: 'Sila benarkan akses lokasi pada pelayar web anda.' });
+          toast.error('Akses Ditolak', { description: 'Sila benarkan akses lokasi.' });
         }
       );
     }
@@ -96,12 +186,29 @@ function LaporAduan() {
   const clearImage = () => {
     setSelectedImage(null);
     setImagePreview(null);
-    setFormData(prev => ({...prev, lat: null, lng: null, alamat_lokasi: ''}));
+    setScanId(null);
+    setAiPredictions(null);
+    stopPolling();
+    setIsScanning(false);
   };
+
+  const handleNext = () => {
+    if (currentStep === 1 && !selectedImage) {
+        return toast.error("Sila muat naik gambar terlebih dahulu");
+    }
+    if (currentStep === 2) {
+        if (!formData.jenis_kerosakan || !formData.id_zon || !formData.alamat_lokasi) {
+            return toast.error("Sila lengkapkan semua butiran yang diperlukan");
+        }
+    }
+    setCurrentStep(prev => Math.min(prev + 1, totalSteps));
+  };
+
+  const handlePrev = () => setCurrentStep(prev => Math.max(prev - 1, 1));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedImage) return toast.error('Gambar Diperlukan');
+    if (!selectedImage && !scanId) return toast.error('Gambar Diperlukan');
 
     setIsSubmitting(true);
     const submitData = new FormData();
@@ -109,7 +216,12 @@ function LaporAduan() {
     submitData.append('id_zon', formData.id_zon);
     submitData.append('alamat_lokasi', formData.alamat_lokasi);
     submitData.append('keterangan_aduan', formData.keterangan_aduan);
-    submitData.append('gambar_bukti', selectedImage);
+    
+    if (scanId) {
+        submitData.append('scan_id', scanId);
+    } else if (selectedImage) {
+        submitData.append('gambar_bukti', selectedImage);
+    }
     
     if (formData.lat && formData.lng) {
       submitData.append('lat', formData.lat);
@@ -119,7 +231,7 @@ function LaporAduan() {
     try {
       const token = localStorage.getItem('token');
       await axios.post(`/api/aduan`, submitData, {
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' }
+        headers: { Authorization: `Bearer ${token}` }
       });
       toast.success('Aduan Berjaya Dihantar!');
       setTimeout(() => navigate('/dashboard'), 1500);
@@ -130,103 +242,241 @@ function LaporAduan() {
     }
   };
 
+  const renderStepIndicator = () => (
+    <div className="mb-8 relative max-w-2xl mx-auto">
+        <div className="absolute top-1/2 left-0 right-0 h-1 bg-slate-200 -translate-y-1/2 rounded-full z-0"></div>
+        <div 
+            className="absolute top-1/2 left-0 h-1 bg-teal-500 -translate-y-1/2 rounded-full z-0 transition-all duration-500 ease-in-out" 
+            style={{ width: `${((currentStep - 1) / (totalSteps - 1)) * 100}%` }}
+        ></div>
+        
+        <div className="relative z-10 flex justify-between">
+            {[1, 2, 3].map((step) => (
+                <div key={step} className="flex flex-col items-center">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold border-4 transition-colors duration-300 ${
+                        currentStep > step ? 'bg-teal-500 border-teal-500 text-white' : 
+                        currentStep === step ? 'bg-white border-teal-500 text-teal-600' : 'bg-white border-slate-200 text-slate-400'
+                    }`}>
+                        {currentStep > step ? <CheckCircle className="w-5 h-5" /> : step}
+                    </div>
+                    <span className={`mt-2 text-xs font-bold ${currentStep >= step ? 'text-teal-700' : 'text-slate-400'}`}>
+                        {step === 1 ? 'Gambar Bukti' : step === 2 ? 'Butiran Lokasi' : 'Semakan'}
+                    </span>
+                </div>
+            ))}
+        </div>
+    </div>
+  );
+
   return (
     <div className="flex h-screen bg-slate-50 font-sans">
       <Sidebar userData={userData} />
       <div className="flex-1 flex flex-col overflow-hidden relative">
         <header className="flex items-center justify-between px-8 py-5 bg-white border-b border-slate-200">
-          <h2 className="text-2xl font-black text-slate-900">Lapor Aduan</h2>
+          <h2 className="text-2xl font-black text-slate-900">Lapor Aduan Baru</h2>
         </header>
 
         <main className="flex-1 overflow-x-hidden overflow-y-auto p-8">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-4xl mx-auto">
-            <form onSubmit={handleSubmit} className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col md:flex-row">
-              
-              {/* IMAGE UPLOAD SECTION */}
-              <div className="w-full md:w-5/12 bg-slate-50 p-8 border-r border-slate-200 flex flex-col">
-                <h4 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
-                  <ImageIcon className="w-5 h-5 text-teal-600" /> Gambar Bukti
-                </h4>
-                <div className="flex-1 flex flex-col items-center justify-center">
-                  {!imagePreview ? (
-                    <label className="w-full h-full min-h-[300px] border-2 border-dashed border-slate-300 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-teal-500 hover:bg-teal-50/50 transition-colors group">
-                      <UploadCloud className="w-8 h-8 text-teal-600 mb-4" />
-                      <p className="font-bold text-slate-700">Muat Naik Gambar</p>
-                      <input type="file" accept="image/jpeg, image/png" className="hidden" onChange={handleImageChange} />
-                    </label>
-                  ) : (
-                    <div className="relative w-full h-full min-h-[300px] rounded-2xl overflow-hidden border border-slate-200 group">
-                      <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                         <button type="button" onClick={clearImage} className="bg-rose-500 text-white font-bold py-2 px-4 rounded-lg">Batal</button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
+          <div className="max-w-3xl mx-auto">
+            
+            {renderStepIndicator()}
 
-              {/* DETAILS SECTION */}
-              <div className="w-full md:w-7/12 p-8 flex flex-col">
-                <h4 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-teal-600" /> Butiran Kerosakan
-                </h4>
+            <motion.div 
+                key={currentStep}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+                className="bg-white rounded-3xl border border-slate-200 shadow-sm p-8"
+            >
+              <form onSubmit={(e) => { e.preventDefault(); if (currentStep === 3) handleSubmit(e); }}>
                 
-                <div className="space-y-6 flex-1">
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700">Kategori Kerosakan</label>
-                    <select required value={formData.jenis_kerosakan} onChange={(e) => setFormData({...formData, jenis_kerosakan: e.target.value})} className="w-full px-4 py-3.5 bg-white border border-slate-200 rounded-xl outline-none">
-                      <option value="" disabled>Pilih Kategori...</option>
-                      <option value="Jalan Berlubang">Jalan Berlubang</option>
-                      <option value="Lampu Jalan Rosak">Lampu Jalan Rosak</option>
-                      <option value="Longkang Tersumbat/Pecah">Longkang Tersumbat/Pecah</option>
-                      <option value="Pokok Tumbang">Pokok Tumbang</option>
-                      <option value="Infrastruktur Awam">Infrastruktur Awam (Taman/Surau)</option>
-                      <option value="Lain-lain">Lain-lain</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700">Zon MPAJ</label>
-                    <select required value={formData.id_zon} onChange={(e) => setFormData({...formData, id_zon: e.target.value})} className="w-full px-4 py-3.5 bg-white border border-slate-200 rounded-xl outline-none">
-                      <option value="" disabled>Pilih Zon Anda...</option>
-                      <option value="1">Zon 1 (Taman Melawati)</option>
-                      <option value="2">Zon 2 (Klang Gates / Ukay Perdana)</option>
-                      <option value="3">Zon 3 (Bukit Antarabangsa)</option>
-                      <option value="4">Zon 4 (Ukay Bistari)</option>
-                      <option value="5">Zon 5 (Ampang Jaya)</option>
-                    </select>
-                  </div>
-
-                  {/* ALAMAT & MAP BUTTON */}
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-end">
-                       <label className="text-sm font-bold text-slate-700">Alamat Kejadian</label>
-                       <button type="button" onClick={getCurrentLocation} disabled={isLocating} className="text-xs font-bold text-teal-600 hover:text-teal-700 flex items-center gap-1 bg-teal-50 px-3 py-1.5 rounded-lg transition-colors">
-                         {isLocating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Map className="w-3 h-3" />}
-                         Guna Lokasi Semasa
-                       </button>
+                {/* STEP 1: UPLOAD & AI SCAN */}
+                {currentStep === 1 && (
+                  <div className="flex flex-col items-center text-center">
+                    <div className="w-16 h-16 bg-teal-50 rounded-2xl flex items-center justify-center mb-4">
+                        <ImageIcon className="w-8 h-8 text-teal-600" />
                     </div>
-                    <div className="relative">
-                      <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                      <input type="text" required placeholder="Contoh: Hadapan SMK Taman Melawati..." value={formData.alamat_lokasi} onChange={(e) => setFormData({...formData, alamat_lokasi: e.target.value})} className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-xl outline-none" />
+                    <h3 className="text-2xl font-black text-slate-900 mb-2">Muat Naik Gambar</h3>
+                    <p className="text-slate-500 mb-8 max-w-md">
+                        Muat naik gambar kerosakan atau isu infrastruktur. AI kami akan mengimbas gambar anda secara automatik.
+                    </p>
+
+                    <div className="w-full max-w-lg aspect-square">
+                      {!imagePreview ? (
+                        <label className="w-full h-full border-2 border-dashed border-slate-300 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:border-teal-500 hover:bg-teal-50/50 transition-colors group">
+                          <UploadCloud className="w-12 h-12 text-teal-600 mb-4 group-hover:scale-110 transition-transform" />
+                          <p className="font-bold text-slate-700 text-lg">Klik Untuk Muat Naik</p>
+                          <p className="text-sm text-slate-400 mt-2">Format: JPG, PNG (Max 5MB)</p>
+                          <input type="file" accept="image/jpeg, image/png" className="hidden" onChange={handleImageChange} />
+                        </label>
+                      ) : (
+                        <div className="relative w-full h-full rounded-3xl overflow-hidden border border-slate-200 group shadow-inner">
+                          <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                          
+                          {isScanning && (
+                            <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-10 flex flex-col items-center justify-center overflow-hidden">
+                              <motion.div 
+                                className="absolute left-0 right-0 h-0.5 bg-teal-400 shadow-[0_0_15px_4px_rgba(45,212,191,0.8)]"
+                                animate={{ top: ["0%", "100%", "0%"] }}
+                                transition={{ repeat: Infinity, duration: 2.5, ease: "linear" }}
+                              />
+                              <motion.div
+                                animate={{ scale: [1, 1.1, 1], opacity: [0.7, 1, 0.7] }}
+                                transition={{ repeat: Infinity, duration: 1.5 }}
+                                className="flex flex-col items-center z-20"
+                              >
+                                <div className="w-16 h-16 rounded-full bg-teal-500/20 border-2 border-teal-400 flex items-center justify-center mb-3">
+                                  <Loader2 className="w-8 h-8 text-teal-400 animate-spin" />
+                                </div>
+                                <span className="text-white font-bold tracking-widest text-sm uppercase">Menganalisis...</span>
+                              </motion.div>
+                            </div>
+                          )}
+
+                          {!isScanning && (
+                            <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20">
+                               <button type="button" onClick={clearImage} className="bg-rose-500 hover:bg-rose-600 transition-colors text-white font-bold py-2 px-6 rounded-xl shadow-lg">Batal & Tukar Gambar</button>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
+                )}
 
-                  <div className="space-y-2 flex-1 flex flex-col">
-                    <label className="text-sm font-bold text-slate-700">Keterangan Lanjut</label>
-                    <textarea value={formData.keterangan_aduan} onChange={(e) => setFormData({...formData, keterangan_aduan: e.target.value})} className="w-full flex-1 min-h-[120px] px-4 py-3.5 bg-white border border-slate-200 rounded-xl resize-none outline-none"></textarea>
+                {/* STEP 2: LOCATION & DETAILS */}
+                {currentStep === 2 && (
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="w-12 h-12 bg-teal-50 rounded-xl flex items-center justify-center">
+                            <FileText className="w-6 h-6 text-teal-600" />
+                        </div>
+                        <div>
+                            <h3 className="text-xl font-black text-slate-900">Butiran Kerosakan</h3>
+                            <p className="text-sm text-slate-500">Isi maklumat lokasi dan jenis masalah.</p>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <label className="text-sm font-bold text-slate-700">Kategori Kerosakan</label>
+                            <select required value={formData.jenis_kerosakan} onChange={(e) => setFormData({...formData, jenis_kerosakan: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all">
+                            <option value="" disabled>Pilih Kategori...</option>
+                            <option value="Jalan Berlubang">Jalan Berlubang</option>
+                            <option value="Banjir">Banjir</option>
+                            <option value="Anjing Liar / Haiwan Terbiar">Anjing Liar / Haiwan Terbiar</option>
+                            <option value="Pembuangan Sampah Haram">Pembuangan Sampah Haram</option>
+                            <option value="Lampu Jalan Rosak">Lampu Jalan Rosak</option>
+                            <option value="Longkang Tersumbat/Pecah">Longkang Tersumbat/Pecah</option>
+                            <option value="Pokok Tumbang">Pokok Tumbang</option>
+                            <option value="Infrastruktur Awam">Infrastruktur Awam (Taman/Surau)</option>
+                            <option value="Lain-lain">Lain-lain</option>
+                            </select>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-bold text-slate-700">Zon MPAJ</label>
+                            <select required value={formData.id_zon} onChange={(e) => setFormData({...formData, id_zon: e.target.value})} className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all">
+                            <option value="" disabled>Pilih Zon Anda...</option>
+                            <option value="1">Zon 1 (Taman Melawati)</option>
+                            <option value="2">Zon 2 (Klang Gates / Ukay Perdana)</option>
+                            <option value="3">Zon 3 (Bukit Antarabangsa)</option>
+                            <option value="4">Zon 4 (Ukay Bistari)</option>
+                            <option value="5">Zon 5 (Ampang Jaya)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <div className="flex justify-between items-end">
+                            <label className="text-sm font-bold text-slate-700">Alamat Kejadian</label>
+                            <button type="button" onClick={getCurrentLocation} disabled={isLocating} className="text-xs font-bold text-teal-600 hover:text-teal-700 flex items-center gap-1 bg-teal-50 px-3 py-1.5 rounded-lg transition-colors">
+                                {isLocating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Map className="w-3 h-3" />}
+                                Guna Lokasi Semasa
+                            </button>
+                        </div>
+                        <div className="relative">
+                            <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                            <input type="text" required placeholder="Contoh: Hadapan SMK Taman Melawati..." value={formData.alamat_lokasi} onChange={(e) => setFormData({...formData, alamat_lokasi: e.target.value})} className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all" />
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-sm font-bold text-slate-700">Keterangan Lanjut (Pilihan)</label>
+                        <textarea value={formData.keterangan_aduan} onChange={(e) => setFormData({...formData, keterangan_aduan: e.target.value})} placeholder="Terangkan sedikit tentang masalah ini jika perlu..." className="w-full min-h-[120px] px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl resize-none outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all"></textarea>
+                    </div>
                   </div>
+                )}
+
+                {/* STEP 3: REVIEW & SUBMIT */}
+                {currentStep === 3 && (
+                  <div className="space-y-6">
+                    <div className="text-center mb-8">
+                        <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <CheckCircle className="w-8 h-8 text-emerald-600" />
+                        </div>
+                        <h3 className="text-2xl font-black text-slate-900">Semakan Terakhir</h3>
+                        <p className="text-slate-500">Sila pastikan maklumat di bawah tepat sebelum menghantar.</p>
+                    </div>
+
+                    <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="rounded-xl overflow-hidden border border-slate-200 shadow-sm aspect-video">
+                            <img src={imagePreview} className="w-full h-full object-cover" alt="Preview" />
+                        </div>
+                        <div className="space-y-4">
+                            <div>
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">Kategori</p>
+                                <p className="text-lg font-bold text-slate-900">{formData.jenis_kerosakan}</p>
+                            </div>
+                            <div>
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">Zon</p>
+                                <p className="text-sm font-bold text-slate-900">Zon {formData.id_zon}</p>
+                            </div>
+                            <div>
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">Lokasi</p>
+                                <p className="text-sm font-medium text-slate-700 line-clamp-2">{formData.alamat_lokasi}</p>
+                            </div>
+                        </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* NAVIGATION BUTTONS */}
+                <div className="mt-10 flex items-center justify-between pt-6 border-t border-slate-100">
+                    <button 
+                        type="button" 
+                        onClick={handlePrev}
+                        disabled={currentStep === 1}
+                        className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${currentStep === 1 ? 'opacity-0 pointer-events-none' : 'text-slate-500 hover:bg-slate-100'}`}
+                    >
+                        <ChevronLeft className="w-5 h-5" /> Kembali
+                    </button>
+                    
+                    {currentStep < totalSteps ? (
+                        <button 
+                            type="button" 
+                            onClick={handleNext}
+                            disabled={isScanning || (currentStep === 1 && !selectedImage)}
+                            className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-8 rounded-xl flex items-center gap-2 shadow-lg shadow-teal-500/30 transition-all disabled:opacity-50 disabled:shadow-none"
+                        >
+                            Seterusnya <ChevronRight className="w-5 h-5" />
+                        </button>
+                    ) : (
+                        <button 
+                            type="submit" 
+                            disabled={isSubmitting}
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-8 rounded-xl flex items-center gap-2 shadow-lg shadow-emerald-500/30 transition-all"
+                        >
+                            {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+                            Hantar Laporan Aduan
+                        </button>
+                    )}
                 </div>
 
-                <div className="mt-8 pt-6 border-t border-slate-100 flex justify-end">
-                  <button type="submit" disabled={isSubmitting} className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3.5 px-8 rounded-xl flex items-center gap-2">
-                    {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-                    Hantar Aduan
-                  </button>
-                </div>
-              </div>
-            </form>
-          </motion.div>
+              </form>
+            </motion.div>
+          </div>
         </main>
       </div>
     </div>

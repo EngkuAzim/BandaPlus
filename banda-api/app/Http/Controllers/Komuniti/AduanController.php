@@ -25,10 +25,30 @@ class AduanController extends Controller
             'id_zon'           => 'required|integer',
             'alamat_lokasi'    => 'required|string|max:255',
             'keterangan_aduan' => 'nullable|string',
-            'gambar_bukti'     => 'required|image|mimes:jpeg,png,jpg|max:5048',
+            'gambar_bukti'     => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5048',
+            'scan_id'          => 'nullable|string',
         ]);
 
-        $imagePath = $request->file('gambar_bukti')->store('aduan_images', 'public');
+        $imagePath = null;
+        $aiPredictions = null;
+        $detectedImagePath = null;
+
+        if ($request->has('scan_id')) {
+            $scan = \App\Models\AiScan::find($request->scan_id);
+            if ($scan) {
+                $imagePath = $scan->image_path;
+                $aiPredictions = $scan->predictions;
+                if (str_starts_with($imagePath, 'detections/')) {
+                    $detectedImagePath = 'storage/' . $imagePath;
+                }
+            }
+        } 
+        
+        if (!$imagePath && $request->hasFile('gambar_bukti')) {
+            $imagePath = $request->file('gambar_bukti')->store('aduan_images', 'public');
+        } elseif (!$imagePath) {
+            return response()->json(['error' => 'Gambar atau scan_id diperlukan'], 422);
+        }
 
         $lat = $request->input('lat');
         $lng = $request->input('lng');
@@ -92,6 +112,8 @@ class AduanController extends Controller
                     'skor_ai'          => $priorityResult['skor'],
                     'label_prioriti'   => $priorityResult['label'],
                     'id_aduan_induk'   => $id_aduan_induk,
+                    'ai_predictions'   => $aiPredictions,
+                    'detected_image_path' => $detectedImagePath,
                 ]);
                 $mainAduan = $aduan;
             } else {
@@ -111,6 +133,8 @@ class AduanController extends Controller
                     'skor_ai'          => 0, // Induk doesn't need score
                     'label_prioriti'   => 'N/A',
                     'id_aduan_induk'   => null,
+                    'ai_predictions'   => $aiPredictions,
+                    'detected_image_path' => $detectedImagePath,
                 ]);
 
                 // 2. Create Anak Aduan for each label
@@ -132,6 +156,8 @@ class AduanController extends Controller
                         'skor_ai'          => $priorityResult['skor'],
                         'label_prioriti'   => $priorityResult['label'],
                         'id_aduan_induk'   => $mainAduan->id_aduan, // Link to parent
+                        'ai_predictions'   => $aiPredictions,
+                        'detected_image_path' => $detectedImagePath,
                     ]);
                 }
             }

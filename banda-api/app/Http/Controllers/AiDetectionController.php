@@ -115,4 +115,111 @@ class AiDetectionController extends Controller
             return response()->json(['error' => 'Internal Server Error'], 500);
         }
     }
+
+    /**
+     * Frontend: Upload image for AI scan before final submission
+     */
+    public function preUpload(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|image|mimes:jpeg,png,jpg,webp|max:10240',
+        ]);
+
+        $path = $request->file('file')->store('aduan_images', 'public');
+        
+        $scan = \App\Models\AiScan::create([
+            'image_path' => $path,
+            'status' => 'pending',
+        ]);
+
+        return response()->json([
+            'scan_id' => $scan->id,
+            'image_path' => $path
+        ], 200);
+    }
+
+    /**
+     * Frontend: Check status of AI scan
+     */
+    public function scanStatus($id)
+    {
+        $scan = \App\Models\AiScan::find($id);
+        
+        if (!$scan) {
+            return response()->json(['error' => 'Scan not found'], 404);
+        }
+
+        return response()->json([
+            'status' => $scan->status,
+            'predictions' => $scan->predictions,
+            'image_path' => $scan->image_path
+        ], 200);
+    }
+
+    /**
+     * Worker: Fetch pending scans
+     */
+    public function getPendingScans(Request $request)
+    {
+        try {
+            $workerToken = env('AI_WORKER_TOKEN', 'secret-ai-token-123');
+            if ($request->bearerToken() !== $workerToken) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
+
+            $pending = \App\Models\AiScan::where('status', 'pending')
+                ->orderBy('created_at', 'asc')
+                ->limit(5)
+                ->get();
+
+            return response()->json(['data' => $pending], 200);
+
+        } catch (\Exception $e) {
+            Log::error('AI fetch pending scans error: ' . $e->getMessage());
+            return response()->json(['error' => 'Internal Server Error'], 500);
+        }
+    }
+
+    /**
+     * Worker: Upload scan result
+     */
+    public function uploadScanResult(Request $request)
+    {
+        try {
+            $workerToken = env('AI_WORKER_TOKEN', 'secret-ai-token-123');
+            if ($request->bearerToken() !== $workerToken) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
+
+            $validated = $request->validate([
+                'scan_id' => 'required|string',
+                'predictions' => 'required|string',
+            ]);
+
+            $scan = \App\Models\AiScan::find($validated['scan_id']);
+            if (!$scan) {
+                return response()->json(['error' => 'Scan not found'], 404);
+            }
+
+            $predictionsData = json_decode($validated['predictions'], true);
+            
+            $scan->status = 'completed';
+            $scan->predictions = $predictionsData;
+            
+            // If the worker also sends a modified file with bounding boxes, save it
+            if ($request->hasFile('file')) {
+                $path = $request->file('file')->store('detections', 'public');
+                // Could store this somewhere if needed, but the original image is in image_path
+                $scan->image_path = 'detections/' . basename($path); // Update path to the boxed image
+            }
+
+            $scan->save();
+
+            return response()->json(['message' => 'Scan updated successfully'], 200);
+
+        } catch (\Exception $e) {
+            Log::error('AI upload scan result error: ' . $e->getMessage());
+            return response()->json(['error' => 'Internal Server Error'], 500);
+        }
+    }
 }

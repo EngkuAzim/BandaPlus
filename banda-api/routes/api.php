@@ -20,13 +20,22 @@ use App\Http\Controllers\AiDetectionController;
 // PUBLIC ROUTES — No authentication required
 // ============================================================
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,1');
-// AI Worker API Endpoint (Authorized via Bearer token in Controller)
+// AI Worker API Endpoints (Authorized via Bearer token in Controller)
+Route::post('/ai/upload-scan-result', [AiDetectionController::class, 'uploadScanResult']);
+Route::get('/ai/pending-scans', [AiDetectionController::class, 'getPendingScans']);
+
+// Old endpoints kept for fallback if needed:
 Route::post('/ai/upload-detection', [AiDetectionController::class, 'uploadDetection']);
 Route::get('/ai/pending', [AiDetectionController::class, 'getPending']);
+
 Route::post('/login',    [AuthController::class, 'login'])->middleware('throttle:5,1');
 Route::get('/public/reviews', function() {
     return response()->json([]); // Empty for now to satisfy frontend carousel
 });
+
+// Pre-upload and scan polling for frontend (doesn't require auth yet because it's during form fill)
+Route::post('/aduan/pre-upload', [AiDetectionController::class, 'preUpload']);
+Route::get('/aduan/scan-status/{id}', [AiDetectionController::class, 'scanStatus']);
 
 // ============================================================
 // PROTECTED ROUTES — Must be logged in

@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('point_of_interests', function (Blueprint $table) {
             $table->id();
             $table->string('nama');
-            $table->string('kategori'); // hospital, balai_polis, sekolah, bomba, lain
+            $table->string('kategori'); 
             $table->decimal('lat', 10, 7);
             $table->decimal('lng', 10, 7);
             $table->boolean('is_aktif')->default(true);

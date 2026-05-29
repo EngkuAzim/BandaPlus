@@ -1,4 +1,6 @@
+# pyrefly: ignore [missing-import]
 from ultralytics import YOLO
+# pyrefly: ignore [missing-import]
 import torch
 
 def main():
@@ -11,7 +13,7 @@ def main():
 
     # Start the training process
     model.train(
-        data="C:/laragon/www/bandaplus_yolo/pothole-detection-1/data.yaml", # Double check if your folder is named pothole-detection-1!
+        data="C:/laragon/www/bandaplus_yolo/BandaPlus_Master_Dataset/data.yaml", # Pointing to the unified master dataset!
         epochs=30,         # 30 epochs is perfect for a rapid test run
         imgsz=640,         # Standard input resolution
         batch=16,          # Safe setting for your 6GB VRAM to prevent memory crashes

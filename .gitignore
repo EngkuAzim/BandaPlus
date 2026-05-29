@@ -12,3 +12,9 @@ bandaplus_yolo/temp_processing/
 
 # Datasets
 bandaplus_yolo/pothole-detection-1/
+bandaplus_yolo/BandaPlus_Master_Dataset/
+bandaplus_yolo/Fallen Trees Detection V1.yolov8/
+bandaplus_yolo/Flood.v1i.yolov8/
+bandaplus_yolo/Illegal Dumping.yolov8/
+bandaplus_yolo/stray dogs.yolov8/
+bandaplus_yolo/*.cache

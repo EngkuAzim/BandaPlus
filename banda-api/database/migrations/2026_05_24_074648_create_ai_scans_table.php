@@ -11,9 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('aduans', function (Blueprint $table) {
-            $table->string('id_aduan_induk')->nullable()->after('id_aduan');
-            $table->foreign('id_aduan_induk')->references('id_aduan')->on('aduans')->onDelete('set null');
+        Schema::create('ai_scans', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->string('image_path');
+            $table->json('predictions')->nullable();
+            $table->string('status')->default('pending'); // pending, completed, error
+            $table->timestamps();
         });
     }
 
@@ -22,8 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('aduans', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('ai_scans');
     }
 };
