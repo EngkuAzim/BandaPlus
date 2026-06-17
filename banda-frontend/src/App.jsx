@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import Landing from './Landing';
+import LandingPageV2 from './LandingPageV2';
 import Register from './Register';
 import Login from './Login';
 import Dashboard from './components/Dashboard';
@@ -17,7 +18,6 @@ import LogBajet from './LogBajet';
 import LaporanTugasan from './LaporanTugasan';
 import LaporanPrestasi from './LaporanPrestasi';
 import SenaraiPembaikan from './SenaraiPembaikan';
-import UrusPOI from './UrusPOI';
 
 function App() {
   return (
@@ -29,6 +29,7 @@ function App() {
       {/* Routes only contains Route components */}
       <Routes>
         <Route path="/" element={<Landing />} />
+        <Route path="/v2" element={<LandingPageV2 />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />
@@ -44,7 +45,6 @@ function App() {
         <Route path="/laporan-tugasan" element={<LaporanTugasan />} />
         <Route path="/bajet" element={<LogBajet />} />
         <Route path="/pembaikan" element={<SenaraiPembaikan />} />
-        <Route path="/urus-poi" element={<UrusPOI />} />
       </Routes>
     </>
   );

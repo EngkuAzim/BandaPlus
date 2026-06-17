@@ -33,11 +33,11 @@ const Landing = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-teal-500/20 overflow-x-hidden">
-      
+
       {/* SCROLL PROGRESS BAR */}
-      <motion.div 
-        className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-500 to-emerald-400 z-[100]" 
-        style={{ scaleX, transformOrigin: "0%" }} 
+      <motion.div
+        className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-500 to-emerald-400 z-[100]"
+        style={{ scaleX, transformOrigin: "0%" }}
       />
 
       {/* NAVIGATION - Bright Glassmorphism */}
@@ -72,7 +72,7 @@ const Landing = () => {
           </div>
 
           {/* Mobile Menu Toggle */}
-          <button 
+          <button
             className="md:hidden text-slate-900 p-2"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
@@ -83,7 +83,7 @@ const Landing = () => {
         {/* Mobile Menu Dropdown */}
         <AnimatePresence>
           {isMobileMenuOpen && (
-            <motion.div 
+            <motion.div
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
@@ -104,23 +104,23 @@ const Landing = () => {
 
       {/* HERO SECTION - Bright & Clean */}
       <section id="utama" className="relative pt-36 lg:pt-48 pb-24 lg:pb-32 flex flex-col items-center text-center bg-slate-50">
-        
+
         {/* Animated Background Orbs */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden flex justify-center items-center">
-          <motion.div 
+          <motion.div
             animate={{ scale: [1, 1.1, 1], opacity: [0.4, 0.6, 0.4] }}
             transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-20 left-[10%] w-[600px] h-[600px] bg-teal-200/50 blur-[120px] rounded-full" 
+            className="absolute top-20 left-[10%] w-[600px] h-[600px] bg-teal-200/50 blur-[120px] rounded-full"
           />
-          <motion.div 
+          <motion.div
             animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
             transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-            className="absolute bottom-[-10%] right-[10%] w-[500px] h-[500px] bg-emerald-200/50 blur-[120px] rounded-full" 
+            className="absolute bottom-[-10%] right-[10%] w-[500px] h-[500px] bg-emerald-200/50 blur-[120px] rounded-full"
           />
         </div>
 
         <motion.div initial="hidden" animate="visible" variants={fadeUp} className="relative z-10 max-w-5xl px-6">
-          
+
           {/* Animated Badge */}
           <div className="mx-auto mb-8 w-fit px-5 py-2 rounded-full border border-teal-100 bg-white shadow-sm flex items-center gap-3">
             <span className="relative flex h-3 w-3">
