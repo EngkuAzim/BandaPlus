@@ -25,12 +25,13 @@ class AduanAdminController extends Controller
                 'id_aduan', 'id_pengguna', 'id_zon', 'id_jabatan', 'id_aduan_induk',
                 'jenis_kerosakan', 'gambar_bukti', 'keterangan_aduan',
                 'alamat_lokasi', 'status', 'tarikh_lapor', 'maklum_balas',
+                'skor_ai', 'label_prioriti', 'ai_predictions',
                 DB::raw('ST_Y(lokasi_gps) as lat'),
                 DB::raw('ST_X(lokasi_gps) as lng')
             )
             ->withCount('anakAduan')
             ->with(['anakAduan' => function($q) {
-                $q->select('id_aduan', 'id_aduan_induk', 'jenis_kerosakan', 'alamat_lokasi', 'status', 'tarikh_lapor');
+                $q->select('id_aduan', 'id_aduan_induk', 'jenis_kerosakan', 'alamat_lokasi', 'status', 'tarikh_lapor', 'skor_ai', 'label_prioriti', 'ai_predictions');
             }])
             ->with('pengguna:id,name,no_telefon')
             ->orderBy('tarikh_lapor', 'desc');
