@@ -138,7 +138,7 @@ class AiDetectionController extends Controller
             $workerUrl = env('AI_WORKER_URL', 'http://127.0.0.1:8001/detect');
             \Illuminate\Support\Facades\Http::withHeaders([
                 'Bypass-Tunnel-Reminder' => 'true'
-            ])->timeout(3)->post($workerUrl, [
+            ])->timeout(15)->post($workerUrl, [
                 'scan_id' => (string) $scan->id,
                 'image_path' => $path
             ]);
