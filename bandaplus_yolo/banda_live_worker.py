@@ -1,12 +1,13 @@
 import os
-import time
 import requests
 import json
 # pyrefly: ignore [missing-import]
+from fastapi import FastAPI, BackgroundTasks, HTTPException
+# pyrefly: ignore [missing-import]
+from pydantic import BaseModel
+# pyrefly: ignore [missing-import]
 from ultralytics import YOLO
 import urllib.request
-
-# --- CONFIGURATION ---
 import sys
 
 # Try to load .env manually if dotenv is not installed
@@ -18,46 +19,42 @@ if os.path.exists(env_path):
                 key, val = line.strip().split('=', 1)
                 os.environ[key] = val.strip()
 
-# Replace this with your Droplet IP or Domain (e.g. http://142.93.x.x)
-API_BASE_URL = os.environ.get("API_BASE_URL", "http://146.190.86.94")
+# Replace this with your Droplet IP or Domain (e.g. http://146.190.86.94 or https://bandaplus.tech)
+API_BASE_URL = os.environ.get("API_BASE_URL", "https://bandaplus.tech")
 
 if "--local" in sys.argv:
     API_BASE_URL = "http://banda-api.test"
 
-API_PENDING_URL = f"{API_BASE_URL}/api/ai/pending-scans"
 API_UPLOAD_URL = f"{API_BASE_URL}/api/ai/upload-scan-result"
 
 # This should match the AI_WORKER_TOKEN in your droplet's .env file
-TOKEN = "secret-ai-token-123"
-POLL_INTERVAL = 5 # Reduced to 5 seconds for faster UI feedback
-MODEL_PATH = r"C:\laragon\www\runs\detect\BANDA_Plus_YOLOv8-8\weights\last.pt" # Changed to last.pt because best.pt was biased towards Potholes
+TOKEN = "Azim_Victus_RTX4050_BandaPlus_Secure2>"
+MODEL_PATH = r"C:\laragon\www\runs\detect\BANDA_Plus_YOLOv8-8\weights\last.pt"
 
 # Ensure a local directory exists to save temporary downloaded and processed images
 TEMP_DIR = "temp_processing"
 os.makedirs(TEMP_DIR, exist_ok=True)
 
-print(f"--- BandaPlus Live YOLOv8 Worker Started ---")
+print(f"--- BandaPlus Live FastAPI YOLOv8 Worker Started ---")
 print(f"Loading model: {MODEL_PATH}")
-# Load the YOLO model (will automatically use GPU if PyTorch is configured for CUDA on your RTX 4050)
+# Load the YOLO model
 model = YOLO(MODEL_PATH)
-print("Model loaded successfully. Starting polling loop...\n")
+print("Model loaded successfully. Webhook server ready on port 8001!\n")
 
 headers = {
     'Authorization': f'Bearer {TOKEN}',
     'Accept': 'application/json'
 }
 
-def process_complaint(scan):
-    scan_id = scan.get('id')
-    img_path = scan.get('image_path')
-    
+app = FastAPI()
+
+class DetectRequest(BaseModel):
+    scan_id: str
+    image_path: str
+
+def process_complaint_async(scan_id: str, img_path: str):
     print(f"\n[+] Processing Scan ID: {scan_id}")
     
-    if not img_path:
-        print(f"[-] No image path found for {scan_id}, skipping.")
-        return
-
-    # Construct full image URL
     if img_path.startswith('http'):
         img_url = img_path
     else:
@@ -81,7 +78,6 @@ def process_complaint(scan):
     
     # Extract predictions
     predictions = []
-    # ultralytics results is a list of Result objects (usually 1 per image)
     for r in results:
         boxes = r.boxes
         for box in boxes:
@@ -126,30 +122,10 @@ def process_complaint(scan):
     except:
         pass
 
+@app.post("/detect")
+async def detect_endpoint(req: DetectRequest, background_tasks: BackgroundTasks):
+    # Offload the heavy YOLO processing to a background thread
+    background_tasks.add_task(process_complaint_async, req.scan_id, req.image_path)
+    return {"message": "Detection started in background", "scan_id": req.scan_id}
 
-# --- MAIN LOOP ---
-while True:
-    try:
-        # Fetch pending scans
-        response = requests.get(API_PENDING_URL, headers=headers)
-        
-        if response.status_code == 200:
-            data = response.json()
-            pending_scans = data.get('data', [])
-            
-            if pending_scans:
-                print(f"[*] Found {len(pending_scans)} pending scan(s).")
-                for scan in pending_scans:
-                    process_complaint(scan)
-            else:
-                # print("[-] No pending scans. Waiting...")
-                pass
-        else:
-            print(f"[-] API Error {response.status_code} while fetching pending scans: {response.text}")
-            
-    except requests.exceptions.ConnectionError:
-        print(f"[-] Could not connect to {API_BASE_URL}. Is the server running?")
-    except Exception as e:
-        print(f"[-] Unexpected error in main loop: {e}")
-        
-    time.sleep(POLL_INTERVAL)
+# To run: uvicorn banda_live_worker:app --port 8001

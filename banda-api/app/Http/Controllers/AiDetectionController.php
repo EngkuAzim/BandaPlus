@@ -132,6 +132,18 @@ class AiDetectionController extends Controller
             'status' => 'pending',
         ]);
 
+        // Trigger the Python FastAPI Webhook asynchronously
+        try {
+            // Adjust the URL if the Python worker runs on a different server/port
+            $workerUrl = env('AI_WORKER_URL', 'http://127.0.0.1:8001/detect');
+            \Illuminate\Support\Facades\Http::timeout(3)->post($workerUrl, [
+                'scan_id' => (string) $scan->id,
+                'image_path' => $path
+            ]);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Failed to trigger AI webhook: " . $e->getMessage());
+        }
+
         return response()->json([
             'scan_id' => $scan->id,
             'image_path' => $path
