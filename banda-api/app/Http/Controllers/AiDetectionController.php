@@ -135,7 +135,7 @@ class AiDetectionController extends Controller
         // Trigger the Python FastAPI Webhook asynchronously
         try {
             // Adjust the URL if the Python worker runs on a different server/port
-            $workerUrl = env('AI_WORKER_URL', 'http://127.0.0.1:8001/detect');
+            $workerUrl = config('services.ai_worker.url');
             \Illuminate\Support\Facades\Http::withHeaders([
                 'Bypass-Tunnel-Reminder' => 'true'
             ])->timeout(15)->post($workerUrl, [

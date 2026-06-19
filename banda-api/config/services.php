@@ -31,4 +31,8 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'ai_worker' => [
+        'url' => env('AI_WORKER_URL', 'http://127.0.0.1:8001/detect'),
+    ],
+
 ];
