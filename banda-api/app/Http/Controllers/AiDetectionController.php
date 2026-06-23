@@ -202,7 +202,7 @@ class AiDetectionController extends Controller
         try {
             $workerToken = config('services.ai_worker.token');
             if ($request->bearerToken() !== $workerToken) {
-                return response()->json(['error' => 'Unauthorized'], 401);
+                return response()->json(['error' => 'Unauthorized', 'expected' => $workerToken, 'received' => $request->bearerToken()], 401);
             }
 
             $validated = $request->validate([
