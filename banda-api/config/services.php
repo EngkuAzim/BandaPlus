@@ -33,6 +33,7 @@ return [
 
     'ai_worker' => [
         'url' => env('AI_WORKER_URL', 'http://127.0.0.1:8001/detect'),
+        'token' => env('AI_WORKER_TOKEN', 'secret-ai-token-123'),
     ],
 
 ];

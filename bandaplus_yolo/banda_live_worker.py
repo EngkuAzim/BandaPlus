@@ -67,7 +67,17 @@ def process_complaint_async(scan_id: str, img_path: str):
     # 1. Download the image
     print(f"    -> Downloading image from: {img_url}")
     try:
-        urllib.request.urlretrieve(img_url, local_img_filename)
+        # Cloudflare blocks default Python user agents, so we spoof a standard browser
+        dl_headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        img_response = requests.get(img_url, headers=dl_headers, stream=True)
+        img_response.raise_for_status() # Raise an exception if status is 4xx or 5xx
+        
+        with open(local_img_filename, 'wb') as f:
+            for chunk in img_response.iter_content(chunk_size=8192):
+                f.write(chunk)
+                
     except Exception as e:
         print(f"    [-] Failed to download image: {e}")
         return

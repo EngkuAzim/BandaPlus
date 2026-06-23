@@ -90,7 +90,7 @@ class AiDetectionController extends Controller
     public function getPending(Request $request)
     {
         try {
-            $workerToken = env('AI_WORKER_TOKEN', 'secret-ai-token-123');
+            $workerToken = config('services.ai_worker.token');
             $headerToken = $request->bearerToken();
 
             if (!$headerToken || $headerToken !== $workerToken) {
@@ -200,7 +200,7 @@ class AiDetectionController extends Controller
     public function uploadScanResult(Request $request)
     {
         try {
-            $workerToken = env('AI_WORKER_TOKEN', 'secret-ai-token-123');
+            $workerToken = config('services.ai_worker.token');
             if ($request->bearerToken() !== $workerToken) {
                 return response()->json(['error' => 'Unauthorized'], 401);
             }
