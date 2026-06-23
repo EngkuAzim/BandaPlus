@@ -229,7 +229,10 @@ class AiDetectionController extends Controller
 
             $scan->save();
 
-            return response()->json(['message' => 'Scan updated successfully'], 200);
+            // Trigger WebSocket Event to notify the frontend instantly!
+            \App\Events\ScanCompleted::dispatch($scan->id, $scan->toArray());
+
+            return response()->json(['message' => 'Upload successful'], 200);
 
         } catch (\Exception $e) {
             Log::error('AI upload scan result error: ' . $e->getMessage());

@@ -28,7 +28,9 @@ if "--local" in sys.argv:
 API_UPLOAD_URL = f"{API_BASE_URL}/api/ai/upload-scan-result"
 
 # This should match the AI_WORKER_TOKEN in your droplet's .env file
-TOKEN = "secret-ai-token-123"
+TOKEN = os.environ.get("AI_WORKER_TOKEN")
+if not TOKEN:
+    print("WARNING: AI_WORKER_TOKEN is not set in .env!")
 MODEL_PATH = r"C:\laragon\www\runs\detect\BANDA_Plus_YOLOv8-8\weights\last.pt"
 
 # Ensure a local directory exists to save temporary downloaded and processed images

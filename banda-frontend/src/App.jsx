@@ -18,6 +18,7 @@ import LogBajet from './LogBajet';
 import LaporanTugasan from './LaporanTugasan';
 import LaporanPrestasi from './LaporanPrestasi';
 import SenaraiPembaikan from './SenaraiPembaikan';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
@@ -32,19 +33,19 @@ function App() {
         <Route path="/v2" element={<LandingPageV2 />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/profil" element={<Profile />} />
-        <Route path="/lapor-aduan" element={<LaporAduan />} />
-        <Route path="/sejarah" element={<StatusAduan />} />
-        <Route path="/urus-aduan" element={<UrusAduan />} />
-        <Route path="/urus-pengguna" element={<UrusPengguna />} />
-        <Route path="/peta-kluster" element={<PetaKluster />} />
-        <Route path="/tetapan" element={<TetapanSistem />} />
-        <Route path="/arahan-kerja" element={<ArahanKerja />} />
-        <Route path="/laporan-prestasi" element={<LaporanPrestasi />} />
-        <Route path="/laporan-tugasan" element={<LaporanTugasan />} />
-        <Route path="/bajet" element={<LogBajet />} />
-        <Route path="/pembaikan" element={<SenaraiPembaikan />} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/profil" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        <Route path="/lapor-aduan" element={<ProtectedRoute><LaporAduan /></ProtectedRoute>} />
+        <Route path="/sejarah" element={<ProtectedRoute><StatusAduan /></ProtectedRoute>} />
+        <Route path="/urus-aduan" element={<ProtectedRoute><UrusAduan /></ProtectedRoute>} />
+        <Route path="/urus-pengguna" element={<ProtectedRoute><UrusPengguna /></ProtectedRoute>} />
+        <Route path="/peta-kluster" element={<ProtectedRoute><PetaKluster /></ProtectedRoute>} />
+        <Route path="/tetapan" element={<ProtectedRoute><TetapanSistem /></ProtectedRoute>} />
+        <Route path="/arahan-kerja" element={<ProtectedRoute><ArahanKerja /></ProtectedRoute>} />
+        <Route path="/laporan-prestasi" element={<ProtectedRoute><LaporanPrestasi /></ProtectedRoute>} />
+        <Route path="/laporan-tugasan" element={<ProtectedRoute><LaporanTugasan /></ProtectedRoute>} />
+        <Route path="/bajet" element={<ProtectedRoute><LogBajet /></ProtectedRoute>} />
+        <Route path="/pembaikan" element={<ProtectedRoute><SenaraiPembaikan /></ProtectedRoute>} />
       </Routes>
     </>
   );
