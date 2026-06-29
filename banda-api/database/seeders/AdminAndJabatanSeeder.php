@@ -59,11 +59,11 @@ class AdminAndJabatanSeeder extends Seeder
 
         // ---- Jabatan Data ----
         $jabatans = [
-            ['id_jabatan' => 'J01', 'nama_jabatan' => 'Jabatan Kejuruteraan',      'bajet_tahunan' => 500000.00, 'baki_semasa' => 500000.00],
-            ['id_jabatan' => 'J02', 'nama_jabatan' => 'Jabatan Landskap',          'bajet_tahunan' => 300000.00, 'baki_semasa' => 300000.00],
-            ['id_jabatan' => 'J03', 'nama_jabatan' => 'Jabatan Elektrik',          'bajet_tahunan' => 200000.00, 'baki_semasa' => 200000.00],
-            ['id_jabatan' => 'J04', 'nama_jabatan' => 'Jabatan Pembetungan',       'bajet_tahunan' => 150000.00, 'baki_semasa' => 150000.00],
-            ['id_jabatan' => 'J05', 'nama_jabatan' => 'Jabatan Perkhidmatan Am',   'bajet_tahunan' => 100000.00, 'baki_semasa' => 100000.00],
+            ['id_jabatan' => 'J01', 'nama_jabatan' => 'Jabatan Kejuruteraan', 'bajet_tahunan' => 500000.00, 'baki_semasa' => 500000.00],
+            ['id_jabatan' => 'J02', 'nama_jabatan' => 'Jabatan Belia Masyarakat dan Landskap', 'bajet_tahunan' => 300000.00, 'baki_semasa' => 300000.00],
+            ['id_jabatan' => 'J03', 'nama_jabatan' => 'Jabatan Perkhidmatan Bandar dan Kesihatan', 'bajet_tahunan' => 200000.00, 'baki_semasa' => 200000.00],
+            ['id_jabatan' => 'J04', 'nama_jabatan' => 'Jabatan Pembetungan', 'bajet_tahunan' => 150000.00, 'baki_semasa' => 150000.00],
+            ['id_jabatan' => 'J05', 'nama_jabatan' => 'Jabatan Perkhidmatan Am', 'bajet_tahunan' => 100000.00, 'baki_semasa' => 100000.00],
         ];
 
         foreach ($jabatans as $jabatan) {

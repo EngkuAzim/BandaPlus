@@ -143,7 +143,7 @@ function LaporAduan() {
               "Pothole": "Jalan Berlubang",
               "Fallen Tree": "Pokok Tumbang",
               "Flood": "Banjir",
-              "Stray Dog": "Anjing Liar / Haiwan Terbiar",
+              "Stray Dog": "Haiwan Liar",
               "Illegal Dumping": "Pembuangan Sampah Haram",
               "Broken Streetlight": "Lampu Jalan Rosak",
               "Clogged Drain": "Longkang Tersumbat/Pecah",
@@ -154,7 +154,7 @@ function LaporAduan() {
               matchedValue = kerosakanMap[topPrediction];
           } else {
               const validOptions = [
-                "Jalan Berlubang", "Banjir", "Anjing Liar / Haiwan Terbiar", "Pembuangan Sampah Haram",
+                "Jalan Berlubang", "Banjir", "Haiwan Liar", "Pembuangan Sampah Haram",
                 "Lampu Jalan Rosak", "Longkang Tersumbat/Pecah", "Pokok Tumbang", "Infrastruktur Awam", "Lain-lain"
               ];
               if (validOptions.includes(topPrediction)) {

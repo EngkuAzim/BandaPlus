@@ -31,8 +31,8 @@ class PriorityScoreService
 
     private function getAiScore(string $jenisKerosakan): int
     {
-        $highRisk = ['Flash Flood', 'Flash_Flood', 'Pothole', 'Fallen Tree', 'Fallen_Tree'];
-        $mediumRisk = ['Illegal Dumping', 'Illegal_Dumping', 'Trash In Drain', 'Trash_In_Drain'];
+        $highRisk = ['Flash Flood', 'Flash_Flood', 'Banjir', 'Pothole', 'Jalan Berlubang', 'Fallen Tree', 'Fallen_Tree', 'Pokok Tumbang'];
+        $mediumRisk = ['Illegal Dumping', 'Illegal_Dumping', 'Pembuangan Sampah Haram', 'Trash In Drain', 'Trash_In_Drain', 'Longkang Tersumbat/Pecah', 'Lampu Jalan Rosak', 'Stray Dog', 'Haiwan Liar'];
         
         if (in_array($jenisKerosakan, $highRisk)) return 100;
         if (in_array($jenisKerosakan, $mediumRisk)) return 70;

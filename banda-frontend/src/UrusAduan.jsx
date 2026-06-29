@@ -306,8 +306,8 @@ function UrusAduan() {
                         >
                           <option value="">-- Pilih Jabatan Bertanggungjawab --</option>
                           <option value="J01">J01 - Jabatan Kejuruteraan</option>
-                          <option value="J02">J02 - Jabatan Landskap</option>
-                          <option value="J03">J03 - Jabatan Kesihatan Awam</option>
+                          <option value="J02">J02 - Jabatan Belia Masyarakat dan Landskap</option>
+                          <option value="J03">J03 - Jabatan Perkhidmatan Bandar dan Kesihatan</option>
                         </select>
                       </div>
 
