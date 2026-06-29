@@ -31,7 +31,7 @@ class AduanAdminController extends Controller
             )
             ->withCount('anakAduan')
             ->with(['anakAduan' => function($q) {
-                $q->select('id_aduan', 'id_aduan_induk', 'jenis_kerosakan', 'alamat_lokasi', 'status', 'tarikh_lapor', 'skor_ai', 'label_prioriti', 'ai_predictions');
+                $q->select('id_aduan', 'id_aduan_induk', 'jenis_kerosakan', 'alamat_lokasi', 'status', 'tarikh_lapor', 'skor_ai', 'label_prioriti', 'ai_predictions', 'gambar_bukti', 'id_jabatan', 'keterangan_aduan');
             }])
             ->with('pengguna:id,name,no_telefon')
             ->orderBy('tarikh_lapor', 'desc');

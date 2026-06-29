@@ -116,6 +116,18 @@ class AduanController extends Controller
                     'detected_image_path' => $detectedImagePath,
                 ]);
                 $mainAduan = $aduan;
+
+                // If this is a child aduan, recalculate and update the parent's score!
+                if ($id_aduan_induk) {
+                    $parentAduan = Aduan::where('id_aduan', $id_aduan_induk)->first();
+                    if ($parentAduan && $lat && $lng) {
+                        $parentScore = $priorityService->calculateScore($parentAduan->jenis_kerosakan, $lat, $lng);
+                        $parentAduan->update([
+                            'skor_ai' => $parentScore['skor'],
+                            'label_prioriti' => $parentScore['label']
+                        ]);
+                    }
+                }
             } else {
                 // Multi-label Split Logic
                 // 1. Create Main Aduan (Pelbagai Kerosakan)

@@ -63,12 +63,22 @@ function UrusAduan() {
       echo.private('admin-dashboard')
         .listen('.AduanBaru', (e) => {
           if (!e.aduan) return;
-          // Slide new complaint into the top of the list
-          setAduans(prev => [e.aduan, ...prev]);
-          toast.success('Aduan Baru Masuk!', {
-            description: `${e.aduan.jenis_kerosakan || 'Aduan baru'} diterima dari ${e.aduan.pengguna?.name || 'Pengguna Komuniti'}.`,
-            duration: 6000,
-          });
+          
+          if (e.aduan.id_aduan_induk) {
+             // If it's a child aduan (cluster), we refetch to get the updated parent score and anak array
+             fetchData(false);
+             toast.success('Kluster Baru Dikesan!', {
+               description: `Satu aduan baru dimasukkan ke dalam kluster ${e.aduan.id_aduan_induk}.`,
+               duration: 6000,
+             });
+          } else {
+             // Slide new complaint into the top of the list
+             setAduans(prev => [e.aduan, ...prev]);
+             toast.success('Aduan Baru Masuk!', {
+               description: `${e.aduan.jenis_kerosakan || 'Aduan baru'} diterima dari ${e.aduan.pengguna?.name || 'Pengguna Komuniti'}.`,
+               duration: 6000,
+             });
+          }
         });
     });
 
