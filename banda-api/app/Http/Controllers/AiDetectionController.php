@@ -138,9 +138,9 @@ class AiDetectionController extends Controller
             $workerUrl = config('services.ai_worker.url');
             \Illuminate\Support\Facades\Http::withHeaders([
                 'Bypass-Tunnel-Reminder' => 'true'
-            ])->timeout(15)->post($workerUrl, [
+            ])->timeout(3)->post($workerUrl, [
                 'scan_id' => (string) $scan->id,
-                'image_path' => $path
+                'image_path' => url('storage/' . $path)
             ]);
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error("Failed to trigger AI webhook: " . $e->getMessage());

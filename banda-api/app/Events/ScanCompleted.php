@@ -39,4 +39,9 @@ class ScanCompleted implements ShouldBroadcastNow
             new Channel('scans.' . $this->scanId),
         ];
     }
+
+    public function broadcastAs(): string
+    {
+        return 'ScanCompleted';
+    }
 }

@@ -8,6 +8,9 @@ import Sidebar from './Sidebar';
 import exifr from 'exifr';
 import Map, { Marker, NavigationControl } from 'react-map-gl/mapbox';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import echo from './echo';
+import ImageUploader from './components/Aduan/ImageUploader';
+import LocationPicker from './components/Aduan/LocationPicker';
 
 function LaporAduan() {
   const navigate = useNavigate();
@@ -68,15 +71,10 @@ function LaporAduan() {
       );
     }
 
-    return () => stopPolling();
-  }, [navigate]);
-
-  const stopPolling = () => {
-    if (pollingIntervalRef.current) {
-      clearInterval(pollingIntervalRef.current);
-      pollingIntervalRef.current = null;
-    }
-  };
+    return () => {
+      if (scanId) echo.leaveChannel(`scans.${scanId}`);
+    };
+  }, [navigate, scanId]);
 
   const fetchAddressFromCoords = async (lat, lng) => {
     setIsLocating(true);
@@ -112,66 +110,65 @@ function LaporAduan() {
       const id = res.data.scan_id;
       setScanId(id);
       
-      pollingIntervalRef.current = setInterval(() => checkScanStatus(id), 2000);
+      // Listen to the WebSocket channel for this specific scan ID
+      echo.channel(`scans.${id}`)
+        .listen('.ScanCompleted', (e) => {
+          console.log("WebSocket Broadcast Received!", e);
+          handleScanCompleted(e.scanData);
+          echo.leaveChannel(`scans.${id}`);
+        });
+
     } catch (error) {
       setIsScanning(false);
       toast.error('Gagal Memuat Naik AI', { description: 'Sila cuba lagi.' });
     }
   };
 
-  const checkScanStatus = async (id) => {
+  const handleScanCompleted = (scanData) => {
     try {
-      const token = localStorage.getItem('token');
-      const res = await axios.get(`/api/aduan/scan-status/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      setIsScanning(false);
+      setAiPredictions(scanData.predictions);
       
-      if (res.data.status === 'completed') {
-        stopPolling();
-        setIsScanning(false);
-        setAiPredictions(res.data.predictions);
-        
-        if (res.data.image_path) {
-            const apiUrl = import.meta.env.VITE_API_URL || 'http://banda-api.test';
-            setImagePreview(`${apiUrl}/storage/${res.data.image_path}`);
-        }
-        
-        if (res.data.predictions && res.data.predictions.length > 0) {
-            const sorted = [...res.data.predictions].sort((a, b) => b.confidence - a.confidence);
-            const topPrediction = sorted[0].class;
-            
-            let matchedValue = "Lain-lain";
-            const kerosakanMap = {
-                "Pothole": "Jalan Berlubang",
-                "Fallen Tree": "Pokok Tumbang",
-                "Flood": "Banjir",
-                "Stray Dog": "Anjing Liar / Haiwan Terbiar",
-                "Illegal Dumping": "Pembuangan Sampah Haram",
-                "Broken Streetlight": "Lampu Jalan Rosak",
-                "Clogged Drain": "Longkang Tersumbat/Pecah",
-                "Public Infrastructure": "Infrastruktur Awam"
-            };
-            
-            if (kerosakanMap[topPrediction]) {
-                matchedValue = kerosakanMap[topPrediction];
-            } else {
-                const validOptions = [
-                  "Jalan Berlubang", "Banjir", "Anjing Liar / Haiwan Terbiar", "Pembuangan Sampah Haram",
-                  "Lampu Jalan Rosak", "Longkang Tersumbat/Pecah", "Pokok Tumbang", "Infrastruktur Awam", "Lain-lain"
-                ];
-                if (validOptions.includes(topPrediction)) {
-                    matchedValue = topPrediction;
-                }
-            }
+      if (scanData.image_path) {
+          const apiUrl = import.meta.env.VITE_API_URL || 'http://banda-api.test';
+          setImagePreview(`${apiUrl}/storage/${scanData.image_path}`);
+      }
+      
+      if (scanData.predictions && scanData.predictions.length > 0) {
+          const sorted = [...scanData.predictions].sort((a, b) => b.confidence - a.confidence);
+          const topPrediction = sorted[0].class;
+          
+          let matchedValue = "Lain-lain";
+          const kerosakanMap = {
+              "Pothole": "Jalan Berlubang",
+              "Fallen Tree": "Pokok Tumbang",
+              "Flood": "Banjir",
+              "Stray Dog": "Anjing Liar / Haiwan Terbiar",
+              "Illegal Dumping": "Pembuangan Sampah Haram",
+              "Broken Streetlight": "Lampu Jalan Rosak",
+              "Clogged Drain": "Longkang Tersumbat/Pecah",
+              "Public Infrastructure": "Infrastruktur Awam"
+          };
+          
+          if (kerosakanMap[topPrediction]) {
+              matchedValue = kerosakanMap[topPrediction];
+          } else {
+              const validOptions = [
+                "Jalan Berlubang", "Banjir", "Anjing Liar / Haiwan Terbiar", "Pembuangan Sampah Haram",
+                "Lampu Jalan Rosak", "Longkang Tersumbat/Pecah", "Pokok Tumbang", "Infrastruktur Awam", "Lain-lain"
+              ];
+              if (validOptions.includes(topPrediction)) {
+                  matchedValue = topPrediction;
+              }
+          }
 
-            setFormData(prev => ({ ...prev, jenis_kerosakan: matchedValue }));
-            toast.success('Analisis AI Selesai!', { description: `AI dikesan: ${matchedValue}` });
-        } else {
-            toast.info('Analisis AI Selesai', { description: 'Sila pilih kategori secara manual.' });
-        }
+          setFormData(prev => ({ ...prev, jenis_kerosakan: matchedValue }));
+          toast.success('Analisis AI Selesai!', { description: `AI dikesan: ${matchedValue}` });
+      } else {
+          toast.info('Analisis AI Selesai', { description: 'Sila pilih kategori secara manual.' });
       }
     } catch (error) {
-      console.error("Polling error:", error);
+      console.error("Error processing scan data:", error);
     }
   };
 
@@ -233,9 +230,9 @@ function LaporAduan() {
   const clearImage = () => {
     setSelectedImage(null);
     setImagePreview(null);
+    if (scanId) echo.leaveChannel(`scans.${scanId}`);
     setScanId(null);
     setAiPredictions(null);
-    stopPolling();
     setIsScanning(false);
   };
 
@@ -349,56 +346,12 @@ function LaporAduan() {
                 
                 {/* STEP 1: UPLOAD & AI SCAN */}
                 {currentStep === 1 && (
-                  <div className="flex flex-col items-center text-center">
-                    <div className="w-16 h-16 bg-teal-50 rounded-2xl flex items-center justify-center mb-4">
-                        <ImageIcon className="w-8 h-8 text-teal-600" />
-                    </div>
-                    <h3 className="text-2xl font-black text-slate-900 mb-2">Muat Naik Gambar</h3>
-                    <p className="text-slate-500 mb-8 max-w-md">
-                        Muat naik gambar kerosakan atau isu infrastruktur. AI kami akan mengimbas gambar anda secara automatik.
-                    </p>
-
-                    <div className="w-full max-w-lg aspect-square">
-                      {!imagePreview ? (
-                        <label className="w-full h-full border-2 border-dashed border-slate-300 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:border-teal-500 hover:bg-teal-50/50 transition-colors group">
-                          <UploadCloud className="w-12 h-12 text-teal-600 mb-4 group-hover:scale-110 transition-transform" />
-                          <p className="font-bold text-slate-700 text-lg">Klik Untuk Muat Naik</p>
-                          <p className="text-sm text-slate-400 mt-2">Format: JPG, PNG (Max 5MB)</p>
-                          <input type="file" accept="image/jpeg, image/png" className="hidden" onChange={handleImageChange} />
-                        </label>
-                      ) : (
-                        <div className="relative w-full h-full rounded-3xl overflow-hidden border border-slate-200 group shadow-inner">
-                          <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                          
-                          {isScanning && (
-                            <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-10 flex flex-col items-center justify-center overflow-hidden">
-                              <motion.div 
-                                className="absolute left-0 right-0 h-0.5 bg-teal-400 shadow-[0_0_15px_4px_rgba(45,212,191,0.8)]"
-                                animate={{ top: ["0%", "100%", "0%"] }}
-                                transition={{ repeat: Infinity, duration: 2.5, ease: "linear" }}
-                              />
-                              <motion.div
-                                animate={{ scale: [1, 1.1, 1], opacity: [0.7, 1, 0.7] }}
-                                transition={{ repeat: Infinity, duration: 1.5 }}
-                                className="flex flex-col items-center z-20"
-                              >
-                                <div className="w-16 h-16 rounded-full bg-teal-500/20 border-2 border-teal-400 flex items-center justify-center mb-3">
-                                  <Loader2 className="w-8 h-8 text-teal-400 animate-spin" />
-                                </div>
-                                <span className="text-white font-bold tracking-widest text-sm uppercase">Menganalisis...</span>
-                              </motion.div>
-                            </div>
-                          )}
-
-                          {!isScanning && (
-                            <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20">
-                               <button type="button" onClick={clearImage} className="bg-rose-500 hover:bg-rose-600 transition-colors text-white font-bold py-2 px-6 rounded-xl shadow-lg">Batal & Tukar Gambar</button>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                  <ImageUploader 
+                      imagePreview={imagePreview}
+                      isScanning={isScanning}
+                      handleImageChange={handleImageChange}
+                      clearImage={clearImage}
+                  />
                 )}
 
                 {/* STEP 2: LOCATION & DETAILS */}
@@ -470,61 +423,17 @@ function LaporAduan() {
 
                             <hr className="border-slate-200 my-2" />
 
-                            {/* LOCATION SETTINGS INSERTED HERE */}
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="text-sm font-bold text-slate-700">Kaedah Tetapan Lokasi</label>
-                                    <p className="text-xs text-slate-500 mb-3">Pilih cara untuk menetapkan lokasi kerosakan.</p>
-                                    <div className="grid grid-cols-3 gap-3">
-                                        <button type="button" onClick={() => handleLocationMethodChange('alamat')} className={`flex flex-col items-center justify-center gap-2 p-3 sm:p-4 rounded-2xl border-2 transition-all focus:outline-none focus:ring-4 focus:ring-teal-500/20 ${locationMethod === 'alamat' ? 'border-teal-500 bg-teal-50/50 text-teal-700 shadow-sm scale-[1.02]' : 'border-slate-200 hover:border-teal-200 bg-white text-slate-500 hover:bg-slate-50'}`}>
-                                            <PencilLine className={`w-5 h-5 sm:w-6 sm:h-6 ${locationMethod === 'alamat' ? 'text-teal-600' : 'text-slate-400'}`} />
-                                            <span className="text-[10px] sm:text-xs font-bold text-center leading-tight">Alamat<br/>Manual</span>
-                                        </button>
-                                        
-                                        <button type="button" onClick={() => handleLocationMethodChange('peta')} className={`flex flex-col items-center justify-center gap-2 p-3 sm:p-4 rounded-2xl border-2 transition-all focus:outline-none focus:ring-4 focus:ring-teal-500/20 ${locationMethod === 'peta' ? 'border-teal-500 bg-teal-50/50 text-teal-700 shadow-sm scale-[1.02]' : 'border-slate-200 hover:border-teal-200 bg-white text-slate-500 hover:bg-slate-50'}`}>
-                                            <MapIcon className={`w-5 h-5 sm:w-6 sm:h-6 ${locationMethod === 'peta' ? 'text-teal-600' : 'text-slate-400'}`} />
-                                            <span className="text-[10px] sm:text-xs font-bold text-center leading-tight">Tanda<br/>Peta</span>
-                                        </button>
-
-                                        <button type="button" onClick={() => handleLocationMethodChange('gps')} className={`flex flex-col items-center justify-center gap-2 p-3 sm:p-4 rounded-2xl border-2 transition-all focus:outline-none focus:ring-4 focus:ring-teal-500/20 ${locationMethod === 'gps' ? 'border-teal-500 bg-teal-50/50 text-teal-700 shadow-sm scale-[1.02]' : 'border-slate-200 hover:border-teal-200 bg-white text-slate-500 hover:bg-slate-50'}`}>
-                                            <Navigation className={`w-5 h-5 sm:w-6 sm:h-6 ${locationMethod === 'gps' ? 'text-teal-600' : 'text-slate-400'}`} />
-                                            <span className="text-[10px] sm:text-xs font-bold text-center leading-tight">Guna<br/>GPS</span>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <AnimatePresence mode="wait">
-                                    {locationMethod === 'alamat' && (
-                                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="space-y-1.5">
-                                            <label className="text-sm font-bold text-slate-700">Alamat Penuh</label>
-                                            <div className="relative">
-                                                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                                                <input type="text" required placeholder="Cth: No 12, Jalan Melawati..." value={formData.alamat_lokasi} onChange={(e) => setFormData({...formData, alamat_lokasi: e.target.value})} className="w-full pl-11 pr-4 py-3.5 bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all shadow-sm" />
-                                            </div>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-
-                                <AnimatePresence mode="wait">
-                                {(locationMethod === 'peta' || locationMethod === 'gps') && (
-                                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="flex flex-col gap-3">
-                                        <div className="flex items-center justify-between">
-                                            <label className="text-sm font-bold text-slate-700">Peta Interaktif</label>
-                                            {isLocating && <span className="text-xs font-bold text-teal-600 flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin"/> Mengesan...</span>}
-                                        </div>
-                                        <div className="w-full h-[300px] sm:h-[400px] rounded-2xl overflow-hidden border-2 border-slate-200 relative shadow-inner">
-                                            <Map {...viewState} onMove={evt => setViewState(evt.viewState)} onClick={handleMapClick} mapboxAccessToken={MAPBOX_TOKEN} mapStyle="mapbox://styles/mapbox/satellite-streets-v12" cursor={locationMethod === 'peta' || locationMethod === 'gps' ? 'crosshair' : 'grab'}>
-                                                <NavigationControl position="top-left" />
-                                                {formData.lat && formData.lng && <Marker longitude={formData.lng} latitude={formData.lat} color="#ef4444" />}
-                                            </Map>
-                                        </div>
-                                        {formData.alamat_lokasi && (
-                                            <p className="text-xs font-medium text-slate-500 p-3 bg-slate-50 rounded-xl border border-slate-200 flex gap-2 items-start"><span className="shrink-0 text-base">📌</span> <span><span className="font-bold text-slate-700">Alamat Dikesan:</span> {formData.alamat_lokasi}</span></p>
-                                        )}
-                                    </motion.div>
-                                )}
-                                </AnimatePresence>
-                            </div>
+                            <LocationPicker
+                                locationMethod={locationMethod}
+                                handleLocationMethodChange={handleLocationMethodChange}
+                                formData={formData}
+                                setFormData={setFormData}
+                                isLocating={isLocating}
+                                viewState={viewState}
+                                setViewState={setViewState}
+                                handleMapClick={handleMapClick}
+                                MAPBOX_TOKEN={MAPBOX_TOKEN}
+                            />
 
                             <hr className="border-slate-200 my-2" />
 
