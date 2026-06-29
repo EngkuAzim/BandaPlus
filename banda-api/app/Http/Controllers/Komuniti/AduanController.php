@@ -177,7 +177,7 @@ class AduanController extends Controller
             DB::commit();
 
             // Fire live broadcast event to Admin/Pegawai dashboards
-            broadcast(new AduanBaruDicipta($mainAduan->load('pengguna')))->toOthers();
+            broadcast(new AduanBaruDicipta($mainAduan->load('pengguna')));
 
             return response()->json([
                 'message' => count($labels) > 1 ? 'Aduan berbilang kerosakan berjaya dihantar dan diasingkan!' : 'Aduan berjaya dihantar!',
