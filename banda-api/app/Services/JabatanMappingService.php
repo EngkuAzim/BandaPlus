@@ -10,12 +10,12 @@ class JabatanMappingService
     public function mapLabel(?string $label): array
     {
         $map = [
-            'Flash_Flood'     => ['id' => 'J05', 'sla' => 'Keutamaan 1 (Kecemasan)', 'tempoh' => 'Serta-merta / 1 Jam'],
+            'Flash Flood'     => ['id' => 'J05', 'sla' => 'Keutamaan 1 (Kecemasan)', 'tempoh' => 'Serta-merta / 1 Jam'],
             'Pothole'         => ['id' => 'J01', 'sla' => 'Keutamaan 1 (Kritikal)', 'tempoh' => '24 Jam - 3 Hari'],
-            'Fallen_Tree'     => ['id' => 'J03', 'sla' => 'Keutamaan 1 (Kritikal)', 'tempoh' => '24 Jam'],
-            'Illegal_Dumping' => ['id' => 'J02', 'sla' => 'Keutamaan 2 (Sederhana)', 'tempoh' => '14 Hari'],
-            'Trash_In_Drain'  => ['id' => 'J02', 'sla' => 'Keutamaan 2 (Sederhana)', 'tempoh' => '14 Hari'],
-            'Illegal_Ads'     => ['id' => 'J04', 'sla' => 'Keutamaan 3 (Rendah)', 'tempoh' => '30 - 90 Hari'],
+            'Fallen Tree'     => ['id' => 'J03', 'sla' => 'Keutamaan 1 (Kritikal)', 'tempoh' => '24 Jam'],
+            'Illegal Dumping' => ['id' => 'J02', 'sla' => 'Keutamaan 2 (Sederhana)', 'tempoh' => '14 Hari'],
+            'Trash In Drain'  => ['id' => 'J02', 'sla' => 'Keutamaan 2 (Sederhana)', 'tempoh' => '14 Hari'],
+            'Illegal Ads'     => ['id' => 'J04', 'sla' => 'Keutamaan 3 (Rendah)', 'tempoh' => '30 - 90 Hari'],
         ];
 
         // Fallback for empty, null, or unknown labels

@@ -271,7 +271,16 @@ function UrusAduan() {
                       <img src={`/storage/${selectedAduan.gambar_bukti}`} className="w-full h-full object-cover" alt="Bukti" />
                     </div>
                     <div className="bg-slate-50 p-5 rounded-3xl border border-slate-100">
-                      <h4 className="flex items-center gap-2 font-black text-slate-900 mb-2 text-sm uppercase tracking-widest"><MapPin className="w-4 h-4 text-teal-600" /> Lokasi & Keterangan</h4>
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+                        <h4 className="flex items-center gap-2 font-black text-slate-900 text-sm uppercase tracking-widest">
+                          <MapPin className="w-4 h-4 text-teal-600" /> Lokasi & Keterangan
+                        </h4>
+                        <span className="text-[10px] font-bold bg-white px-3 py-1 rounded-full border border-slate-200 text-slate-500 w-max">
+                          {new Date(selectedAduan.tarikh_lapor).toLocaleString('ms-MY', {
+                            dateStyle: 'medium', timeStyle: 'short'
+                          })}
+                        </span>
+                      </div>
                       <p className="text-sm font-bold text-slate-700 mb-2">{selectedAduan.alamat_lokasi}</p>
                       <p className="text-xs text-slate-500 leading-relaxed italic">"{selectedAduan.keterangan_aduan || 'Tiada keterangan tambahan.'}"</p>
                     </div>
