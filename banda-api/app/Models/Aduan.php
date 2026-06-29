@@ -26,6 +26,7 @@ class Aduan extends Model
         'id_zon',
         'id_jabatan',
         'id_aduan_induk',
+        'id_pegawai',
         'jenis_kerosakan',
         'gambar_bukti',
         'keterangan_aduan',
@@ -59,5 +60,10 @@ class Aduan extends Model
     public function anakAduan()
     {
         return $this->hasMany(Aduan::class, 'id_aduan_induk', 'id_aduan');
+    }
+
+    public function pegawai()
+    {
+        return $this->belongsTo(User::class, 'id_pegawai');
     }
 }

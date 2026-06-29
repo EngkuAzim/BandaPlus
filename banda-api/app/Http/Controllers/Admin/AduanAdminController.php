@@ -36,12 +36,16 @@ class AduanAdminController extends Controller
             ->with('pengguna:id,name,no_telefon')
             ->orderBy('tarikh_lapor', 'desc');
 
-        // Pegawai hanya boleh lihat aduan dari jabatan mereka dan disembunyikan aduan anak
+        // Pegawai hanya boleh lihat aduan dari jabatan mereka dan pemilikan (ownership) mereka
         if ($user->peranan === 'pegawai') {
             $query->whereNull('id_aduan_induk'); // Jangan tunjuk aduan anak kepada pegawai
             if ($user->id_jabatan) {
                 $query->where('id_jabatan', $user->id_jabatan);
             }
+            $query->where(function($q) use ($user) {
+                $q->whereNull('id_pegawai')
+                  ->orWhere('id_pegawai', $user->id);
+            });
         }
 
         return response()->json($query->paginate(20));

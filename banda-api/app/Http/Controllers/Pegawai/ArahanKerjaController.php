@@ -29,9 +29,14 @@ class ArahanKerjaController extends Controller
             ])
             ->orderBy('created_at', 'desc');
 
-        // Filter by pegawai's jabatan
-        if ($user->peranan === 'pegawai' && $user->id_jabatan) {
-            $query->where('id_jabatan', $user->id_jabatan);
+        // Filter by pegawai's jabatan and ownership
+        if ($user->peranan === 'pegawai') {
+            if ($user->id_jabatan) {
+                $query->where('id_jabatan', $user->id_jabatan);
+            }
+            $query->whereHas('aduan', function($q) use ($user) {
+                $q->where('id_pegawai', $user->id);
+            });
         }
 
         return response()->json($query->get());
@@ -62,9 +67,15 @@ class ArahanKerjaController extends Controller
             ->whereNull('id_aduan_induk') // Hanya aduan induk
             ->orderBy('tarikh_lapor', 'desc');
 
-        // Scope to pegawai's jabatan only
-        if ($user->peranan === 'pegawai' && $user->id_jabatan) {
-            $query->where('id_jabatan', $user->id_jabatan);
+        // Scope to pegawai's jabatan and ownership only
+        if ($user->peranan === 'pegawai') {
+            if ($user->id_jabatan) {
+                $query->where('id_jabatan', $user->id_jabatan);
+            }
+            $query->where(function($q) use ($user) {
+                $q->whereNull('id_pegawai')
+                  ->orWhere('id_pegawai', $user->id);
+            });
         }
 
         return response()->json($query->get());
@@ -150,8 +161,11 @@ class ArahanKerjaController extends Controller
                 'status_kerja'         => $statusKerja,
             ]);
 
-            // Update parent aduan status
-            $aduan->update(['status' => $statusAduan]);
+            // Assign ownership to the Pegawai and update status
+            $aduan->update([
+                'status'     => $statusAduan,
+                'id_pegawai' => $user->id
+            ]);
 
             if (!$isBudgetSufficient) {
                 // Find Admin (Datuk Bandar/Pentadbir)
