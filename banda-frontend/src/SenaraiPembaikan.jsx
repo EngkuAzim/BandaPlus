@@ -450,6 +450,26 @@ function SenaraiPembaikan() {
                     </div>
                   )}
 
+                  {/* Extra Evidence */}
+                  {selectedTask.aduan?.evidences && selectedTask.aduan.evidences.length > 0 && (
+                      <div className="bg-slate-50 border-b border-slate-200 p-4">
+                          <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Additional Evidence</h4>
+                          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                              {selectedTask.aduan.evidences.map((ev, idx) => (
+                                  <div key={idx} className="w-24 h-24 shrink-0 rounded-2xl overflow-hidden bg-white border-2 border-slate-200 relative shadow-sm">
+                                      {ev.file_type === 'video' ? (
+                                          <video src={`/storage/${ev.file_path}`} controls className="w-full h-full object-cover bg-slate-900" />
+                                      ) : (
+                                          <a href={`/storage/${ev.file_path}`} target="_blank" rel="noreferrer">
+                                              <img src={`/storage/${ev.file_path}`} className="w-full h-full object-cover hover:scale-105 transition-transform" alt={`Extra Evidence ${idx+1}`} />
+                                          </a>
+                                      )}
+                                  </div>
+                              ))}
+                          </div>
+                      </div>
+                  )}
+
                   <div className="px-6 py-6">
                     <h3 className="text-2xl font-black text-slate-900 leading-tight mb-2">{displayCategory(selectedTask.aduan?.jenis_kerosakan)}</h3>
                     

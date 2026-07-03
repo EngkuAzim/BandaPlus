@@ -31,9 +31,10 @@ class AduanAdminController extends Controller
             )
             ->withCount('anakAduan')
             ->with(['anakAduan' => function($q) {
-                $q->select('id_aduan', 'id_aduan_induk', 'jenis_kerosakan', 'alamat_lokasi', 'status', 'tarikh_lapor', 'skor_ai', 'label_prioriti', 'ai_predictions', 'gambar_bukti', 'id_jabatan', 'keterangan_aduan');
+                $q->select('id_aduan', 'id_aduan_induk', 'jenis_kerosakan', 'alamat_lokasi', 'status', 'tarikh_lapor', 'skor_ai', 'label_prioriti', 'ai_predictions', 'gambar_bukti', 'id_jabatan', 'keterangan_aduan', 'id_pegawai')
+                  ->with('pengguna:id,name,no_telefon', 'evidences');
             }])
-            ->with('pengguna:id,name,no_telefon')
+            ->with('pengguna:id,name,no_telefon', 'evidences')
             ->orderBy('tarikh_lapor', 'desc');
 
         // Pegawai hanya boleh lihat aduan dari jabatan mereka dan pemilikan (ownership) mereka

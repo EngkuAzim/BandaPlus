@@ -1,15 +1,22 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { UploadCloud, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { UploadCloud, Image as ImageIcon, Loader2, Sparkles, AlertCircle } from 'lucide-react';
 
 const ImageUploader = ({
     imagePreview,
     isScanning,
     handleImageChange,
-    clearImage
+    clearImage,
+    aiPredictions,
+    displayCategory
 }) => {
+    // Check if we have valid predictions
+    const hasPredictions = aiPredictions && aiPredictions.length > 0;
+    const topPrediction = hasPredictions ? aiPredictions[0] : null;
+    const isLowConfidence = topPrediction ? topPrediction.confidence < 0.5 : false;
+
     return (
-        <div className="flex flex-col items-center text-center">
+        <div className="flex flex-col items-center text-center w-full">
             <div className="w-16 h-16 bg-teal-50 rounded-2xl flex items-center justify-center mb-4">
                 <ImageIcon className="w-8 h-8 text-teal-600" />
             </div>
@@ -58,8 +65,55 @@ const ImageUploader = ({
                 </div>
                 )}
             </div>
+
+            {/* Clean AI Result Card */}
+            {!isScanning && hasPredictions && (
+                <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="w-full max-w-lg mt-6 bg-white border border-slate-200 rounded-3xl p-6 text-left shadow-sm hover:shadow-md transition-shadow"
+                >
+                    <div className="flex items-center gap-3 mb-1">
+                        <div className="w-8 h-8 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center">
+                            <Sparkles className="w-4 h-4" />
+                        </div>
+                        <div>
+                            <h4 className="font-black text-slate-900 text-lg leading-tight">AI Result</h4>
+                            <p className="text-xs text-slate-500 font-medium">Detected from your photo</p>
+                        </div>
+                    </div>
+                    
+                    <div className="mt-5 space-y-3">
+                        {isLowConfidence ? (
+                            <div className="flex items-start gap-3 p-3 bg-amber-50 rounded-xl border border-amber-100">
+                                <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                                <p className="text-sm text-amber-700 font-medium">
+                                    Low confidence. Please confirm the issue category manually.
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="space-y-3">
+                                {aiPredictions.slice(0, 3).map((pred, idx) => (
+                                    <div key={idx} className={`flex justify-between items-center ${idx === 0 ? 'bg-slate-50 p-3 rounded-xl border border-slate-100' : 'px-3'}`}>
+                                        <div className="flex items-center gap-2">
+                                            <span className={`font-bold capitalize ${idx === 0 ? 'text-slate-900' : 'text-slate-600 text-sm'}`}>
+                                                {displayCategory ? displayCategory(pred.class) : pred.class}
+                                            </span>
+                                            {idx === 0 && <span className="text-[10px] bg-teal-100 text-teal-700 font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Top Match</span>}
+                                        </div>
+                                        <span className={`font-black ${idx === 0 ? 'text-teal-600' : 'text-slate-400 text-sm'}`}>
+                                            {Math.round(pred.confidence * 100)}%
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </motion.div>
+            )}
         </div>
     );
 };
 
 export default ImageUploader;
+

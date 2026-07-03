@@ -274,28 +274,48 @@ function ArahanKerja() {
                   exit={{ opacity: 0, x: -20 }}
                   className="sticky top-0 space-y-6"
                 >
-                  <div className="bg-white rounded-[40px] border border-slate-200 shadow-xl overflow-hidden">
-                    {/* Image preview */}
-                    <div className="h-48 bg-slate-100 relative">
-                      <img 
-                        src={`/storage/${selectedAduan.gambar_bukti}`} 
-                        className="w-full h-full object-cover" 
-                        alt="Bukti" 
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                      <div className="absolute bottom-6 left-8">
-                        <h3 className="text-white font-black text-xl leading-none">{selectedAduan.id_aduan}</h3>
-                        <p className="text-teal-300 text-xs font-bold mt-1 uppercase tracking-widest">{displayCategory(selectedAduan.jenis_kerosakan)}</p>
-                        {selectedAduan.anak_aduan_count > 0 && (
-                          <span className="mt-2 inline-flex items-center gap-1 px-2 py-1 bg-purple-600/80 text-white text-[10px] font-bold rounded-lg">
-                            <Layers className="w-3 h-3" />
-                            Cluster: {1 + selectedAduan.anak_aduan_count} grouped reports
-                          </span>
-                        )}
+                    <div className="bg-white rounded-[40px] border border-slate-200 shadow-xl overflow-hidden">
+                      {/* Image preview */}
+                      <div className="h-48 bg-slate-100 relative">
+                        <img 
+                          src={`/storage/${selectedAduan.gambar_bukti}`} 
+                          className="w-full h-full object-cover" 
+                          alt="Main Photo" 
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                        <div className="absolute bottom-6 left-8">
+                          <h3 className="text-white font-black text-xl leading-none">{selectedAduan.id_aduan}</h3>
+                          <p className="text-teal-300 text-xs font-bold mt-1 uppercase tracking-widest">{displayCategory(selectedAduan.jenis_kerosakan)}</p>
+                          {selectedAduan.anak_aduan_count > 0 && (
+                            <span className="mt-2 inline-flex items-center gap-1 px-2 py-1 bg-purple-600/80 text-white text-[10px] font-bold rounded-lg">
+                              <Layers className="w-3 h-3" />
+                              Cluster: {1 + selectedAduan.anak_aduan_count} grouped reports
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
 
-                    {/* Form */}
+                      {/* Extra Evidence */}
+                      {selectedAduan.evidences && selectedAduan.evidences.length > 0 && (
+                          <div className="bg-slate-50 border-b border-slate-200 p-4">
+                              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Additional Evidence</h4>
+                              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                                  {selectedAduan.evidences.map((ev, idx) => (
+                                      <div key={idx} className="w-24 h-24 shrink-0 rounded-2xl overflow-hidden bg-white border-2 border-slate-200 relative shadow-sm">
+                                          {ev.file_type === 'video' ? (
+                                              <video src={`/storage/${ev.file_path}`} controls className="w-full h-full object-cover bg-slate-900" />
+                                          ) : (
+                                              <a href={`/storage/${ev.file_path}`} target="_blank" rel="noreferrer">
+                                                  <img src={`/storage/${ev.file_path}`} className="w-full h-full object-cover hover:scale-105 transition-transform" alt={`Extra Evidence ${idx+1}`} />
+                                              </a>
+                                          )}
+                                      </div>
+                                  ))}
+                              </div>
+                          </div>
+                      )}
+
+                      {/* Form */}
                     <form onSubmit={handleSubmit} className="p-8 space-y-5">
                       <div>
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Select Registered Contractor</label>

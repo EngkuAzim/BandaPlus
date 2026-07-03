@@ -66,4 +66,9 @@ class Aduan extends Model
     {
         return $this->belongsTo(User::class, 'id_pegawai');
     }
+
+    public function evidences()
+    {
+        return $this->hasMany(AduanEvidence::class, 'id_aduan', 'id_aduan');
+    }
 }

@@ -27,6 +27,8 @@ class AduanController extends Controller
             'keterangan_aduan' => 'nullable|string',
             'gambar_bukti'     => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5048',
             'scan_id'          => 'nullable|string',
+            'evidences'        => 'nullable|array|max:3',
+            'evidences.*'      => 'file|mimes:jpg,jpeg,png,webp,mp4,mov,webm|max:30720',
         ]);
 
         $imagePath = null;
@@ -173,6 +175,19 @@ class AduanController extends Controller
                     ]);
                 }
             }
+            if ($request->hasFile('evidences')) {
+                foreach ($request->file('evidences') as $file) {
+                    $path = $file->store('aduan_evidences', 'public');
+                    $mime = $file->getMimeType();
+                    $type = str_starts_with($mime, 'video') ? 'video' : 'image';
+                    \App\Models\AduanEvidence::create([
+                        'id_aduan' => $mainAduan->id_aduan,
+                        'file_path' => $path,
+                        'file_type' => $type,
+                        'original_name' => $file->getClientOriginalName(),
+                    ]);
+                }
+            }
 
             DB::commit();
 
@@ -214,7 +229,8 @@ class AduanController extends Controller
      */
     public function getUserAduan(Request $request)
     {
-        $aduans = Aduan::select('id_aduan', 'jenis_kerosakan', 'gambar_bukti', 'alamat_lokasi', 'status', 'tarikh_lapor')
+        $aduans = Aduan::with('evidences')
+                       ->select('id_aduan', 'jenis_kerosakan', 'gambar_bukti', 'alamat_lokasi', 'status', 'tarikh_lapor')
                        ->where('id_pengguna', $request->user()->id)
                        ->orderBy('tarikh_lapor', 'desc')
                        ->get();

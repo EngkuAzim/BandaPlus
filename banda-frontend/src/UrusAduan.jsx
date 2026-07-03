@@ -293,10 +293,29 @@ function UrusAduan() {
                 <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8 overflow-y-auto">
                   {/* Bukti Digital */}
                   <div className="space-y-4">
+                    <h4 className="flex items-center gap-2 font-black text-slate-900 text-sm uppercase tracking-widest border-b border-slate-100 pb-2">
+                        Evidence
+                    </h4>
                     <div className="aspect-video rounded-3xl overflow-hidden bg-slate-100 border-4 border-white shadow-lg">
-                      <img src={`/storage/${selectedAduan.gambar_bukti}`} className="w-full h-full object-cover" alt="Bukti" />
+                      <img src={`/storage/${selectedAduan.gambar_bukti}`} className="w-full h-full object-cover" alt="Main Photo" />
                     </div>
-                    <div className="bg-slate-50 p-5 rounded-3xl border border-slate-100">
+                    {selectedAduan.evidences && selectedAduan.evidences.length > 0 && (
+                        <div className="grid grid-cols-3 gap-2">
+                            {selectedAduan.evidences.map((ev, idx) => (
+                                <div key={idx} className="aspect-square rounded-2xl overflow-hidden bg-slate-100 border-2 border-slate-200 shadow-sm relative group">
+                                    {ev.file_type === 'video' ? (
+                                        <video src={`/storage/${ev.file_path}`} controls className="w-full h-full object-cover bg-slate-900" />
+                                    ) : (
+                                        <a href={`/storage/${ev.file_path}`} target="_blank" rel="noreferrer">
+                                            <img src={`/storage/${ev.file_path}`} className="w-full h-full object-cover hover:scale-105 transition-transform" alt={`Extra Evidence ${idx+1}`} />
+                                        </a>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    <div className="bg-slate-50 p-5 rounded-3xl border border-slate-100 mt-4">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
                         <h4 className="flex items-center gap-2 font-black text-slate-900 text-sm uppercase tracking-widest">
                           <MapPin className="w-4 h-4 text-teal-600" /> Location & Details
