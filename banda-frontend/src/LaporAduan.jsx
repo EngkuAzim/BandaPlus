@@ -87,10 +87,10 @@ function LaporAduan() {
           lat: lat,
           lng: lng
         }));
-        toast.success('Lokasi Ditemui!', { description: 'Alamat telah diisi secara automatik.' });
+        toast.success('Location Found!', { description: 'Address has been autofilled automatically.' });
       }
     } catch (error) {
-      toast.error('Ralat Peta', { description: 'Gagal menukar koordinat kepada alamat.' });
+      toast.error('Map Error', { description: 'Failed to convert coordinates to address.' });
     } finally {
       setIsLocating(false);
     }
@@ -120,7 +120,7 @@ function LaporAduan() {
 
     } catch (error) {
       setIsScanning(false);
-      toast.error('Gagal Memuat Naik AI', { description: 'Sila cuba lagi.' });
+      toast.error('AI Upload Failed', { description: 'Please try again.' });
     }
   };
 
@@ -163,9 +163,9 @@ function LaporAduan() {
           }
 
           setFormData(prev => ({ ...prev, jenis_kerosakan: matchedValue }));
-          toast.success('Analisis AI Selesai!', { description: `AI dikesan: ${matchedValue}` });
+          toast.success('AI Analysis Complete!', { description: `AI detected: ${matchedValue}` });
       } else {
-          toast.info('Analisis AI Selesai', { description: 'Sila pilih kategori secara manual.' });
+          toast.info('AI Analysis Complete', { description: 'Please select a category manually.' });
       }
     } catch (error) {
       console.error("Error processing scan data:", error);
@@ -176,7 +176,7 @@ function LaporAduan() {
     const file = e.target.files[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
-        toast.error('Gambar Terlalu Besar', { description: 'Maksimum 5MB.'});
+        toast.error('Image Too Large', { description: 'Maximum size is 5MB.'});
         return;
       }
       setSelectedImage(file);
@@ -207,7 +207,7 @@ function LaporAduan() {
         },
         () => {
           setIsLocating(false);
-          toast.error('Akses Ditolak', { description: 'Sila benarkan akses lokasi.' });
+          toast.error('Access Denied', { description: 'Please allow location access.' });
         }
       );
     }
@@ -238,11 +238,11 @@ function LaporAduan() {
 
   const handleNext = () => {
     if (currentStep === 1 && !selectedImage) {
-        return toast.error("Sila muat naik gambar terlebih dahulu");
+        return toast.error("Please upload a photo first");
     }
     if (currentStep === 2) {
         if (!formData.jenis_kerosakan || !formData.id_zon || !formData.alamat_lokasi) {
-            return toast.error("Sila lengkapkan semua butiran yang diperlukan");
+            return toast.error("Please complete all required details");
         }
     }
     setCurrentStep(prev => Math.min(prev + 1, totalSteps));
@@ -252,7 +252,7 @@ function LaporAduan() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedImage && !scanId) return toast.error('Gambar Diperlukan');
+    if (!selectedImage && !scanId) return toast.error('Photo Required');
 
     setIsSubmitting(true);
     const submitData = new FormData();
@@ -265,7 +265,7 @@ function LaporAduan() {
         : formData.alamat_lokasi;
         
     // If they used map but reverse geocoding failed/empty, provide a fallback so backend doesn't reject
-    const addressToSubmit = finalAddress || (formData.lat ? `Lokasi Peta: ${formData.lat}, ${formData.lng}` : '');
+    const addressToSubmit = finalAddress || (formData.lat ? `Map Location: ${formData.lat}, ${formData.lng}` : '');
     submitData.append('alamat_lokasi', addressToSubmit);
     
     submitData.append('keterangan_aduan', formData.keterangan_aduan);
@@ -286,10 +286,10 @@ function LaporAduan() {
       await axios.post(`/api/aduan`, submitData, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      toast.success('Aduan Berjaya Dihantar!');
+      toast.success('Report Submitted Successfully!');
       setTimeout(() => navigate('/dashboard'), 1500);
     } catch (error) {
-      toast.error('Gagal Menghantar Aduan');
+      toast.error('Failed to Submit Report');
     } finally {
       setIsSubmitting(false);
     }
@@ -313,7 +313,7 @@ function LaporAduan() {
                         {currentStep > step ? <CheckCircle className="w-5 h-5" /> : step}
                     </div>
                     <span className={`mt-2 text-xs font-bold ${currentStep >= step ? 'text-teal-700' : 'text-slate-400'}`}>
-                        {step === 1 ? 'Gambar Bukti' : step === 2 ? 'Butiran Lokasi' : 'Semakan'}
+                        {step === 1 ? 'Photo Evidence' : step === 2 ? 'Location & Details' : 'Review'}
                     </span>
                 </div>
             ))}
@@ -326,7 +326,7 @@ function LaporAduan() {
       <Sidebar userData={userData} />
       <div className="flex-1 flex flex-col overflow-hidden relative">
         <header className="flex items-center justify-between px-8 py-5 bg-white border-b border-slate-200">
-          <h2 className="text-2xl font-black text-slate-900">Lapor Aduan Baru</h2>
+          <h2 className="text-2xl font-black text-slate-900">Submit a New Report</h2>
         </header>
 
         <main className="flex-1 overflow-x-hidden overflow-y-auto p-8">
@@ -362,16 +362,16 @@ function LaporAduan() {
                     <div className="lg:col-span-4 hidden md:block">
                         <div className="sticky top-8 space-y-4">
                             <h3 className="font-bold text-slate-800 flex items-center gap-2">
-                                <ImageIcon className="w-5 h-5 text-teal-600" /> Gambar Rujukan
+                                <ImageIcon className="w-5 h-5 text-teal-600" /> Reference Photo
                             </h3>
                             <div className="rounded-3xl overflow-hidden border-2 border-slate-200 shadow-sm aspect-square bg-slate-100 relative group">
                                 {imagePreview ? (
                                     <img src={imagePreview} className="w-full h-full object-cover" alt="Rujukan" />
                                 ) : (
-                                    <div className="w-full h-full flex items-center justify-center text-slate-400 font-medium">Tiada Gambar</div>
+                                    <div className="w-full h-full flex items-center justify-center text-slate-400 font-medium">No Photo</div>
                                 )}
                             </div>
-                            <p className="text-xs text-slate-500 text-center">Jadikan gambar ini panduan untuk melengkapkan laporan kerosakan.</p>
+                            <p className="text-xs text-slate-500 text-center">Use this reference photo to help complete the damage report details.</p>
                         </div>
                     </div>
 
@@ -386,16 +386,16 @@ function LaporAduan() {
                                     <FileText className="w-5 h-5 text-teal-600" />
                                 </div>
                                 <div>
-                                    <h3 className="text-lg font-black text-slate-900">Maklumat Asas & Lokasi</h3>
-                                    <p className="text-xs text-slate-500">Lengkapkan butiran dan tandakan lokasi kerosakan.</p>
+                                    <h3 className="text-lg font-black text-slate-900">Basic Info & Location</h3>
+                                    <p className="text-xs text-slate-500">Fill in the details and mark the exact location of the issue.</p>
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                                 <div className="space-y-1.5">
-                                    <label className="text-sm font-bold text-slate-700">Kategori Kerosakan</label>
+                                    <label className="text-sm font-bold text-slate-700">Issue Category</label>
                                     <select required value={formData.jenis_kerosakan} onChange={(e) => setFormData({...formData, jenis_kerosakan: e.target.value})} className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all shadow-sm">
-                                    <option value="" disabled>Pilih Kategori...</option>
+                                    <option value="" disabled>Select Category...</option>
                                     <option value="Jalan Berlubang">Jalan Berlubang</option>
                                     <option value="Banjir">Banjir</option>
                                     <option value="Anjing Liar / Haiwan Terbiar">Anjing Liar / Haiwan Terbiar</option>
@@ -409,9 +409,9 @@ function LaporAduan() {
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <label className="text-sm font-bold text-slate-700">Zon MPAJ</label>
+                                    <label className="text-sm font-bold text-slate-700">MPAJ Zone</label>
                                     <select required value={formData.id_zon} onChange={(e) => setFormData({...formData, id_zon: e.target.value})} className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all shadow-sm">
-                                    <option value="" disabled>Pilih Zon Anda...</option>
+                                    <option value="" disabled>Select Your Zone...</option>
                                     <option value="1">Zon 1 (Taman Melawati)</option>
                                     <option value="2">Zon 2 (Klang Gates / Ukay Perdana)</option>
                                     <option value="3">Zon 3 (Bukit Antarabangsa)</option>
@@ -438,13 +438,13 @@ function LaporAduan() {
                             <hr className="border-slate-200 my-2" />
 
                             <div className="space-y-1.5">
-                                <label className="text-sm font-bold text-slate-700">Lokasi Spesifik (Pilihan)</label>
-                                <input type="text" value={specificLocation} onChange={(e) => setSpecificLocation(e.target.value)} placeholder="Cth: Depan restoran Mamak..." className="w-full px-4 py-3.5 bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all shadow-sm" />
+                                <label className="text-sm font-bold text-slate-700">Specific Landmark (Optional)</label>
+                                <input type="text" value={specificLocation} onChange={(e) => setSpecificLocation(e.target.value)} placeholder="e.g. In front of ABC Restaurant..." className="w-full px-4 py-3.5 bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all shadow-sm" />
                             </div>
                             
                             <div className="space-y-1.5">
-                                <label className="text-sm font-bold text-slate-700">Keterangan Lanjut (Pilihan)</label>
-                                <textarea value={formData.keterangan_aduan} onChange={(e) => setFormData({...formData, keterangan_aduan: e.target.value})} placeholder="Terangkan isu ini..." className="w-full min-h-[100px] px-4 py-3.5 bg-white border border-slate-200 rounded-xl resize-none outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all shadow-sm"></textarea>
+                                <label className="text-sm font-bold text-slate-700">Additional Details (Optional)</label>
+                                <textarea value={formData.keterangan_aduan} onChange={(e) => setFormData({...formData, keterangan_aduan: e.target.value})} placeholder="Describe the issue in more detail..." className="w-full min-h-[100px] px-4 py-3.5 bg-white border border-slate-200 rounded-xl resize-none outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all shadow-sm"></textarea>
                             </div>
                         </div>
                     </div>
@@ -458,8 +458,8 @@ function LaporAduan() {
                         <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4">
                             <CheckCircle className="w-8 h-8 text-emerald-600" />
                         </div>
-                        <h3 className="text-2xl font-black text-slate-900">Semakan Terakhir</h3>
-                        <p className="text-slate-500">Sila pastikan maklumat di bawah tepat sebelum menghantar.</p>
+                        <h3 className="text-2xl font-black text-slate-900">Final Review</h3>
+                        <p className="text-slate-500">Please verify that the details below are correct before submitting.</p>
                     </div>
 
                     <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -468,15 +468,15 @@ function LaporAduan() {
                         </div>
                         <div className="space-y-4">
                             <div>
-                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">Kategori</p>
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">Category</p>
                                 <p className="text-lg font-bold text-slate-900">{formData.jenis_kerosakan}</p>
                             </div>
                             <div>
-                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">Zon</p>
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">Zone</p>
                                 <p className="text-sm font-bold text-slate-900">Zon {formData.id_zon}</p>
                             </div>
                             <div>
-                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">Lokasi</p>
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">Location</p>
                                 <p className="text-sm font-medium text-slate-700 line-clamp-2">{formData.alamat_lokasi}</p>
                             </div>
                         </div>
@@ -492,7 +492,7 @@ function LaporAduan() {
                         disabled={currentStep === 1}
                         className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold transition-all ${currentStep === 1 ? 'opacity-0 pointer-events-none' : 'text-slate-500 hover:bg-slate-100'}`}
                     >
-                        <ChevronLeft className="w-5 h-5" /> Kembali
+                        <ChevronLeft className="w-5 h-5" /> Back
                     </button>
                     
                     {currentStep < totalSteps ? (
@@ -502,7 +502,7 @@ function LaporAduan() {
                             disabled={isScanning || (currentStep === 1 && !selectedImage)}
                             className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-8 rounded-xl flex items-center gap-2 shadow-lg shadow-teal-500/30 transition-all disabled:opacity-50 disabled:shadow-none"
                         >
-                            Seterusnya <ChevronRight className="w-5 h-5" />
+                            Next <ChevronRight className="w-5 h-5" />
                         </button>
                     ) : (
                         <button 
@@ -511,7 +511,7 @@ function LaporAduan() {
                             className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-8 rounded-xl flex items-center gap-2 shadow-lg shadow-emerald-500/30 transition-all"
                         >
                             {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-                            Hantar Laporan Aduan
+                            Submit Report
                         </button>
                     )}
                 </div>

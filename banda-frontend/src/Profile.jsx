@@ -12,6 +12,7 @@ function Profile() {
   const [isSaving, setIsSaving] = useState(false);
   const [isFetchingPostcode, setIsFetchingPostcode] = useState(false); // New state for API loading
   const [userData, setUserData] = useState(null);
+  const displayRole = (r) => ({ 'komuniti': 'Community User', 'admin': 'MPAJ Admin', 'pentadbir': 'MPAJ Admin', 'pegawai': 'Department Officer', 'kontraktor': 'Contractor' })[r?.toLowerCase()] || r || 'Community User';
 
   // Form State
   const [formData, setFormData] = useState({
@@ -84,13 +85,13 @@ function Profile() {
           negeri: place['state']       // e.g., "Selangor"
         }));
 
-        toast.success(`Kawasan Dikesan: ${place['place name']}, ${place['state']}`, {
+        toast.success(`Area Detected: ${place['place name']}, ${place['state']}`, {
           icon: <MapPin className="w-4 h-4 text-teal-600" />
         });
       } catch (error) {
         // If API returns 404 (Postcode not found)
-        toast.error('Poskod Tidak Ditemui', {
-          description: 'Sila masukkan bandar dan negeri secara manual.'
+        toast.error('Postcode Not Found', {
+          description: 'Please enter city and state manually.'
         });
       } finally {
         setIsFetchingPostcode(false);
@@ -111,12 +112,12 @@ function Profile() {
         headers: { Authorization: `Bearer ${token}` }
       });
       
-      toast.success('Profil Dikemaskini!', { 
-        description: 'Maklumat alamat anda telah berjaya disimpan.' 
+      toast.success('Profile Updated!', { 
+        description: 'Your address information has been saved successfully.' 
       });
     } catch (error) {
-      toast.error('Gagal Menyimpan', { 
-        description: 'Sila cuba sebentar lagi.' 
+      toast.error('Failed to Save', { 
+        description: 'Please try again later.' 
       });
     } finally {
       setIsSaving(false);
@@ -143,8 +144,8 @@ function Profile() {
         {/* Top Header */}
         <header className="flex items-center justify-between px-8 py-5 bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-10">
           <div>
-            <h2 className="text-2xl font-black text-slate-900 tracking-tight">Profil Pengguna</h2>
-            <p className="text-sm text-slate-500 font-medium mt-1">Urus maklumat peribadi dan alamat anda</p>
+            <h2 className="text-2xl font-black text-slate-900 tracking-tight">User Profile</h2>
+            <p className="text-sm text-slate-500 font-medium mt-1">Manage your personal details and contact address</p>
           </div>
         </header>
 
@@ -164,10 +165,10 @@ function Profile() {
                 <div className="flex items-center gap-3 mt-2">
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-50 text-teal-700 text-xs font-bold border border-teal-100 capitalize">
                     <ShieldCheck className="w-3.5 h-3.5" />
-                    Akaun {userData?.peranan || 'Komuniti'}
+                    Account Type: {displayRole(userData?.peranan)}
                   </span>
                   <span className="text-slate-500 text-sm font-medium flex items-center gap-1">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Aktif
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Active
                   </span>
                 </div>
               </div>
@@ -182,13 +183,13 @@ function Profile() {
               <div className="p-8 border-b border-slate-100 bg-slate-50/50">
                 <h4 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
                   <User className="w-5 h-5 text-teal-600" />
-                  Maklumat Asas (Terhad)
+                  Basic Information (Locked)
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   
                   {/* Name (Disabled) */}
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-500">Nama Penuh</label>
+                    <label className="text-sm font-bold text-slate-500">Full Name</label>
                     <div className="relative">
                       <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                       <input 
@@ -200,7 +201,7 @@ function Profile() {
 
                   {/* Email (Disabled) */}
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-500">Alamat E-mel</label>
+                    <label className="text-sm font-bold text-slate-500">Email Address</label>
                     <div className="relative">
                       <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                       <input 
@@ -217,13 +218,13 @@ function Profile() {
               <div className="p-8">
                 <h4 className="text-lg font-bold text-slate-900 mb-6 flex items-center gap-2">
                   <MapPin className="w-5 h-5 text-teal-600" />
-                  Alamat & Hubungan
+                  Address & Contact Details
                 </h4>
                 
                 <div className="space-y-6">
                   {/* Phone (Editable) */}
                   <div className="space-y-2 md:w-1/2 md:pr-3">
-                    <label className="text-sm font-bold text-slate-700">Nombor Telefon</label>
+                    <label className="text-sm font-bold text-slate-700">Phone Number</label>
                     <div className="relative">
                       <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                       <input 
@@ -238,18 +239,18 @@ function Profile() {
 
                   {/* Address Lines */}
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700">Alamat Baris 1</label>
+                    <label className="text-sm font-bold text-slate-700">Address Line 1</label>
                     <input 
-                      type="text" placeholder="No Rumah, Jalan..." value={formData.alamat_1}
+                      type="text" placeholder="House No., Street Name..." value={formData.alamat_1}
                       onChange={(e) => setFormData({...formData, alamat_1: e.target.value})}
                       className="w-full px-4 py-3.5 bg-white border border-slate-200 rounded-xl text-slate-900 font-medium focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 outline-none transition-all"
                     />
                   </div>
                   
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-slate-700">Alamat Baris 2 <span className="text-slate-400 font-normal">(Pilihan)</span></label>
+                    <label className="text-sm font-bold text-slate-700">Address Line 2 <span className="text-slate-400 font-normal">(Optional)</span></label>
                     <input 
-                      type="text" placeholder="Taman, Pangsapuri..." value={formData.alamat_2}
+                      type="text" placeholder="Residential Area, Apartment..." value={formData.alamat_2}
                       onChange={(e) => setFormData({...formData, alamat_2: e.target.value})}
                       className="w-full px-4 py-3.5 bg-white border border-slate-200 rounded-xl text-slate-900 font-medium focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 outline-none transition-all"
                     />
@@ -258,7 +259,7 @@ function Profile() {
                   {/* Postcode, City, State */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="space-y-2">
-                      <label className="text-sm font-bold text-slate-700">Poskod</label>
+                      <label className="text-sm font-bold text-slate-700">Postcode</label>
                       <div className="relative">
                         <Map className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                         <input 
@@ -276,7 +277,7 @@ function Profile() {
                     </div>
                     
                     <div className="space-y-2">
-                      <label className="text-sm font-bold text-slate-700">Bandar</label>
+                      <label className="text-sm font-bold text-slate-700">City</label>
                       <div className="relative">
                         <Building className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                         <input 
@@ -288,7 +289,7 @@ function Profile() {
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-sm font-bold text-slate-700">Negeri</label>
+                      <label className="text-sm font-bold text-slate-700">State</label>
                       <div className="relative">
                         <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                         <select 
@@ -296,7 +297,7 @@ function Profile() {
                           onChange={(e) => setFormData({...formData, negeri: e.target.value})}
                           className="w-full pl-12 pr-4 py-3.5 bg-white border border-slate-200 rounded-xl text-slate-900 font-medium focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 outline-none transition-all appearance-none"
                         >
-                          <option value="">Pilih Negeri</option>
+                          <option value="">Select State</option>
                           {/* Zippopotam returns states like 'Selangor', 'Johor', 'Kuala Lumpur', etc. */}
                           <option value="Johor">Johor</option>
                           <option value="Kedah">Kedah</option>
@@ -329,7 +330,7 @@ function Profile() {
                   className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3.5 px-8 rounded-xl transition-all shadow-lg shadow-teal-600/20 hover:-translate-y-0.5 flex items-center gap-2 disabled:opacity-70 disabled:hover:-translate-y-0"
                 >
                   {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                  {isSaving ? 'Menyimpan...' : 'Simpan Perubahan'}
+                  {isSaving ? 'Saving...' : 'Save Changes'}
                 </button>
               </div>
 

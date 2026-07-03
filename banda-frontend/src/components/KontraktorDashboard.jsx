@@ -16,6 +16,7 @@ import { Link } from 'react-router-dom';
 function KontraktorDashboard({ userData, stats }) {
   const [tugasanList, setTugasanList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const displayStatus = (s) => ({ 'Baru': 'New', 'Dalam Tindakan': 'In Progress', 'Selesai': 'Completed', 'Disahkan': 'Verified', 'Ditolak': 'Rejected', 'KIV': 'On Hold', 'Dalam Proses': 'In Progress' })[s] || s;
 
   useEffect(() => {
     const fetchTugasan = async () => {
@@ -44,8 +45,8 @@ function KontraktorDashboard({ userData, stats }) {
       echo.private(`kontraktor.${userData.id}`)
         .listen('.ArahanKerjaBaru', (e) => {
           // Pop-up notification with task details
-          toast.success('Arahan Kerja Baru Diterima!', {
-            description: `${e.arahanKerja?.aduan?.jenis_kerosakan || 'Tugasan baru'} telah ditugaskan kepada anda.`,
+          toast.success('New Work Order Received!', {
+            description: `${e.arahanKerja?.aduan?.jenis_kerosakan || 'New task'} has been assigned to you.`,
             duration: 8000,
           });
           // Refresh the job list instantly
@@ -68,9 +69,9 @@ function KontraktorDashboard({ userData, stats }) {
       <motion.div variants={itemVariants} className="mb-8">
         <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
           <HardHat className="w-6 h-6 text-amber-600" />
-          Papan Pemuka Kontraktor
+          Contractor Dashboard
         </h3>
-        <p className="text-sm font-medium text-slate-500 mt-1">Selesaikan arahan kerja dan muat naik bukti pembaikan berkoordinat GPS.</p>
+        <p className="text-sm font-medium text-slate-500 mt-1">Complete assigned work orders and upload GPS-verified repair proof photos.</p>
       </motion.div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -79,7 +80,7 @@ function KontraktorDashboard({ userData, stats }) {
             <AlertCircle className="w-7 h-7" />
           </div>
           <div>
-            <p className="text-slate-500 font-bold text-[11px] uppercase tracking-wider mb-1">Tugasan Dalam Proses</p>
+            <p className="text-slate-500 font-bold text-[11px] uppercase tracking-wider mb-1">In Progress Jobs</p>
             <h4 className="text-3xl font-black text-slate-900">{stats?.tugasan_baru || 0}</h4>
           </div>
         </motion.div>
@@ -89,7 +90,7 @@ function KontraktorDashboard({ userData, stats }) {
             <CheckSquare className="w-7 h-7" />
           </div>
           <div>
-            <p className="text-slate-500 font-bold text-[11px] uppercase tracking-wider mb-1">Tugasan Selesai (Keseluruhan)</p>
+            <p className="text-slate-500 font-bold text-[11px] uppercase tracking-wider mb-1">Completed Jobs (Total)</p>
             <h4 className="text-3xl font-black text-slate-900">{stats?.tugasan_selesai || 0}</h4>
           </div>
         </motion.div>
@@ -97,12 +98,12 @@ function KontraktorDashboard({ userData, stats }) {
 
       <div className="flex flex-col gap-6">
         <motion.div variants={itemVariants} className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 md:p-8 overflow-hidden">
-          <h4 className="text-lg font-black text-slate-900 mb-6">Senarai Arahan Kerja Semasa</h4>
+          <h4 className="text-lg font-black text-slate-900 mb-6">Current Work Orders</h4>
           <div className="space-y-4">
             {isLoading ? (
               <div className="flex justify-center p-10"><Loader2 className="w-8 h-8 animate-spin text-teal-600" /></div>
             ) : tugasanList.length === 0 ? (
-              <div className="bg-slate-50 p-6 rounded-2xl text-center text-slate-400 font-medium border border-slate-100">Tiada arahan kerja pada masa ini.</div>
+              <div className="bg-slate-50 p-6 rounded-2xl text-center text-slate-400 font-medium border border-slate-100">No work orders assigned at the moment.</div>
             ) : (
               tugasanList.map(t => (
                 <div key={t.id_arahan} className="border border-slate-100 bg-slate-50 p-5 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:border-teal-200 transition-colors">
@@ -112,15 +113,15 @@ function KontraktorDashboard({ userData, stats }) {
                       t.status_kerja === 'Dalam Proses' ? 'bg-amber-100 text-amber-700' :
                       'bg-blue-100 text-blue-700'
                     }`}>
-                      {t.status_kerja}
+                      {displayStatus(t.status_kerja)}
                     </span>
-                    <h5 className="font-bold text-slate-800 mt-2">{t.aduan?.jenis_kerosakan || 'Kerja Pembaikan'}</h5>
+                    <h5 className="font-bold text-slate-800 mt-2">{t.aduan?.jenis_kerosakan || 'Repair Work'}</h5>
                     <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
-                      <MapPin className="w-3 h-3" /> {t.aduan?.alamat_lokasi || 'Lokasi tidak dinyatakan'}
+                      <MapPin className="w-3 h-3" /> {t.aduan?.alamat_lokasi || 'Location not specified'}
                     </p>
                   </div>
                   <Link to="/pembaikan" className="bg-slate-900 hover:bg-teal-600 text-center text-white font-bold text-sm px-5 py-2.5 rounded-xl transition-all w-full sm:w-auto">
-                    Kemas Kini / Bukti
+                    Update / Upload Proof
                   </Link>
                 </div>
               ))
@@ -132,15 +133,15 @@ function KontraktorDashboard({ userData, stats }) {
         <motion.div variants={itemVariants} className="bg-slate-900 rounded-3xl shadow-lg p-8 text-white">
           <div className="flex items-center gap-3 mb-6 text-amber-400">
             <MapPin className="w-6 h-6" />
-            <h4 className="text-lg font-black">Validasi Geo-Fencing</h4>
+            <h4 className="text-lg font-black">Geo-Fencing Validation</h4>
           </div>
           <p className="text-sm text-slate-400 leading-relaxed mb-6">
-            Peringatan: Sistem BANDA+ menguatkuasakan validasi <span className="text-white font-bold">GPS 50 meter</span>. 
+            Notice: BANDA+ enforces strict <span className="text-white font-bold">50-meter GPS validation</span>. 
           </p>
           <div className="bg-slate-800 p-4 rounded-2xl border border-slate-700 flex items-start gap-3">
             <Camera className="w-5 h-5 text-teal-400 shrink-0 mt-0.5" />
             <p className="text-xs text-slate-300 font-medium leading-relaxed">
-              Gambar bukti "Selepas Pembaikan" mesti diambil di tapak lokasi aduan sebenar. Sistem akan menolak muat naik jika anda berada di luar radius geo-fencing.
+              "After Repair" proof photos must be taken on-site at the actual complaint location. Uploads outside the geo-fenced radius will be rejected.
             </p>
           </div>
         </motion.div>

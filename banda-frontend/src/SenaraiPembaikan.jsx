@@ -34,7 +34,7 @@ function SwipeButton({ onSwipe, text }) {
   if (swiped) {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-14 bg-teal-500 rounded-2xl flex items-center justify-center text-white font-bold shadow-sm border border-teal-600">
-        <Check className="w-5 h-5 mr-2" /> Tugasan Diterima
+        <Check className="w-5 h-5 mr-2" /> Job Accepted
       </motion.div>
     );
   }
@@ -85,8 +85,10 @@ function SenaraiPembaikan() {
   // UI States
   const [showTutupKes, setShowTutupKes] = useState(false);
 
+  const displayStatus = (s) => ({ 'Baru': 'New', 'Dalam Tindakan': 'In Progress', 'Selesai': 'Completed', 'Ditolak': 'Rejected', 'KIV': 'On Hold', 'Dalam Proses': 'In Progress' })[s] || s;
+
   // Derived state to check if job is already accepted
-  const hasAccepted = selectedTask?.log_kemajuan?.some(log => log.nota.includes('Kerja telah diterima'));
+  const hasAccepted = selectedTask?.log_kemajuan?.some(log => log.nota.includes('Kerja telah diterima') || log.nota.includes('Job officially accepted') || log.nota.includes('accepted'));
 
   useEffect(() => {
     fetchData(true);
@@ -189,7 +191,7 @@ function SenaraiPembaikan() {
         mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop()); // Stop microphone use completely
       }
       setIsRecording(false);
-      toast.info('Rakaman dihentikan.');
+      toast.info('Recording stopped.');
     } else {
       // START RECORDING
       try {
@@ -212,14 +214,14 @@ function SenaraiPembaikan() {
         if (SpeechRecognition && recognitionRef.current) {
           recognitionRef.current.start();
         } else if (!SpeechRecognition) {
-          toast.warning('Transkrip teks tidak disokong pelayar ini. Hanya audio dirakam.');
+          toast.warning('Text transcription not supported by this browser. Recording audio only.');
         }
 
         setIsRecording(true);
-        toast.success('Mula merakam...', { description: 'Sila bercakap...' });
+        toast.success('Recording started...', { description: 'Please speak into your microphone...' });
       } catch (err) {
         console.error("Mic Access Error: ", err);
-        toast.error('Gagal mengakses mikrofon. Sila benarkan akses.');
+        toast.error('Failed to access microphone. Please allow access.');
       }
     }
   };
@@ -230,7 +232,7 @@ function SenaraiPembaikan() {
     const token = localStorage.getItem('token');
     try {
       const formData = new FormData();
-      formData.append('nota', newLogText || 'Log rakaman suara.');
+      formData.append('nota', newLogText || 'Voice recording log.');
       if (audioBlob) {
         formData.append('audio', audioBlob, 'rakaman_suara.webm');
       }
@@ -240,12 +242,12 @@ function SenaraiPembaikan() {
         formData,
         { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' } }
       );
-      toast.success('Kemajuan kerja berjaya direkodkan!');
+      toast.success('Progress logged successfully!');
       setNewLogText('');
       setAudioBlob(null);
       fetchData(); // Reload data to get new timeline
     } catch (error) {
-      toast.error('Gagal menghantar log kemajuan.');
+      toast.error('Failed to send progress log.');
     } finally {
       setIsSendingLog(false);
     }
@@ -271,7 +273,7 @@ function SenaraiPembaikan() {
       } catch (geoError) {
         // Jika gagal dapatkan lokasi (contoh: pengguna block location), kita boleh hantar 0 
         // tetapi backend mungkin akan reject jika ia melebihi 50 meter.
-        toast.warning('Sila benarkan akses lokasi GPS untuk pengesahan tapak.');
+        toast.warning('Please allow GPS location access for on-site verification.');
         setIsSavingStatus(false);
         return; // Hentikan proses jika tiada GPS
       }
@@ -297,12 +299,12 @@ function SenaraiPembaikan() {
         );
       }
 
-      toast.success('Status kerja berjaya dikemaskini!');
+      toast.success('Job status updated successfully!');
       setShowTutupKes(false);
       fetchData(); 
     } catch (error) {
-      toast.error('Gagal menyimpan status/bukti.', {
-        description: error.response?.data?.message || 'Sila pastikan format gambar betul'
+      toast.error('Failed to save status/proof.', {
+        description: error.response?.data?.message || 'Please check image format and try again.'
       });
       
       // Jika bukti gagal (cth: lokasi tidak sah), kita kembalikan status ke Dalam Proses supaya mereka boleh cuba lagi
@@ -339,8 +341,8 @@ function SenaraiPembaikan() {
                     <HardHat className="w-6 h-6" />
                   </div>
                   <div>
-                    <h1 className="text-2xl font-black tracking-tight text-white">Kerja Pembaikan</h1>
-                    <p className="text-teal-300 text-sm font-medium">Urus arahan kerja di tapak</p>
+                    <h1 className="text-2xl font-black tracking-tight text-white">Repair Jobs</h1>
+                    <p className="text-teal-300 text-sm font-medium">Manage on-site work orders and progress</p>
                   </div>
                 </div>
               </header>
@@ -351,7 +353,7 @@ function SenaraiPembaikan() {
                 ) : tugasanList.length === 0 ? (
                   <div className="text-center p-10 mt-10 bg-white border border-slate-200 rounded-3xl">
                     <CheckCircle2 className="w-16 h-16 mx-auto mb-4 text-emerald-200" />
-                    <p className="font-bold text-slate-500">Bagus! Tiada kerja tertunggak.</p>
+                    <p className="font-bold text-slate-500">Great job! No pending repair jobs.</p>
                   </div>
                 ) : (
                   tugasanList.map(task => (
@@ -366,13 +368,13 @@ function SenaraiPembaikan() {
                           task.status_kerja === 'Dalam Proses' ? 'bg-amber-100 text-amber-700' :
                           'bg-blue-100 text-blue-700'
                         }`}>
-                          {task.status_kerja}
+                          {displayStatus(task.status_kerja)}
                         </span>
                         <span className="text-xs font-bold text-slate-400">#{task.id_arahan}</span>
                       </div>
                       
                       <h3 className="text-lg font-black text-slate-800 leading-tight mb-2">
-                        {task.aduan?.jenis_kerosakan || 'Penyelenggaraan Am'}
+                        {task.aduan?.jenis_kerosakan || 'General Maintenance'}
                       </h3>
                       
                       <div className="flex items-center gap-2 text-slate-500 text-xs font-medium mb-4 bg-slate-50 p-2 rounded-xl border border-slate-100">
@@ -383,7 +385,7 @@ function SenaraiPembaikan() {
                       <div className="flex justify-between items-center pt-3 border-t border-slate-100">
                         <div className="text-slate-500 text-xs font-bold flex items-center gap-1.5">
                           <CalendarClock className="w-4 h-4" />
-                          {task.tarikh_jangkaan_siap ? new Date(task.tarikh_jangkaan_siap).toLocaleDateString('ms-MY') : 'Tiada Tarikh'}
+                          {task.tarikh_jangkaan_siap ? new Date(task.tarikh_jangkaan_siap).toLocaleDateString('ms-MY') : 'No Date Set'}
                         </div>
                         <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600">
                           <ChevronRight className="w-4 h-4" />
@@ -412,7 +414,7 @@ function SenaraiPembaikan() {
                 <button onClick={() => setView('list')} className="flex items-center text-white bg-slate-800 p-2 rounded-xl active:bg-slate-700 transition-colors">
                   <ArrowLeft className="w-5 h-5" />
                 </button>
-                <div className="font-black text-white text-lg">Tugasan #{selectedTask.id_arahan}</div>
+                <div className="font-black text-white text-lg">Job #{selectedTask.id_arahan}</div>
                 <div className="w-9" /> {/* Balancer */}
               </header>
 
@@ -424,13 +426,13 @@ function SenaraiPembaikan() {
                     <div className="w-full h-48 bg-slate-200 relative">
                       <img src={`/storage/${selectedTask.aduan.gambar_bukti}`} alt="Kerosakan" className="w-full h-full object-cover" />
                       <div className="absolute top-4 right-4 bg-black/60 backdrop-blur text-white text-[10px] font-bold px-3 py-1 rounded-full border border-white/20">
-                        Laporan Komuniti
+                        Community Report
                       </div>
                     </div>
                   ) : (
                     <div className="w-full h-32 bg-slate-100 flex flex-col items-center justify-center text-slate-400 border-b border-slate-200">
                       <ImageIcon className="w-8 h-8 mb-1 opacity-50" />
-                      <span className="text-xs font-bold">Tiada gambar laporan dilampirkan</span>
+                      <span className="text-xs font-bold">No report photo attached</span>
                     </div>
                   )}
 
@@ -446,7 +448,7 @@ function SenaraiPembaikan() {
                       {selectedTask.aduan?.zon && (
                         <div className="flex items-center gap-2 mt-2">
                           <span className="px-3 py-1 rounded-lg bg-teal-100 text-teal-800 text-[10px] font-black uppercase border border-teal-200">
-                            Lokasi Zon: {selectedTask.aduan.zon}
+                            Zone: {selectedTask.aduan.zon}
                           </span>
                         </div>
                       )}
@@ -455,20 +457,20 @@ function SenaraiPembaikan() {
                     {/* Keterangan Komuniti */}
                     <div className="mb-4">
                       <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-2">
-                        Keterangan Komuniti
+                        Community Description
                       </h4>
                       <p className="text-sm text-slate-700 leading-relaxed font-medium bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                        {selectedTask.aduan?.keterangan_aduan || 'Tiada keterangan tambahan diberikan oleh pengadu.'}
+                        {selectedTask.aduan?.keterangan_aduan || 'No additional description provided by reporter.'}
                       </p>
                     </div>
 
                     {/* Arahan Pegawai */}
                     <div className="bg-amber-50 rounded-2xl p-4 border border-amber-200">
                       <p className="text-[10px] font-black text-amber-700 uppercase tracking-widest mb-1 flex items-center gap-1.5">
-                        <HardHat className="w-3 h-3" /> Arahan Mandatori Pegawai
+                        <HardHat className="w-3 h-3" /> Mandatory Officer Instructions
                       </p>
                       <p className="text-sm font-medium text-amber-900 leading-relaxed">
-                        {selectedTask.nota_pegawai || 'Teruskan pembaikan mengikut spesifikasi piawai kualiti BANDA+.'}
+                        {selectedTask.nota_pegawai || 'Proceed with repairs according to BANDA+ standard quality specifications.'}
                       </p>
                     </div>
                   </div>
@@ -478,15 +480,15 @@ function SenaraiPembaikan() {
                 {selectedTask.status_kerja !== 'Selesai' && !hasAccepted && (
                   <div className="px-6 mb-8">
                     <SwipeButton 
-                      text="Tarik untuk Terima Kerja" 
+                      text="Slide to Accept Job" 
                       onSwipe={async () => {
                         const token = localStorage.getItem('token');
                         await axios.post(
                           `/api/kontraktor/tugasan/${selectedTask.id_arahan}/log`,
-                          { nota: 'Kerja telah diterima rasmi oleh pihak kontraktor.' },
+                          { nota: 'Job officially accepted by contractor.' },
                           { headers: { Authorization: `Bearer ${token}` } }
                         );
-                        toast.success('Tugasan berjaya diterima!');
+                        toast.success('Job accepted successfully!');
                         fetchData();
                       }} 
                     />
@@ -497,7 +499,7 @@ function SenaraiPembaikan() {
                 <div className="px-6 mb-8">
                   <div className="flex items-center gap-2 mb-4">
                     <History className="w-5 h-5 text-teal-600" />
-                    <h4 className="font-black text-slate-800 text-lg">Log Kemajuan Tapak</h4>
+                    <h4 className="font-black text-slate-800 text-lg">On-Site Progress Log</h4>
                   </div>
 
                   {/* Add New Log Input */}
@@ -509,7 +511,7 @@ function SenaraiPembaikan() {
                             rows="2"
                             value={newLogText}
                             onChange={(e) => setNewLogText(e.target.value)}
-                            placeholder="Taip atau gunakan suara..."
+                            placeholder="Type note or use voice recording..."
                             className="w-full text-sm font-medium bg-transparent outline-none resize-none placeholder-slate-400 text-slate-800"
                           />
                         </div>
@@ -537,7 +539,7 @@ function SenaraiPembaikan() {
                         <div className="mt-3 flex items-center justify-between bg-teal-50 p-3 rounded-2xl border border-teal-200">
                           <div className="flex items-center gap-3">
                             <div className="w-8 h-8 bg-teal-500 rounded-full flex items-center justify-center text-white"><Volume2 className="w-4 h-4" /></div>
-                            <span className="text-sm font-bold text-teal-800">Rakaman Audio Tersedia</span>
+                            <span className="text-sm font-bold text-teal-800">Audio Recording Ready</span>
                           </div>
                           <button onClick={() => setAudioBlob(null)} className="p-2 hover:bg-teal-100 rounded-full text-teal-700">
                             <X className="w-5 h-5" />
@@ -550,7 +552,7 @@ function SenaraiPembaikan() {
                   {/* Timeline Render */}
                   <div className="space-y-4 relative before:absolute before:inset-0 before:ml-5 before:h-full before:w-[2px] before:bg-slate-200">
                     {(!selectedTask.log_kemajuan || selectedTask.log_kemajuan.length === 0) ? (
-                      <p className="text-center text-xs font-bold text-slate-400 py-4 bg-white rounded-2xl border border-slate-100">Tiada log direkodkan.</p>
+                      <p className="text-center text-xs font-bold text-slate-400 py-4 bg-white rounded-2xl border border-slate-100">No progress logs recorded yet.</p>
                     ) : (
                       selectedTask.log_kemajuan.slice().reverse().map((log, idx) => (
                         <div key={idx} className="relative flex items-start">
@@ -560,7 +562,7 @@ function SenaraiPembaikan() {
                           <div className={`p-4 rounded-3xl border ml-3 flex-1 shadow-sm ${log.role === 'pegawai' ? 'bg-amber-50 border-amber-200' : 'bg-white border-slate-200'}`}>
                             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">
                               {new Date(log.tarikh).toLocaleString('ms-MY', { dateStyle: 'medium', timeStyle: 'short' })}
-                              {log.role === 'pegawai' && <span className="ml-2 text-amber-600">PEGAWAI</span>}
+                              {log.role === 'pegawai' && <span className="ml-2 text-amber-600">OFFICER</span>}
                             </p>
                             <p className="text-sm font-medium text-slate-800 leading-relaxed mb-2">{log.nota}</p>
                             {log.audio && (
@@ -583,7 +585,7 @@ function SenaraiPembaikan() {
                       }}
                       className="w-full bg-rose-50 border-2 border-rose-200 text-rose-600 font-black text-lg py-4 rounded-3xl active:bg-rose-100 transition-colors shadow-sm"
                     >
-                      Tutup Kes Pembaikan
+                      Complete & Close Job
                     </button>
                   </div>
                 )}
@@ -591,7 +593,7 @@ function SenaraiPembaikan() {
                 {showTutupKes && selectedTask.status_kerja !== 'Selesai' && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="px-6 mb-10">
                     <h4 className="font-black text-slate-800 text-lg mb-4 flex items-center gap-2">
-                      <Camera className="w-5 h-5 text-teal-600" /> Muat Naik Bukti Akhir
+                      <Camera className="w-5 h-5 text-teal-600" /> Upload Final Proof
                     </h4>
                     
                     <form onSubmit={updateStatusAndProof} className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-5">
@@ -615,8 +617,8 @@ function SenaraiPembaikan() {
                                 <Camera className="w-8 h-8" />
                               </div>
                               <div>
-                                <p className="text-base font-black text-slate-800">Ambil Gambar (Kamera GPS)</p>
-                                <p className="text-xs font-bold text-slate-400 mt-1">Wajib ambil gambar sebelum tutup kes</p>
+                                <p className="text-base font-black text-slate-800">Take Photo (GPS Camera Required)</p>
+                                <p className="text-xs font-bold text-slate-400 mt-1">Photo with GPS verification required before closing</p>
                               </div>
                             </div>
                           )}
@@ -628,14 +630,14 @@ function SenaraiPembaikan() {
                         disabled={isSavingStatus} 
                         className="w-full bg-slate-900 text-white hover:bg-teal-600 font-black py-4 rounded-2xl transition-all flex items-center justify-center gap-2 text-lg disabled:opacity-50 shadow-lg shadow-slate-200"
                       >
-                        {isSavingStatus ? <Loader2 className="w-6 h-6 animate-spin" /> : <Save className="w-6 h-6" />} Sahkan Kerja Selesai
+                        {isSavingStatus ? <Loader2 className="w-6 h-6 animate-spin" /> : <Save className="w-6 h-6" />} Confirm Job Completion
                       </button>
                       <button 
                         type="button" 
                         onClick={() => setShowTutupKes(false)}
                         className="w-full bg-slate-100 text-slate-600 font-bold py-3.5 rounded-2xl active:bg-slate-200 transition-colors text-sm"
                       >
-                        Batal
+                        Cancel
                       </button>
                     </form>
                   </motion.div>

@@ -25,6 +25,16 @@ function UrusAduan() {
   const [filterStatus, setFilterStatus] = useState('Semua');
   const [expandedCluster, setExpandedCluster] = useState(null);
 
+  const displayStatus = (status) => {
+    const map = { 'Baru': 'New', 'Dalam Tindakan': 'In Progress', 'Selesai': 'Completed', 'Ditolak': 'Rejected', 'KIV': 'On Hold' };
+    return map[status] || status;
+  };
+
+  const displayPriority = (prio) => {
+    const map = { 'Tinggi': 'High', 'Sederhana': 'Medium', 'Rendah': 'Low' };
+    return map[prio] || prio;
+  };
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) { navigate('/login'); return; }
@@ -66,19 +76,19 @@ function UrusAduan() {
           
           if (e.aduan.id_aduan_induk) {
              // If it's a child aduan (cluster), we refetch to get the updated parent score and anak array
-             fetchData(false);
-             toast.success('Kluster Baru Dikesan!', {
-               description: `Satu aduan baru dimasukkan ke dalam kluster ${e.aduan.id_aduan_induk}.`,
-               duration: 6000,
-             });
-          } else {
-             // Slide new complaint into the top of the list
-             setAduans(prev => [e.aduan, ...prev]);
-             toast.success('Aduan Baru Masuk!', {
-               description: `${e.aduan.jenis_kerosakan || 'Aduan baru'} diterima dari ${e.aduan.pengguna?.name || 'Pengguna Komuniti'}.`,
-               duration: 6000,
-             });
-          }
+              fetchData(false);
+              toast.success('New Related Report Detected!', {
+                description: `A new related report was grouped under report #${e.aduan.id_aduan_induk}.`,
+                duration: 6000,
+              });
+           } else {
+              // Slide new complaint into the top of the list
+              setAduans(prev => [e.aduan, ...prev]);
+              toast.success('New Report Received!', {
+                description: `${e.aduan.jenis_kerosakan || 'New report'} received from ${e.aduan.pengguna?.name || 'Community User'}.`,
+                duration: 6000,
+              });
+           }
         });
     });
 
@@ -106,10 +116,10 @@ function UrusAduan() {
       });
       
       setAduans(aduans.map(a => a.id_aduan === selectedAduan.id_aduan ? res.data.aduan : a));
-      toast.success('Saringan Berjaya!', { description: 'Aduan telah disaring dan dikemaskini.' });
+      toast.success('Review Saved!', { description: 'Report verified and department assigned successfully.' });
       setSelectedAduan(null);
     } catch (error) {
-      toast.error('Ralat', { description: 'Gagal mengemaskini saringan.' });
+      toast.error('Error', { description: 'Failed to save review.' });
     } finally {
       setIsSaving(false);
     }
@@ -133,14 +143,14 @@ function UrusAduan() {
         <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-8 py-5 bg-white border-b border-slate-200 sticky top-0 z-10 gap-4">
           <div>
             <h2 className="text-2xl font-black text-slate-900 tracking-tight italic">BANDA<span className="text-teal-600">+</span> Admin</h2>
-            <p className="text-sm text-slate-500 font-medium mt-1">Saringan Aduan & Penugasan Jabatan</p>
+            <p className="text-sm text-slate-500 font-medium mt-1">Review incoming reports and assign responsible MPAJ departments.</p>
           </div>
           
           <div className="flex items-center gap-3 w-full sm:w-auto">
             <div className="relative w-full sm:w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input 
-                type="text" placeholder="Cari ID atau Pengadu..." 
+                type="text" placeholder="Search ID or Reporter..." 
                 value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-teal-500"
               />
@@ -156,11 +166,11 @@ function UrusAduan() {
               <table className="w-full text-left border-collapse">
                 <thead className="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase">
                   <tr>
-                    <th className="p-5">ID Aduan</th>
-                    <th className="p-5">Pengadu & Zon</th>
-                    <th className="p-5">Analitik AI</th>
+                    <th className="p-5">Report ID</th>
+                    <th className="p-5">Reporter & Zone</th>
+                    <th className="p-5">AI Priority</th>
                     <th className="p-5">Status</th>
-                    <th className="p-5 text-right">Tindakan</th>
+                    <th className="p-5 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -176,20 +186,20 @@ function UrusAduan() {
                             {hasCluster && (
                               <div className="flex items-center gap-1 text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded font-bold uppercase mt-1 w-max border border-purple-200">
                                 <Layers className="w-2.5 h-2.5" />
-                                {aduan.anak_aduan_count} Aduan Kluster
+                                {aduan.anak_aduan_count} Related Reports
                               </div>
                             )}
                           </td>
                           <td className="p-5">
                             <p className="font-bold text-slate-900">{aduan.pengguna?.name}</p>
-                            <p className="text-xs text-slate-500">Zon: {aduan.id_zon || 'N/A'}</p>
+                            <p className="text-xs text-slate-500">Zone: {aduan.id_zon || 'N/A'}</p>
                           </td>
                           <td className="p-5">
                             <div className="flex items-center gap-2">
                               <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase ${
                                 aduan.label_prioriti === 'Tinggi' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600'
                               }`}>
-                                {aduan.label_prioriti || 'Sederhana'}
+                                {displayPriority(aduan.label_prioriti || 'Sederhana')}
                               </span>
                               <span className="text-xs font-bold text-slate-400">{aduan.skor_ai || '0'}% AI</span>
                             </div>
@@ -198,7 +208,7 @@ function UrusAduan() {
                             <span className={`px-3 py-1 rounded-full text-xs font-bold ${
                               aduan.status === 'Baru' ? 'bg-teal-100 text-teal-700' : 'bg-slate-100 text-slate-600'
                             }`}>
-                              {aduan.status}
+                              {displayStatus(aduan.status)}
                             </span>
                           </td>
                           <td className="p-5 text-right flex justify-end gap-2">
@@ -210,11 +220,11 @@ function UrusAduan() {
                                 }`}
                               >
                                 {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-                                Kluster
+                                Related
                               </button>
                             )}
                             <button onClick={() => handleOpenModal(aduan)} className="text-sm font-bold text-white bg-slate-900 px-4 py-2 rounded-xl hover:bg-teal-600 transition-all">
-                              Saring
+                              Review
                             </button>
                           </td>
                         </tr>
@@ -240,7 +250,7 @@ function UrusAduan() {
                             <td className="p-5">
                               <div className="flex items-center gap-2">
                                 <span className="px-2 py-0.5 rounded text-[10px] font-black uppercase bg-blue-100 text-blue-600">
-                                  {anak.label_prioriti || 'Sederhana'}
+                                  {displayPriority(anak.label_prioriti || 'Sederhana')}
                                 </span>
                               </div>
                             </td>
@@ -248,12 +258,12 @@ function UrusAduan() {
                               <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${
                                 anak.status === 'Baru' ? 'bg-teal-100 text-teal-700' : 'bg-slate-100 text-slate-600'
                               }`}>
-                                {anak.status}
+                                {displayStatus(anak.status)}
                               </span>
                             </td>
                             <td className="p-5 text-right">
                               <button onClick={() => handleOpenModal(anak)} className="text-xs font-bold text-slate-600 bg-white border border-slate-200 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-all">
-                                Saring Anak Aduan
+                                Review Related Report
                               </button>
                             </td>
                           </tr>
@@ -283,7 +293,7 @@ function UrusAduan() {
                     <div className="bg-slate-50 p-5 rounded-3xl border border-slate-100">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
                         <h4 className="flex items-center gap-2 font-black text-slate-900 text-sm uppercase tracking-widest">
-                          <MapPin className="w-4 h-4 text-teal-600" /> Lokasi & Keterangan
+                          <MapPin className="w-4 h-4 text-teal-600" /> Location & Details
                         </h4>
                         <span className="text-[10px] font-bold bg-white px-3 py-1 rounded-full border border-slate-200 text-slate-500 w-max">
                           {new Date(selectedAduan.tarikh_lapor).toLocaleString('ms-MY', {
@@ -292,7 +302,7 @@ function UrusAduan() {
                         </span>
                       </div>
                       <p className="text-sm font-bold text-slate-700 mb-2">{selectedAduan.alamat_lokasi}</p>
-                      <p className="text-xs text-slate-500 leading-relaxed italic">"{selectedAduan.keterangan_aduan || 'Tiada keterangan tambahan.'}"</p>
+                      <p className="text-xs text-slate-500 leading-relaxed italic">"{selectedAduan.keterangan_aduan || 'No additional description provided.'}"</p>
                     </div>
                   </div>
 
@@ -301,20 +311,20 @@ function UrusAduan() {
                     <div className="flex items-center gap-3 p-4 bg-teal-50 rounded-2xl border border-teal-100">
                       <BrainCircuit className="w-8 h-8 text-teal-600" />
                       <div>
-                        <p className="text-[10px] font-black text-teal-600 uppercase">Analisis Smart Vision</p>
-                        <p className="text-sm font-bold text-slate-800">Kerosakan: {selectedAduan.jenis_kerosakan} ({selectedAduan.skor_ai || 0}%)</p>
+                        <p className="text-[10px] font-black text-teal-600 uppercase">AI Suggestion</p>
+                        <p className="text-sm font-bold text-slate-800">Issue: {selectedAduan.jenis_kerosakan} ({selectedAduan.skor_ai || 0}% Confidence)</p>
                       </div>
                     </div>
 
                     <div className="space-y-4">
                       {/* Penugasan Jabatan (CRITICAL FLOW) */}
                       <div>
-                        <label className="text-xs font-black text-slate-400 uppercase ml-1">Tugaskan Jabatan</label>
+                        <label className="text-xs font-black text-slate-400 uppercase ml-1">Choose Responsible Department</label>
                         <select 
                           value={editForm.id_jabatan} onChange={(e) => setEditForm({...editForm, id_jabatan: e.target.value})}
                           className="w-full mt-1 px-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-teal-500 focus:bg-white transition-all font-bold text-slate-700"
                         >
-                          <option value="">-- Pilih Jabatan Bertanggungjawab --</option>
+                          <option value="">-- Choose Responsible Department --</option>
                           <option value="J01">J01 - Jabatan Kejuruteraan</option>
                           <option value="J02">J02 - Jabatan Belia Masyarakat dan Landskap</option>
                           <option value="J03">J03 - Jabatan Perkhidmatan Bandar dan Kesihatan</option>
@@ -322,30 +332,30 @@ function UrusAduan() {
                       </div>
 
                       <div>
-                        <label className="text-xs font-black text-slate-400 uppercase ml-1">Keputusan Saringan Status</label>
+                        <label className="text-xs font-black text-slate-400 uppercase ml-1">Complaint Decision</label>
                         <select 
                           value={editForm.status} onChange={(e) => setEditForm({...editForm, status: e.target.value})}
                           className="w-full mt-1 px-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-teal-500 focus:bg-white transition-all font-bold text-slate-700"
                         >
-                          <option value="Baru">Baru (Belum Disahkan)</option>
-                          <option value="Dalam Tindakan">Sahkan & Serah ke Jabatan</option>
-                          <option value="Ditolak">Tolak Aduan (Palsu/Luar Bidang)</option>
+                          <option value="Baru">New (Unverified)</option>
+                          <option value="Dalam Tindakan">In Progress (Verify & Assign)</option>
+                          <option value="Ditolak">Rejected (Invalid / Out of Scope)</option>
                         </select>
                       </div>
 
                       <div>
-                        <label className="text-xs font-black text-slate-400 uppercase ml-1">Nota Saringan (Maklum Balas)</label>
+                        <label className="text-xs font-black text-slate-400 uppercase ml-1">Response to Reporter</label>
                         <textarea 
                           rows="3" value={editForm.maklum_balas} onChange={(e) => setEditForm({...editForm, maklum_balas: e.target.value})}
                           className="w-full mt-1 px-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-teal-500 focus:bg-white transition-all text-sm font-medium"
-                          placeholder="Berikan ulasan saringan untuk rujukan pengadu..."
+                          placeholder="Write a response or explanation for the reporter..."
                         />
                       </div>
                     </div>
 
                     <button type="submit" disabled={isSaving || !editForm.id_jabatan} className="mt-auto w-full bg-slate-900 text-white font-black py-5 rounded-3xl hover:bg-teal-600 disabled:opacity-50 disabled:hover:bg-slate-900 flex items-center justify-center gap-3 shadow-xl shadow-teal-100 transition-all">
                       {isSaving ? <Loader2 className="animate-spin" /> : <Save />}
-                      SAHKAN SARINGAN & TUGASKAN
+                      Confirm & Send to Department
                     </button>
                   </form>
                 </div>

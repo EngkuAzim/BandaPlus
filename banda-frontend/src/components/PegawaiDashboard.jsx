@@ -24,12 +24,13 @@ function PegawaiDashboard({ userData }) {
   const [recentAduan, setRecentAduan] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedCluster, setExpandedCluster] = useState(null);
+  const displayStatus = (s) => ({ 'Baru': 'New', 'Dalam Tindakan': 'In Progress', 'Selesai': 'Completed', 'Ditolak': 'Rejected', 'KIV': 'On Hold' })[s] || s;
 
   // Data Bajet dari DB atau Fallback Mokap
   const bajet = { 
     tahunan: userData?.jabatan?.bajet_tahunan || 500000, 
     bakiSemasa: userData?.jabatan?.baki_semasa || 345200,
-    nama: userData?.jabatan?.nama_jabatan || 'Jabatan'
+    nama: userData?.jabatan?.nama_jabatan || 'Department'
   };
 
   useEffect(() => {
@@ -77,14 +78,14 @@ function PegawaiDashboard({ userData }) {
   };
 
   if (loading) {
-    return <div className="p-8 text-center text-slate-500">Memuatkan data BANDA+...</div>;
+    return <div className="p-8 text-center text-slate-500">Loading BANDA+ data...</div>;
   }
 
   const statCards = [
-    { title: 'Jumlah Aduan', value: statsData?.jumlah_keseluruhan || 0, increase: `${statsData?.perubahan_jumlah > 0 ? '+' : ''}${statsData?.perubahan_jumlah || 0}%`, icon: ClipboardList, color: 'text-teal-600', bg: 'bg-teal-50', border: 'border-teal-100' },
-    { title: 'Menunggu Penugasan', value: statsData?.baru || 0, increase: `${statsData?.perubahan_baru > 0 ? '+' : ''}${statsData?.perubahan_baru || 0}%`, icon: Clock, color: 'text-amber-500', bg: 'bg-amber-50', border: 'border-amber-100' },
-    { title: 'Dalam Tindakan', value: statsData?.diproses || 0, increase: `${statsData?.perubahan_diproses > 0 ? '+' : ''}${statsData?.perubahan_diproses || 0}%`, icon: Wrench, color: 'text-indigo-500', bg: 'bg-indigo-50', border: 'border-indigo-100' },
-    { title: 'Selesai', value: statsData?.selesai || 0, increase: `${statsData?.perubahan_selesai > 0 ? '+' : ''}${statsData?.perubahan_selesai || 0}%`, icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-50', border: 'border-emerald-100' }
+    { title: 'Total Reports', value: statsData?.jumlah_keseluruhan || 0, increase: `${statsData?.perubahan_jumlah > 0 ? '+' : ''}${statsData?.perubahan_jumlah || 0}%`, icon: ClipboardList, color: 'text-teal-600', bg: 'bg-teal-50', border: 'border-teal-100' },
+    { title: 'Pending Assignment', value: statsData?.baru || 0, increase: `${statsData?.perubahan_baru > 0 ? '+' : ''}${statsData?.perubahan_baru || 0}%`, icon: Clock, color: 'text-amber-500', bg: 'bg-amber-50', border: 'border-amber-100' },
+    { title: 'In Progress', value: statsData?.diproses || 0, increase: `${statsData?.perubahan_diproses > 0 ? '+' : ''}${statsData?.perubahan_diproses || 0}%`, icon: Wrench, color: 'text-indigo-500', bg: 'bg-indigo-50', border: 'border-indigo-100' },
+    { title: 'Completed', value: statsData?.selesai || 0, increase: `${statsData?.perubahan_selesai > 0 ? '+' : ''}${statsData?.perubahan_selesai || 0}%`, icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-50', border: 'border-emerald-100' }
   ];
 
   return (
@@ -94,9 +95,9 @@ function PegawaiDashboard({ userData }) {
       <motion.div variants={itemVariants} className="mb-8">
         <h3 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
           <Building2 className="w-7 h-7 text-teal-600" />
-          Papan Pemuka Pegawai - {bajet.nama}
+          Officer Dashboard - {bajet.nama}
         </h3>
-        <p className="text-sm font-medium text-slate-500 mt-1">Urus penugasan kontraktor dan pantau status aduan masa nyata.</p>
+        <p className="text-sm font-medium text-slate-500 mt-1">Manage contractor assignments and monitor report status in real time.</p>
       </motion.div>
 
       {/* Action Banner (Tindakan Segera) */}
@@ -105,12 +106,12 @@ function PegawaiDashboard({ userData }) {
           <div className="flex items-center gap-4">
             <div className="p-3 bg-white rounded-xl shadow-sm"><AlertTriangle className="w-6 h-6 text-amber-500" /></div>
             <div>
-              <h5 className="font-bold text-slate-800">Terdapat {statsData.baru} Aduan Menunggu Penugasan</h5>
-              <p className="text-sm text-slate-600">Sila semak aduan yang telah disahkan dan lantik kontraktor bertugas dengan segera.</p>
+              <h5 className="font-bold text-slate-800">{statsData.baru} Reports Pending Assignment</h5>
+              <p className="text-sm text-slate-600">Please review verified reports and assign responsible contractors promptly.</p>
             </div>
           </div>
           <button className="whitespace-nowrap bg-amber-500 hover:bg-amber-600 text-white font-bold px-6 py-2.5 rounded-xl transition-all shadow-sm">
-            Urus Aduan Baru
+            Manage New Reports
           </button>
         </motion.div>
       )}
@@ -141,17 +142,17 @@ function PegawaiDashboard({ userData }) {
         {/* Jadual Aduan */}
         <motion.div variants={itemVariants} className="lg:col-span-2 bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
           <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-            <h4 className="text-lg font-black text-slate-800">Aduan Terbaru Sistem</h4>
-            <button className="text-sm text-teal-600 hover:text-teal-700 font-bold">Lihat Semua</button>
+            <h4 className="text-lg font-black text-slate-800">Recent System Reports</h4>
+            <button className="text-sm text-teal-600 hover:text-teal-700 font-bold">View All</button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead className="bg-slate-50 text-slate-500 font-bold border-b border-slate-100">
                 <tr>
-                  <th className="px-6 py-4">ID Aduan</th>
-                  <th className="px-6 py-4">Kategori & Lokasi</th>
+                  <th className="px-6 py-4">Report ID</th>
+                  <th className="px-6 py-4">Category & Location</th>
                   <th className="px-6 py-4">Status</th>
-                  <th className="px-6 py-4 text-center">Tindakan</th>
+                  <th className="px-6 py-4 text-center">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -166,7 +167,7 @@ function PegawaiDashboard({ userData }) {
                           {hasCluster && (
                             <div className="flex items-center gap-1 text-[9px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded font-bold uppercase mt-1 w-max border border-purple-200">
                               <Layers className="w-2.5 h-2.5" />
-                              {aduan.anak_aduan_count} Aduan Kluster
+                              {aduan.anak_aduan_count} Clustered Reports
                             </div>
                           )}
                         </td>
@@ -178,7 +179,7 @@ function PegawaiDashboard({ userData }) {
                         </td>
                         <td className="px-6 py-4">
                           <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getStatusStyle(aduan.status)}`}>
-                            {aduan.status}
+                            {displayStatus(aduan.status)}
                           </span>
                         </td>
                         <td className="px-6 py-4 text-center">
@@ -190,14 +191,14 @@ function PegawaiDashboard({ userData }) {
                               }`}
                             >
                               {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-                              Kluster
+                              Cluster
                             </button>
                           ) : aduan.status === 'Baru' || aduan.status === 'Dalam Tindakan' ? (
                             <button 
                               onClick={() => navigate('/arahan-kerja')}
                               className="bg-slate-900 hover:bg-teal-600 text-white text-xs font-bold px-4 py-2 rounded-lg transition-all shadow-sm whitespace-nowrap"
                             >
-                              Arahan Kerja
+                              Work Order
                             </button>
                           ) : (
                             <button className="p-2 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-teal-600 transition-colors">
@@ -227,11 +228,11 @@ function PegawaiDashboard({ userData }) {
                           </td>
                           <td className="px-6 py-3">
                             <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${getStatusStyle(anak.status)}`}>
-                              {anak.status}
+                              {displayStatus(anak.status)}
                             </span>
                           </td>
                           <td className="px-6 py-3 text-center">
-                            <span className="text-[9px] text-purple-500 font-bold">Aduan Kluster</span>
+                            <span className="text-[9px] text-purple-500 font-bold">Clustered Report</span>
                           </td>
                         </tr>
                       ))}
@@ -240,7 +241,7 @@ function PegawaiDashboard({ userData }) {
                 })}
                 {recentAduan.length === 0 && (
                   <tr>
-                    <td colSpan="4" className="px-6 py-8 text-center text-slate-500">Tiada aduan direkodkan.</td>
+                    <td colSpan="4" className="px-6 py-8 text-center text-slate-500">No reports recorded.</td>
                   </tr>
                 )}
               </tbody>
@@ -253,18 +254,18 @@ function PegawaiDashboard({ userData }) {
           <div className="absolute -top-4 -right-4 p-6 opacity-10">
             <Wallet className="w-32 h-32" />
           </div>
-          <p className="text-slate-300 text-xs font-bold uppercase tracking-widest mb-2 relative z-10">Baki Semasa Jabatan</p>
+          <p className="text-slate-300 text-xs font-bold uppercase tracking-widest mb-2 relative z-10">Current Department Budget</p>
           <h4 className="text-4xl font-black mb-6 relative z-10">RM {(bajet.bakiSemasa).toLocaleString('ms-MY')}</h4>
           
           <div className="relative z-10">
             <div className="flex justify-between text-xs font-bold text-slate-300 mb-2">
-              <span>Penggunaan</span>
+              <span>Utilization</span>
               <span>{Math.round(((bajet.tahunan - bajet.bakiSemasa) / bajet.tahunan) * 100)}%</span>
             </div>
             <div className="w-full bg-slate-700 rounded-full h-2.5 mb-3">
               <div className="bg-teal-400 h-2.5 rounded-full" style={{ width: `${((bajet.tahunan - bajet.bakiSemasa) / bajet.tahunan) * 100}%` }}></div>
             </div>
-            <p className="text-xs text-slate-400">Daripada peruntukan RM {(bajet.tahunan).toLocaleString('ms-MY')}</p>
+            <p className="text-xs text-slate-400">Out of allocated RM {(bajet.tahunan).toLocaleString('ms-MY')}</p>
           </div>
         </motion.div>
 

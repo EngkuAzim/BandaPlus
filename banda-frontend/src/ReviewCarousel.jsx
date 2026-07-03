@@ -43,10 +43,10 @@ const ReviewCarousel = () => {
             <div className="relative z-10 mt-auto bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 max-w-md shadow-2xl">
                 <div className="flex items-center gap-4 mb-3">
                     <MessageSquare className="w-8 h-8 text-teal-400" />
-                    <h3 className="text-white font-bold text-lg">Suara Komuniti</h3>
+                    <h3 className="text-white font-bold text-lg">Community Voices</h3>
                 </div>
                 <p className="text-slate-400 text-sm font-medium leading-relaxed">
-                    Ruangan ini akan memaparkan ulasan dan maklum balas sebenar daripada penduduk Ampang Jaya mengenai keberkesanan sistem BANDA+.
+                    This section displays real feedback and reviews from Ampang Jaya residents regarding the BANDA+ system.
                 </p>
             </div>
         );

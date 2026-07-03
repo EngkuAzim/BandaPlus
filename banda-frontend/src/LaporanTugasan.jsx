@@ -13,6 +13,7 @@ function LaporanTugasan() {
   const [tugasanList, setTugasanList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTask, setSelectedTask] = useState(null);
+  const displayStatus = (s) => ({ 'Baru': 'New', 'Dalam Tindakan': 'In Progress', 'Selesai': 'Completed', 'Disahkan': 'Verified', 'Ditolak': 'Rejected', 'KIV': 'On Hold', 'Dalam Proses': 'In Progress' })[s] || s;
 
   // Komentar Pegawai
   const [komen, setKomen] = useState('');
@@ -97,11 +98,11 @@ function LaporanTugasan() {
         { nota: komen },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      toast.success('Maklum balas ditambah!');
+      toast.success('Feedback added successfully!');
       setKomen('');
       fetchData();
     } catch (error) {
-      toast.error('Gagal menghantar komen.');
+      toast.error('Failed to send comment.');
     } finally {
       setIsSendingKomen(false);
     }
@@ -110,7 +111,7 @@ function LaporanTugasan() {
   const hantarPengesahan = async (e) => {
     e.preventDefault();
     if (!sahkanData.lawatan_tapak && !sahkanData.spesifikasi) {
-      toast.error('Sila tanda sekurang-kurangnya satu kaedah semakan.');
+      toast.error('Please check at least one verification method.');
       return;
     }
     setIsSahkan(true);
@@ -121,10 +122,10 @@ function LaporanTugasan() {
         sahkanData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      toast.success('Kerja berjaya disahkan dan aduan ditutup sepenuhnya!');
+      toast.success('Work verified and report closed successfully!');
       fetchData();
     } catch (error) {
-      toast.error('Gagal mengesahkan laporan.');
+      toast.error('Failed to verify work report.');
     } finally {
       setIsSahkan(false);
     }
@@ -143,8 +144,8 @@ function LaporanTugasan() {
               <ClipboardList className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-xl font-black text-slate-800">Laporan Tugasan</h2>
-              <p className="text-xs font-bold text-slate-500">Pantau & sahkan kerja kontraktor</p>
+              <h2 className="text-xl font-black text-slate-800">Work Reports</h2>
+              <p className="text-xs font-bold text-slate-500">Monitor and verify contractor work completion</p>
             </div>
           </header>
 
@@ -152,7 +153,7 @@ function LaporanTugasan() {
             {isLoading ? (
               <div className="flex justify-center p-10"><Loader2 className="w-8 h-8 animate-spin text-teal-600" /></div>
             ) : tugasanList.length === 0 ? (
-              <p className="text-center text-sm font-bold text-slate-400 p-10">Tiada laporan tugasan wujud lagi.</p>
+              <p className="text-center text-sm font-bold text-slate-400 p-10">No work reports available yet.</p>
             ) : (
               tugasanList.map(task => (
                 <div 
@@ -167,11 +168,11 @@ function LaporanTugasan() {
                       task.status_kerja === 'Disahkan' ? 'bg-emerald-100 text-emerald-700' :
                       'bg-amber-100 text-amber-700'
                     }`}>
-                      {task.status_kerja}
+                      {displayStatus(task.status_kerja)}
                     </span>
                   </div>
                   <h4 className="font-bold text-slate-800 text-sm mb-1 line-clamp-1">{task.aduan?.jenis_kerosakan}</h4>
-                  <p className="text-xs text-slate-500 font-medium">Oleh: {task.kontraktor?.name}</p>
+                  <p className="text-xs text-slate-500 font-medium">By: {task.kontraktor?.name}</p>
                 </div>
               ))
             )}
@@ -189,7 +190,7 @@ function LaporanTugasan() {
                 <button onClick={() => setSelectedTask(null)} className="md:hidden p-2 rounded-xl bg-slate-100 text-slate-600">
                   <ArrowLeft className="w-5 h-5" />
                 </button>
-                <div className="font-black text-slate-800">Perincian #{selectedTask.id_arahan}</div>
+                <div className="font-black text-slate-800">Details #{selectedTask.id_arahan}</div>
                 <div className="md:hidden w-9" />
               </header>
 
@@ -198,26 +199,26 @@ function LaporanTugasan() {
                   
                   {/* Photo Comparison Before / After */}
                   <div>
-                    <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2"><ImageIcon className="w-4 h-4" /> Perbandingan Visual</h3>
+                    <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2"><ImageIcon className="w-4 h-4" /> Visual Comparison</h3>
                     <div className="grid grid-cols-2 gap-4">
                       {/* Sebelum */}
                       <div className="bg-white p-2 rounded-3xl border border-slate-200 shadow-sm relative overflow-hidden group">
-                        <div className="absolute top-4 left-4 z-10 bg-rose-500 text-white text-[10px] font-black uppercase px-3 py-1 rounded-full shadow-md">Sebelum (Aduan)</div>
+                        <div className="absolute top-4 left-4 z-10 bg-rose-500 text-white text-[10px] font-black uppercase px-3 py-1 rounded-full shadow-md">Before (Report)</div>
                         {selectedTask.aduan?.gambar_bukti ? (
                           <img src={`/storage/${selectedTask.aduan.gambar_bukti}`} className="w-full h-48 object-cover rounded-2xl" />
                         ) : (
-                          <div className="w-full h-48 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400 text-xs font-bold">Tiada Gambar</div>
+                          <div className="w-full h-48 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400 text-xs font-bold">No Photo Attached</div>
                         )}
                       </div>
 
                       {/* Selepas */}
                       <div className="bg-white p-2 rounded-3xl border border-slate-200 shadow-sm relative overflow-hidden">
-                        <div className="absolute top-4 right-4 z-10 bg-emerald-500 text-white text-[10px] font-black uppercase px-3 py-1 rounded-full shadow-md">Selepas (Pembaikan)</div>
+                        <div className="absolute top-4 right-4 z-10 bg-emerald-500 text-white text-[10px] font-black uppercase px-3 py-1 rounded-full shadow-md">After (Repair)</div>
                         {selectedTask.gambar_selepas ? (
                           <img src={`/storage/${selectedTask.gambar_selepas}`} className="w-full h-48 object-cover rounded-2xl" />
                         ) : (
                           <div className="w-full h-48 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400 text-xs font-bold text-center px-4 border border-dashed border-slate-300">
-                            Menunggu muat naik kontraktor
+                            Pending contractor upload
                           </div>
                         )}
                       </div>
@@ -226,11 +227,11 @@ function LaporanTugasan() {
 
                   {/* Timeline & Komen */}
                   <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-                    <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2"><Clock className="w-4 h-4" /> Log & Tindakan</h3>
+                    <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest mb-6 flex items-center gap-2"><Clock className="w-4 h-4" /> Activity Log & Actions</h3>
                     
                     <div className="space-y-4 relative before:absolute before:inset-0 before:ml-5 before:h-full before:w-[2px] before:bg-slate-100">
                       {(!selectedTask.log_kemajuan || selectedTask.log_kemajuan.length === 0) ? (
-                        <p className="text-center text-xs font-bold text-slate-400">Tiada rekod setakat ini.</p>
+                        <p className="text-center text-xs font-bold text-slate-400">No activity recorded yet.</p>
                       ) : (
                         selectedTask.log_kemajuan.map((log, idx) => (
                           <div key={idx} className="relative flex items-start">
@@ -240,7 +241,7 @@ function LaporanTugasan() {
                             <div className={`p-4 rounded-3xl border ml-3 flex-1 shadow-sm ${log.role === 'pegawai' ? 'bg-amber-50/50 border-amber-200' : 'bg-slate-50 border-slate-200'}`}>
                               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
                                 {new Date(log.tarikh).toLocaleString('ms-MY', { dateStyle: 'medium', timeStyle: 'short' })}
-                                {log.role === 'pegawai' && <span className="ml-2 text-amber-600">PEGAWAI</span>}
+                                {log.role === 'pegawai' && <span className="ml-2 text-amber-600">OFFICER</span>}
                               </p>
                               <p className="text-sm font-medium text-slate-800 leading-relaxed mb-2">{log.nota}</p>
                               {log.audio && (
@@ -262,7 +263,7 @@ function LaporanTugasan() {
                           rows="1"
                           value={komen}
                           onChange={(e) => setKomen(e.target.value)}
-                          placeholder="Beri komen atau maklum balas..."
+                          placeholder="Write a comment or feedback..."
                           className="flex-1 bg-transparent border-none outline-none resize-none p-3 text-sm font-medium text-slate-800"
                         />
                         <button 
@@ -279,24 +280,24 @@ function LaporanTugasan() {
                   {/* Validation Form */}
                   {selectedTask.status_kerja === 'Selesai' && (
                     <div className="bg-emerald-50 p-6 rounded-3xl border border-emerald-200">
-                      <h3 className="text-lg font-black text-emerald-800 mb-4 flex items-center gap-2"><CheckSquare className="w-5 h-5" /> Pengesahan Akhir Pegawai</h3>
-                      <p className="text-sm font-medium text-emerald-700 mb-6">Kontraktor telah menanda kerja ini sebagai selesai. Sila sahkan kerja sebelum menutup kes ini secara rasmi.</p>
+                      <h3 className="text-lg font-black text-emerald-800 mb-4 flex items-center gap-2"><CheckSquare className="w-5 h-5" /> Final Officer Verification</h3>
+                      <p className="text-sm font-medium text-emerald-700 mb-6">Contractor marked this job as completed. Please verify work quality before officially closing the case.</p>
                       
                       <form onSubmit={hantarPengesahan} className="space-y-4">
                         <label className="flex items-center gap-3 p-4 bg-white rounded-2xl border border-emerald-100 cursor-pointer hover:bg-emerald-50/50 transition-colors">
                           <input type="checkbox" className="w-5 h-5 text-emerald-600 rounded focus:ring-emerald-500" 
                             checked={sahkanData.lawatan_tapak} onChange={(e) => setSahkanData({...sahkanData, lawatan_tapak: e.target.checked})} />
-                          <span className="font-bold text-slate-700">Lawatan Tapak (Site Visit) telah dilakukan</span>
+                          <span className="font-bold text-slate-700">Site visit conducted and inspected</span>
                         </label>
 
                         <label className="flex items-center gap-3 p-4 bg-white rounded-2xl border border-emerald-100 cursor-pointer hover:bg-emerald-50/50 transition-colors">
                           <input type="checkbox" className="w-5 h-5 text-emerald-600 rounded focus:ring-emerald-500" 
                             checked={sahkanData.spesifikasi} onChange={(e) => setSahkanData({...sahkanData, spesifikasi: e.target.checked})} />
-                          <span className="font-bold text-slate-700">Gambar/Kerja menepati spesifikasi piawai</span>
+                          <span className="font-bold text-slate-700">Photos and repair work meet standard specifications</span>
                         </label>
 
                         <textarea 
-                          placeholder="Catatan pengesahan (pilihan)..." 
+                          placeholder="Verification notes (optional)..." 
                           className="w-full p-4 rounded-2xl border border-emerald-200 bg-white focus:ring-2 focus:ring-emerald-500 outline-none text-sm font-medium"
                           rows="2"
                           value={sahkanData.catatan} onChange={(e) => setSahkanData({...sahkanData, catatan: e.target.value})}
@@ -306,7 +307,7 @@ function LaporanTugasan() {
                           type="submit" disabled={isSahkan}
                           className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-emerald-200 transition-all disabled:opacity-50"
                         >
-                          {isSahkan ? <Loader2 className="w-6 h-6 animate-spin" /> : <Save className="w-6 h-6" />} Sahkan Kerja & Tutup Kes
+                          {isSahkan ? <Loader2 className="w-6 h-6 animate-spin" /> : <Save className="w-6 h-6" />} Verify Work & Close Case
                         </button>
                       </form>
                     </div>
@@ -315,8 +316,8 @@ function LaporanTugasan() {
                   {selectedTask.status_kerja === 'Disahkan' && (
                     <div className="bg-slate-100 p-6 rounded-3xl border border-slate-200 text-center">
                       <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto mb-3" />
-                      <h3 className="text-lg font-black text-slate-800">Kerja Telah Disahkan</h3>
-                      <p className="text-sm font-bold text-slate-500 mt-1">Aduan ini ditutup secara rasmi.</p>
+                      <h3 className="text-lg font-black text-slate-800">Work Verified</h3>
+                      <p className="text-sm font-bold text-slate-500 mt-1">This report is officially closed.</p>
                     </div>
                   )}
 
@@ -332,9 +333,9 @@ function LaporanTugasan() {
             <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-sm mb-6 border border-slate-200">
               <ClipboardList className="w-10 h-10 text-slate-300" />
             </div>
-            <h3 className="text-xl font-black text-slate-800 mb-2">Pilih Laporan Tugasan</h3>
+            <h3 className="text-xl font-black text-slate-800 mb-2">Select a Work Report</h3>
             <p className="text-sm font-medium text-slate-500 max-w-xs leading-relaxed">
-              Sila pilih mana-mana laporan kerja dari senarai di sebelah kiri untuk melihat maklumat terperinci, gambar bukti, dan pengesahan.
+              Please select any work report from the list on the left to view detailed information, proof photos, and verification controls.
             </p>
           </div>
         )}

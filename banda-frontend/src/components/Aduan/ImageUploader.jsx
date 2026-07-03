@@ -13,16 +13,16 @@ const ImageUploader = ({
             <div className="w-16 h-16 bg-teal-50 rounded-2xl flex items-center justify-center mb-4">
                 <ImageIcon className="w-8 h-8 text-teal-600" />
             </div>
-            <h3 className="text-2xl font-black text-slate-900 mb-2">Muat Naik Gambar</h3>
+            <h3 className="text-2xl font-black text-slate-900 mb-2">Upload Photo Evidence</h3>
             <p className="text-slate-500 mb-8 max-w-md">
-                Muat naik gambar kerosakan atau isu infrastruktur. AI kami akan mengimbas gambar anda secara automatik.
+                Upload a photo of damaged roads or public infrastructure. BANDA+ AI will automatically scan and categorize the issue.
             </p>
 
             <div className="w-full max-w-lg aspect-square">
                 {!imagePreview ? (
                 <label className="w-full h-full border-2 border-dashed border-slate-300 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:border-teal-500 hover:bg-teal-50/50 transition-colors group">
                     <UploadCloud className="w-12 h-12 text-teal-600 mb-4 group-hover:scale-110 transition-transform" />
-                    <p className="font-bold text-slate-700 text-lg">Klik Untuk Muat Naik</p>
+                    <p className="font-bold text-slate-700 text-lg">Click to Upload Photo</p>
                     <p className="text-sm text-slate-400 mt-2">Format: JPG, PNG (Max 5MB)</p>
                     <input type="file" accept="image/jpeg, image/png" className="hidden" onChange={handleImageChange} />
                 </label>
@@ -45,14 +45,14 @@ const ImageUploader = ({
                         <div className="w-16 h-16 rounded-full bg-teal-500/20 border-2 border-teal-400 flex items-center justify-center mb-3">
                             <Loader2 className="w-8 h-8 text-teal-400 animate-spin" />
                         </div>
-                        <span className="text-white font-bold tracking-widest text-sm uppercase">Menganalisis...</span>
+                        <span className="text-white font-bold tracking-widest text-sm uppercase">Analyzing...</span>
                         </motion.div>
                     </div>
                     )}
 
                     {!isScanning && (
                     <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-20">
-                        <button type="button" onClick={clearImage} className="bg-rose-500 hover:bg-rose-600 transition-colors text-white font-bold py-2 px-6 rounded-xl shadow-lg">Batal & Tukar Gambar</button>
+                        <button type="button" onClick={clearImage} className="bg-rose-500 hover:bg-rose-600 transition-colors text-white font-bold py-2 px-6 rounded-xl shadow-lg">Cancel & Change Photo</button>
                     </div>
                     )}
                 </div>

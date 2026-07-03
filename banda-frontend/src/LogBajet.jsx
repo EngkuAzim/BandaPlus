@@ -42,6 +42,7 @@ export default function LogBajet() {
   const [userData,  setUserData]  = useState(null);
   const [data,      setData]      = useState(null);
   const [loading,   setLoading]   = useState(true);
+  const displayStatus = (s) => ({ 'Selesai': 'Completed', 'Dalam Proses': 'In Progress', 'Ditolak': 'Rejected' })[s] || s;
 
   useEffect(() => {
     const fetchAll = async (isInitial = true) => {
@@ -79,8 +80,8 @@ export default function LogBajet() {
       <div className="flex h-screen bg-slate-50 items-center justify-center">
         <div className="text-center text-slate-500">
           <AlertTriangle className="w-10 h-10 mx-auto mb-3 text-rose-400" />
-          <p className="font-medium">Tiada data bajet ditemui atau pelayan sedang dikemaskini.</p>
-          <p className="text-xs mt-1">Sila pastikan pelayan berjalan (restart jika perlu).</p>
+          <p className="font-medium">No budget data found or server is being updated.</p>
+          <p className="text-xs mt-1">Please ensure the server is running (restart if necessary).</p>
         </div>
       </div>
     );
@@ -109,9 +110,9 @@ export default function LogBajet() {
               <Wallet className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-2xl font-black text-slate-900">Log Bajet Mikro</h2>
+              <h2 className="text-2xl font-black text-slate-900">Micro-Budget Log</h2>
               <p className="text-sm text-slate-500 font-medium">
-                {jabatan.nama_jabatan} &bull; Peruntukan Tahunan: RM {fmt(jabatan.bajet_tahunan)}
+                {jabatan.nama_jabatan} &bull; Annual Allocation: RM {fmt(jabatan.bajet_tahunan)}
               </p>
             </div>
           </div>
@@ -120,7 +121,7 @@ export default function LogBajet() {
           {isKritis && (
             <div className="flex items-center gap-2 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold px-4 py-2 rounded-2xl">
               <AlertTriangle className="w-4 h-4 shrink-0" />
-              Bajet melebihi 85% — sila semak perbelanjaan!
+              Budget exceeds 85% — please review expenditures!
             </div>
           )}
         </header>
@@ -141,17 +142,17 @@ export default function LogBajet() {
               <div className="relative z-10 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
                 {/* left — baki + used */}
                 <div>
-                  <p className="text-slate-400 text-xs font-black uppercase tracking-widest mb-1">Baki Semasa Jabatan</p>
+                  <p className="text-slate-400 text-xs font-black uppercase tracking-widest mb-1">Current Department Balance</p>
                   <h3 className="text-5xl font-black mb-4">RM {fmt(jabatan.baki_semasa)}</h3>
 
                   <div className="flex items-center gap-6 text-sm">
                     <div>
-                      <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Peruntukan Tahunan</p>
+                      <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Annual Allocation</p>
                       <p className="font-black text-white">RM {fmt(jabatan.bajet_tahunan)}</p>
                     </div>
                     <div className="w-px h-8 bg-slate-600" />
                     <div>
-                      <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Jumlah Dibelanjakan</p>
+                      <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Total Spent</p>
                       <p className="font-black text-rose-400">RM {fmt(ringkasan.jumlah_dibelanjakan)}</p>
                     </div>
                   </div>
@@ -174,7 +175,7 @@ export default function LogBajet() {
                       {peratus}%
                     </span>
                   </div>
-                  <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Penggunaan Bajet</p>
+                  <p className="text-slate-400 text-xs font-bold uppercase tracking-wider">Budget Utilization</p>
                 </div>
               </div>
 
@@ -183,7 +184,7 @@ export default function LogBajet() {
                 <div className="flex justify-between text-xs font-bold text-slate-400 mb-2">
                   <span>0%</span>
                   <span className={peratus >= 85 ? 'text-rose-400' : 'text-slate-400'}>
-                    {peratus}% digunakan
+                    {peratus}% utilized
                   </span>
                   <span>100%</span>
                 </div>
@@ -199,28 +200,28 @@ export default function LogBajet() {
             {/* ── Stat Cards ── */}
             <div className="grid grid-cols-2 lg:grid-cols-5 gap-5 mb-8">
               <StatCard
-                icon={Receipt} label="Jumlah Kerja" value={ringkasan.bilangan_kerja}
-                sub="arahan kerja dikeluarkan"
+                icon={Receipt} label="Total Orders" value={ringkasan.bilangan_kerja}
+                sub="work orders issued"
                 color="text-teal-600" bg="bg-teal-50" border="border-teal-100"
               />
               <StatCard
-                icon={CheckCircle2} label="Kerja Selesai" value={ringkasan.kerja_selesai}
-                sub="telah diselesaikan"
+                icon={CheckCircle2} label="Completed Jobs" value={ringkasan.kerja_selesai}
+                sub="successfully resolved"
                 color="text-emerald-600" bg="bg-emerald-50" border="border-emerald-100"
               />
               <StatCard
-                icon={Wrench} label="Dalam Proses" value={ringkasan.kerja_dalam_proses}
-                sub="sedang dijalankan"
+                icon={Wrench} label="In Progress" value={ringkasan.kerja_dalam_proses}
+                sub="currently active"
                 color="text-indigo-600" bg="bg-indigo-50" border="border-indigo-100"
               />
               <StatCard
-                icon={TrendingDown} label="Perbelanjaan" value={`RM ${fmt(ringkasan.jumlah_dibelanjakan)}`}
-                sub={`baki RM ${fmt(jabatan.baki_semasa)}`}
+                icon={TrendingDown} label="Expenditure" value={`RM ${fmt(ringkasan.jumlah_dibelanjakan)}`}
+                sub={`balance RM ${fmt(jabatan.baki_semasa)}`}
                 color="text-rose-600" bg="bg-rose-50" border="border-rose-100"
               />
               <StatCard
-                icon={BrainCircuit} label="Penjimatan AI" value={`RM ${fmt(ringkasan.jumlah_penjimatan)}`}
-                sub="kos dielakkan dari kluster"
+                icon={BrainCircuit} label="AI Cost Savings" value={`RM ${fmt(ringkasan.jumlah_penjimatan)}`}
+                sub="avoided from clustered jobs"
                 color="text-purple-600" bg="bg-purple-50" border="border-purple-100"
               />
             </div>
@@ -233,26 +234,26 @@ export default function LogBajet() {
               <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <ArrowDownLeft className="w-5 h-5 text-teal-600" />
-                  <h4 className="text-lg font-black text-slate-800">Log Transaksi Perbelanjaan</h4>
+                  <h4 className="text-lg font-black text-slate-800">Expenditure Transaction Log</h4>
                 </div>
-                <span className="text-xs text-slate-400 font-bold">{transaksi.length} rekod</span>
+                <span className="text-xs text-slate-400 font-bold">{transaksi.length} records</span>
               </div>
 
               <div className="overflow-x-auto">
                 {transaksi.length === 0 ? (
                   <div className="py-16 text-center text-slate-400 font-medium">
-                    Tiada transaksi perbelanjaan direkodkan setakat ini.
+                    No expenditure transactions recorded yet.
                   </div>
                 ) : (
                   <table className="w-full text-left text-sm">
                     <thead className="bg-slate-50 text-slate-500 font-black text-xs uppercase tracking-wider border-b border-slate-100">
                       <tr>
-                        <th className="px-6 py-4">No. Arahan</th>
-                        <th className="px-6 py-4">Tarikh</th>
-                        <th className="px-6 py-4">Jenis Kerja</th>
-                        <th className="px-6 py-4">Kontraktor</th>
-                        <th className="px-6 py-4 text-right">Kos Anggaran (RM)</th>
-                        <th className="px-6 py-4 text-right">Penjimatan Kluster (RM)</th>
+                        <th className="px-6 py-4">Order No.</th>
+                        <th className="px-6 py-4">Date</th>
+                        <th className="px-6 py-4">Job Type</th>
+                        <th className="px-6 py-4">Contractor</th>
+                        <th className="px-6 py-4 text-right">Estimated Cost (RM)</th>
+                        <th className="px-6 py-4 text-right">Cluster Savings (RM)</th>
                         <th className="px-6 py-4 text-center">Status</th>
                       </tr>
                     </thead>
@@ -278,11 +279,11 @@ export default function LogBajet() {
                           </td>
                           <td className="px-6 py-4 text-right font-bold text-purple-600">
                             {t.penjimatan_ai > 0 ? `+ RM ${fmt(t.penjimatan_ai)}` : '-'}
-                            {t.anak_aduan_count > 0 && <p className="text-[10px] text-purple-400 font-medium">({t.anak_aduan_count} kluster)</p>}
+                            {t.anak_aduan_count > 0 && <p className="text-[10px] text-purple-400 font-medium">({t.anak_aduan_count} clusters)</p>}
                           </td>
                           <td className="px-6 py-4 text-center">
                             <span className={`px-3 py-1 rounded-full text-xs font-bold border ${statusStyle[t.status_kerja] || 'bg-slate-50 text-slate-600 border-slate-200'}`}>
-                              {t.status_kerja}
+                              {displayStatus(t.status_kerja)}
                             </span>
                           </td>
                         </motion.tr>
@@ -292,7 +293,7 @@ export default function LogBajet() {
                     <tfoot>
                       <tr className="bg-slate-50 border-t-2 border-slate-200">
                         <td colSpan={4} className="px-6 py-4 text-xs font-black uppercase tracking-wider text-slate-500">
-                          Jumlah Keseluruhan
+                          Total Summary
                         </td>
                         <td className="px-6 py-4 text-right font-black text-slate-900 text-base">
                           RM {fmt(ringkasan.jumlah_dibelanjakan)}

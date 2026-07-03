@@ -78,7 +78,7 @@ function Dashboard() {
     );
   }
 
-  const formattedDate = currentTime.toLocaleDateString('ms-MY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const formattedDate = currentTime.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   const initial = userData?.name ? userData.name.charAt(0).toUpperCase() : 'A';
 
   // Logik Penentuan Paparan Berdasarkan Peranan
@@ -105,7 +105,7 @@ function Dashboard() {
       <div className="flex-1 flex flex-col overflow-hidden relative">
         <header className="flex items-center justify-between px-8 py-5 bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-10">
           <div>
-            <h2 className="text-2xl font-black text-slate-900 tracking-tight">Papan Pemuka</h2>
+            <h2 className="text-2xl font-black text-slate-900 tracking-tight">Dashboard</h2>
             <div className="flex items-center gap-2 text-sm text-slate-500 font-medium mt-1">
               <Calendar className="w-4 h-4 text-teal-600" />
               <span>{formattedDate}</span>

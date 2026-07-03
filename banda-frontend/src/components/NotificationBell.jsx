@@ -41,7 +41,7 @@ function NotificationBell() {
             
             echoInstance.private(`user.${userId}`)
                 .listen('.NotifikasiBaru', (e) => {
-                    toast.success('Notifikasi Baru', { description: e.notifikasi?.mesej });
+                    toast.success('New Notification', { description: e.notifikasi?.mesej });
                     fetchNotifications();
                 });
         } catch (error) {
@@ -66,7 +66,7 @@ function NotificationBell() {
       });
       fetchNotifications();
     } catch (error) {
-      toast.error('Gagal kemaskini notifikasi.');
+      toast.error('Failed to update notification.');
     }
   };
 
@@ -78,7 +78,7 @@ function NotificationBell() {
       });
       fetchNotifications();
     } catch (error) {
-      toast.error('Gagal kemaskini notifikasi.');
+      toast.error('Failed to update notification.');
     }
   };
 
@@ -99,14 +99,14 @@ function NotificationBell() {
           <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)}></div>
           <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden">
             <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-              <h4 className="font-black text-slate-800 text-sm">Notifikasi</h4>
+              <h4 className="font-black text-slate-800 text-sm">Notifications</h4>
               {unreadCount > 0 && (
-                <button onClick={markAllAsRead} className="text-xs font-bold text-teal-600 hover:text-teal-700">Tanda Semua Dibaca</button>
+                <button onClick={markAllAsRead} className="text-xs font-bold text-teal-600 hover:text-teal-700">Mark All as Read</button>
               )}
             </div>
             <div className="max-h-96 overflow-y-auto">
               {notifications.length === 0 ? (
-                <div className="p-8 text-center text-slate-400 text-sm font-medium">Tiada notifikasi setakat ini.</div>
+                <div className="p-8 text-center text-slate-400 text-sm font-medium">No notifications so far.</div>
               ) : (
                 <div className="divide-y divide-slate-50">
                   {notifications.map(n => (
@@ -114,10 +114,10 @@ function NotificationBell() {
                       <div className="flex justify-between items-start gap-3">
                         <div>
                           <p className={`text-sm ${!n.status_baca ? 'font-bold text-slate-900' : 'font-medium text-slate-600'}`}>{n.mesej}</p>
-                          <p className="text-[10px] text-slate-400 font-bold mt-1 uppercase tracking-wider">{new Date(n.created_at).toLocaleString('ms-MY')}</p>
+                          <p className="text-[10px] text-slate-400 font-bold mt-1 uppercase tracking-wider">{new Date(n.created_at).toLocaleString('en-GB')}</p>
                         </div>
                         {!n.status_baca && (
-                          <button onClick={() => markAsRead(n.id)} className="text-teal-600 p-1 hover:bg-teal-100 rounded-full transition-colors" title="Tanda dibaca">
+                          <button onClick={() => markAsRead(n.id)} className="text-teal-600 p-1 hover:bg-teal-100 rounded-full transition-colors" title="Mark as read">
                             <Check className="w-4 h-4" />
                           </button>
                         )}

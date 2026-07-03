@@ -13,6 +13,7 @@ function StatusAduan() {
   const [isLoading, setIsLoading] = useState(true);
   
   const [selectedAduan, setSelectedAduan] = useState(null);
+  const displayStatus = (s) => ({ 'Baru': 'New', 'Dalam Tindakan': 'In Progress', 'Selesai': 'Completed', 'Ditolak': 'Rejected', 'KIV': 'On Hold' })[s] || s;
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -51,7 +52,7 @@ function StatusAduan() {
         aduans.forEach(aduan => {
           echo.channel(`aduan.${aduan.id_aduan}`)
             .listen('.StatusBerubah', (e) => {
-              toast.info(`Status aduan ${e.aduanId} dikemaskini: ${e.status}`);
+              toast.info(`Report #${e.aduanId} status updated: ${displayStatus(e.status)}`);
               const token = localStorage.getItem('token');
               axios.get(`/api/aduan`, { headers: { Authorization: `Bearer ${token}` } })
                 .then(res => {
@@ -84,22 +85,22 @@ function StatusAduan() {
   const getTimelineSteps = (currentStatus) => {
     if (currentStatus === 'Ditolak') {
         return [
-            { id: 1, title: 'Laporan Diterima', active: true, completed: true },
-            { id: 2, title: 'Laporan Ditolak', active: true, completed: true, isRejected: true },
+            { id: 1, title: 'Report Received', active: true, completed: true },
+            { id: 2, title: 'Report Rejected', active: true, completed: true, isRejected: true },
         ];
     }
     
     return [
-        { id: 1, title: 'Laporan Diterima', active: true, completed: true },
+        { id: 1, title: 'Report Received', active: true, completed: true },
         { 
             id: 2, 
-            title: 'Dalam Semakan / Tindakan Diambil', 
+            title: 'Under Review / In Progress', 
             active: ['Dalam Tindakan', 'Selesai'].includes(currentStatus),
             completed: ['Dalam Tindakan', 'Selesai'].includes(currentStatus) 
         },
         { 
             id: 3, 
-            title: 'Kerja Pembaikan Selesai', 
+            title: 'Repair Work Completed', 
             active: currentStatus === 'Selesai',
             completed: currentStatus === 'Selesai'
         }
@@ -116,8 +117,8 @@ function StatusAduan() {
       <div className="flex-1 flex flex-col overflow-hidden relative">
         <header className="flex items-center justify-between px-8 py-5 bg-white border-b border-slate-200 sticky top-0 z-10">
           <div>
-            <h2 className="text-2xl font-black text-slate-900 tracking-tight">Sejarah Aduan</h2>
-            <p className="text-sm text-slate-500 font-medium mt-1">Jejak status laporan anda seperti bungkusan kurier</p>
+            <h2 className="text-2xl font-black text-slate-900 tracking-tight">Complaint History</h2>
+            <p className="text-sm text-slate-500 font-medium mt-1">Track your report status in real time</p>
           </div>
         </header>
 
@@ -134,10 +135,10 @@ function StatusAduan() {
                   <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-6">
                     <Clock className="w-10 h-10 text-slate-400" />
                   </div>
-                  <h3 className="text-xl font-black text-slate-900 mb-2">Tiada Rekod Aduan</h3>
-                  <p className="text-slate-500 mb-6">Anda belum membuat sebarang laporan kerosakan infrastruktur.</p>
+                  <h3 className="text-xl font-black text-slate-900 mb-2">No Reports Found</h3>
+                  <p className="text-slate-500 mb-6">You have not submitted any infrastructure damage reports yet.</p>
                   <button onClick={() => navigate('/lapor-aduan')} className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-6 rounded-xl transition-all">
-                    Mula Lapor Aduan
+                    Report an Issue
                   </button>
                 </div>
               ) : (
@@ -155,7 +156,7 @@ function StatusAduan() {
                         <div className="w-full md:w-56 h-48 md:h-auto bg-slate-100 flex-shrink-0 relative overflow-hidden">
                           <img src={`/storage/${aduan.gambar_bukti}`} alt={aduan.jenis_kerosakan} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
                           <div className="absolute top-3 left-3 bg-slate-900/70 backdrop-blur-md text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm">
-                            Zon {aduan.id_zon}
+                            Zone {aduan.id_zon}
                           </div>
                         </div>
 
@@ -166,7 +167,7 @@ function StatusAduan() {
                               <h4 className="text-xl font-black text-slate-900 group-hover:text-teal-700 transition-colors">{aduan.jenis_kerosakan}</h4>
                             </div>
                             <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border shadow-sm ${badge.color}`}>
-                              {badge.icon} {aduan.status}
+                              {badge.icon} {displayStatus(aduan.status)}
                             </span>
                           </div>
 
@@ -215,7 +216,7 @@ function StatusAduan() {
                         <Package className="w-5 h-5 text-teal-700" />
                     </div>
                     <div>
-                        <h3 className="text-lg font-black text-slate-900">Penjejakan Aduan</h3>
+                        <h3 className="text-lg font-black text-slate-900">Report Tracking</h3>
                         <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">{selectedAduan.id_aduan}</p>
                     </div>
                   </div>
@@ -236,13 +237,13 @@ function StatusAduan() {
                     <div>
                         <h4 className="text-2xl font-black text-slate-900 mb-2">{selectedAduan.jenis_kerosakan}</h4>
                         <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border shadow-sm ${getStatusBadge(selectedAduan.status).color}`}>
-                          {getStatusBadge(selectedAduan.status).icon} Status: {selectedAduan.status}
+                          {getStatusBadge(selectedAduan.status).icon} Status: {displayStatus(selectedAduan.status)}
                         </div>
                     </div>
 
                     <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100 space-y-4 shadow-inner">
                         <div>
-                            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Lokasi Kejadian</p>
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Location</p>
                             <p className="text-sm font-medium text-slate-700 flex items-start gap-2">
                             <MapPin className="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
                             {selectedAduan.alamat_lokasi}
@@ -250,7 +251,7 @@ function StatusAduan() {
                         </div>
                         {selectedAduan.keterangan_aduan && (
                             <div>
-                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Keterangan</p>
+                                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Description</p>
                                 <p className="text-sm text-slate-600 italic">"{selectedAduan.keterangan_aduan}"</p>
                             </div>
                         )}
@@ -260,7 +261,7 @@ function StatusAduan() {
                   {/* Right Column: SHOPEE-STYLE TIMELINE */}
                   <div className="w-full md:w-1/2 bg-slate-50/50 p-6 rounded-3xl border border-slate-100">
                     <h4 className="text-lg font-black text-slate-900 mb-8 flex items-center gap-2">
-                      <Activity className="w-5 h-5 text-teal-600" /> Jejak Status
+                      <Activity className="w-5 h-5 text-teal-600" /> Status Timeline
                     </h4>
                     
                     <div className="relative pl-4 space-y-10">
@@ -295,7 +296,7 @@ function StatusAduan() {
                                         </p>
                                     )}
                                     {step.id === 2 && step.active && (
-                                        <p className="text-xs text-slate-500 mt-1">Menunggu pengesahan dan tindakan kontraktor.</p>
+                                        <p className="text-xs text-slate-500 mt-1">Pending verification and contractor action.</p>
                                     )}
                                 </div>
                             </div>
@@ -306,12 +307,12 @@ function StatusAduan() {
                     <div className={`mt-10 p-5 rounded-2xl flex flex-col gap-3 shadow-sm border ${selectedAduan.maklum_balas ? 'bg-white border-teal-100' : 'bg-slate-100 border-slate-200/60'}`}>
                       <div className="flex items-center gap-2">
                         <MessageSquare className={`w-4 h-4 ${selectedAduan.maklum_balas ? 'text-teal-600' : 'text-slate-400'}`} />
-                        <h5 className="text-sm font-black text-slate-900">Maklum Balas Terkini</h5>
+                        <h5 className="text-sm font-black text-slate-900">Latest Feedback</h5>
                       </div>
                       <p className={`text-sm leading-relaxed ${selectedAduan.maklum_balas ? 'text-slate-700' : 'text-slate-500 italic'}`}>
                         {selectedAduan.maklum_balas 
                           ? `"${selectedAduan.maklum_balas}"` 
-                          : "Tiada sebarang maklum balas daripada pihak MP/Kontraktor buat masa ini."}
+                          : "No feedback from MPAJ or contractor yet."}
                       </p>
                     </div>
 

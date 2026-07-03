@@ -2,7 +2,6 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import Landing from './Landing';
-import LandingPageV2 from './LandingPageV2';
 import Register from './Register';
 import Login from './Login';
 import Dashboard from './components/Dashboard';
@@ -30,7 +29,6 @@ function App() {
       {/* Routes only contains Route components */}
       <Routes>
         <Route path="/" element={<Landing />} />
-        <Route path="/v2" element={<LandingPageV2 />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

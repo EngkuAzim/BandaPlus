@@ -73,30 +73,30 @@ export default function LaporanPrestasi() {
   const exportPDF = () => {
     if (!data) return;
     const doc = new jsPDF();
-    doc.setFontSize(20); doc.text('Laporan Prestasi BANDA+', 14, 22);
-    doc.setFontSize(11); doc.text(`Bulan: ${filterMonth}`, 14, 30);
-    doc.text(`Tarikh: ${new Date().toLocaleDateString('ms-MY')}`, 14, 36);
+    doc.setFontSize(20); doc.text('BANDA+ Performance Report', 14, 22);
+    doc.setFontSize(11); doc.text(`Month: ${filterMonth}`, 14, 30);
+    doc.text(`Date: ${new Date().toLocaleDateString('en-GB')}`, 14, 36);
     let y = 45;
-    doc.setFontSize(14); doc.text('1. Aduan Mengikut Kategori', 14, y);
-    doc.autoTable({ startY: y+5, head:[['Kategori','Jumlah']], body: data.kategori.map(k=>[k.jenis_kerosakan, k.total]), theme:'grid', headStyles:{fillColor:[13,148,136]} });
+    doc.setFontSize(14); doc.text('1. Reports by Category', 14, y);
+    doc.autoTable({ startY: y+5, head:[['Category','Total']], body: data.kategori.map(k=>[k.jenis_kerosakan, k.total]), theme:'grid', headStyles:{fillColor:[13,148,136]} });
     y = doc.lastAutoTable.finalY + 15;
-    doc.text('2. Aduan Mengikut Zon', 14, y);
-    doc.autoTable({ startY: y+5, head:[['Zon','Jumlah']], body: data.zon.map(z=>[z.id_zon, z.total]), theme:'grid', headStyles:{fillColor:[13,148,136]} });
+    doc.text('2. Reports by Zone', 14, y);
+    doc.autoTable({ startY: y+5, head:[['Zone','Total']], body: data.zon.map(z=>[z.id_zon, z.total]), theme:'grid', headStyles:{fillColor:[13,148,136]} });
     y = doc.lastAutoTable.finalY + 15;
-    doc.text('3. Prestasi Kontraktor', 14, y);
-    doc.autoTable({ startY: y+5, head:[['Kontraktor','Jumlah','Selesai','Tepat','Lewat']], body: data.kontraktor.map(k=>[k.name,k.jumlah,k.total_kerja,k.tepat,k.lewat]), theme:'grid', headStyles:{fillColor:[13,148,136]} });
-    doc.save(`Laporan_BandaPlus_${filterMonth}.pdf`);
-    toast.success('PDF dimuat turun.');
+    doc.text('3. Contractor Performance', 14, y);
+    doc.autoTable({ startY: y+5, head:[['Contractor','Total Jobs','Completed','On Time','Late']], body: data.kontraktor.map(k=>[k.name,k.jumlah,k.total_kerja,k.tepat,k.lewat]), theme:'grid', headStyles:{fillColor:[13,148,136]} });
+    doc.save(`BandaPlus_Report_${filterMonth}.pdf`);
+    toast.success('PDF downloaded successfully.');
   };
 
   const exportExcel = () => {
     if (!data) return;
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data.kategori), 'Kategori');
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data.zon.map(z=>({Zon:z.id_zon,Jumlah:z.total}))), 'Zon');
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data.kontraktor), 'Kontraktor');
-    XLSX.writeFile(wb, `Laporan_BandaPlus_${filterMonth}.xlsx`);
-    toast.success('Excel dimuat turun.');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data.kategori), 'Category');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data.zon.map(z=>({Zone:z.id_zon,Total:z.total}))), 'Zone');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data.kontraktor), 'Contractors');
+    XLSX.writeFile(wb, `BandaPlus_Report_${filterMonth}.xlsx`);
+    toast.success('Excel downloaded successfully.');
   };
 
   const ring = data?.ringkasan || {};
@@ -115,15 +115,15 @@ export default function LaporanPrestasi() {
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center"><FileText className="w-6 h-6" /></div>
             <div>
-              <h2 className="text-2xl font-black text-slate-800">Laporan Prestasi & Analitik</h2>
-              <p className="text-sm font-bold text-slate-500">Statistik terperinci operasi BANDA+</p>
+              <h2 className="text-2xl font-black text-slate-800">Performance Reports & Analytics</h2>
+              <p className="text-sm font-bold text-slate-500">Detailed operational statistics and system analytics</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <select value={filterMonth} onChange={e=>setFilterMonth(e.target.value)}
               className="bg-white border border-slate-200 text-slate-700 text-sm rounded-xl px-4 py-2.5 font-bold outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm">
-              <option value="Semua">Keseluruhan</option>
-              {['Januari','Februari','Mac','April','Mei','Jun','Julai','Ogos','September','Oktober','November','Disember'].map((m,i)=>(
+              <option value="Semua">All Months</option>
+              {['January','February','March','April','May','June','July','August','September','October','November','December'].map((m,i)=>(
                 <option key={i} value={String(i+1).padStart(2,'0')}>{m}</option>
               ))}
             </select>
@@ -145,11 +145,11 @@ export default function LaporanPrestasi() {
 
               {/* ── Summary Cards ── */}
               <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-                <SummaryCard icon={Layers} label="Jumlah Aduan" value={ring.jumlah||0} color="text-indigo-600" bg="bg-indigo-50" border="border-indigo-100" />
-                <SummaryCard icon={AlertCircle} label="Baru" value={ring.baru||0} color="text-teal-600" bg="bg-teal-50" border="border-teal-100" />
-                <SummaryCard icon={Clock} label="Dalam Tindakan" value={ring.dalam_tindakan||0} color="text-amber-600" bg="bg-amber-50" border="border-amber-100" />
-                <SummaryCard icon={CheckCircle2} label="Selesai" value={ring.selesai||0} color="text-emerald-600" bg="bg-emerald-50" border="border-emerald-100" />
-                <SummaryCard icon={XCircle} label="Ditolak" value={ring.ditolak||0} color="text-rose-600" bg="bg-rose-50" border="border-rose-100" />
+                <SummaryCard icon={Layers} label="Total Reports" value={ring.jumlah||0} color="text-indigo-600" bg="bg-indigo-50" border="border-indigo-100" />
+                <SummaryCard icon={AlertCircle} label="New" value={ring.baru||0} color="text-teal-600" bg="bg-teal-50" border="border-teal-100" />
+                <SummaryCard icon={Clock} label="In Progress" value={ring.dalam_tindakan||0} color="text-amber-600" bg="bg-amber-50" border="border-amber-100" />
+                <SummaryCard icon={CheckCircle2} label="Completed" value={ring.selesai||0} color="text-emerald-600" bg="bg-emerald-50" border="border-emerald-100" />
+                <SummaryCard icon={XCircle} label="Rejected" value={ring.ditolak||0} color="text-rose-600" bg="bg-rose-50" border="border-rose-100" />
               </div>
 
               {/* ── Row 1: Trend + Status Pie ── */}
@@ -158,7 +158,7 @@ export default function LaporanPrestasi() {
                 <div className="lg:col-span-2 bg-white rounded-3xl p-7 border border-slate-200 shadow-sm">
                   <div className="flex items-center gap-3 mb-6">
                     <div className="w-10 h-10 bg-teal-50 rounded-2xl flex items-center justify-center text-teal-600 border border-teal-100"><Activity className="w-5 h-5" /></div>
-                    <div><h4 className="text-base font-black text-slate-900">Trend Aduan & Penyelesaian</h4><p className="text-xs text-slate-400 font-medium">12 bulan terkini</p></div>
+                    <div><h4 className="text-base font-black text-slate-900">Report & Resolution Trends</h4><p className="text-xs text-slate-400 font-medium">Last 12 months</p></div>
                   </div>
                   {trend.length > 0 ? (
                     <ResponsiveContainer width="100%" height={250}>
@@ -172,18 +172,18 @@ export default function LaporanPrestasi() {
                         <YAxis allowDecimals={false} tick={{fontSize:11,fontWeight:700,fill:'#94a3b8'}} axisLine={false} tickLine={false} />
                         <Tooltip content={<ChartTooltip />} />
                         <Legend wrapperStyle={{fontSize:11,fontWeight:700}} />
-                        <Area type="monotone" dataKey="aduan" name="Aduan Masuk" stroke="#0d9488" strokeWidth={2.5} fill="url(#gAduan)" dot={{fill:'#0d9488',r:3,strokeWidth:2,stroke:'#fff'}} />
-                        <Area type="monotone" dataKey="selesai" name="Diselesaikan" stroke="#10b981" strokeWidth={2.5} fill="url(#gSelesai)" dot={{fill:'#10b981',r:3,strokeWidth:2,stroke:'#fff'}} />
+                        <Area type="monotone" dataKey="aduan" name="Incoming Reports" stroke="#0d9488" strokeWidth={2.5} fill="url(#gAduan)" dot={{fill:'#0d9488',r:3,strokeWidth:2,stroke:'#fff'}} />
+                        <Area type="monotone" dataKey="selesai" name="Resolved" stroke="#10b981" strokeWidth={2.5} fill="url(#gSelesai)" dot={{fill:'#10b981',r:3,strokeWidth:2,stroke:'#fff'}} />
                       </AreaChart>
                     </ResponsiveContainer>
-                  ) : <div className="h-[250px] flex items-center justify-center text-slate-400 text-sm font-bold">Tiada data</div>}
+                  ) : <div className="h-[250px] flex items-center justify-center text-slate-400 text-sm font-bold">No data available</div>}
                 </div>
 
                 {/* Status Pie */}
                 <div className="bg-white rounded-3xl p-7 border border-slate-200 shadow-sm">
                   <div className="flex items-center gap-3 mb-5">
                     <div className="w-10 h-10 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 border border-indigo-100"><BarChart2 className="w-5 h-5" /></div>
-                    <div><h4 className="text-base font-black text-slate-900">Taburan Status</h4><p className="text-xs text-slate-400 font-medium">Peratusan aduan</p></div>
+                    <div><h4 className="text-base font-black text-slate-900">Status Distribution</h4><p className="text-xs text-slate-400 font-medium">Percentage share</p></div>
                   </div>
                   {statusDist.some(s=>s.value>0) ? (<>
                     <ResponsiveContainer width="100%" height={180}>
@@ -199,7 +199,7 @@ export default function LaporanPrestasi() {
                         </div>
                       ))}
                     </div>
-                  </>) : <div className="h-[220px] flex items-center justify-center text-slate-400 text-sm font-bold">Tiada data</div>}
+                  </>) : <div className="h-[220px] flex items-center justify-center text-slate-400 text-sm font-bold">No data available</div>}
                 </div>
               </div>
 
@@ -209,7 +209,7 @@ export default function LaporanPrestasi() {
                 <div className="bg-white rounded-3xl p-7 border border-slate-200 shadow-sm">
                   <div className="flex items-center gap-3 mb-6">
                     <div className="w-10 h-10 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 border border-amber-100"><TrendingUp className="w-5 h-5" /></div>
-                    <div><h4 className="text-base font-black text-slate-900">Jenis Kerosakan</h4><p className="text-xs text-slate-400 font-medium">Semua kategori aduan</p></div>
+                    <div><h4 className="text-base font-black text-slate-900">Damage Types</h4><p className="text-xs text-slate-400 font-medium">All report categories</p></div>
                   </div>
                   {kategori.length > 0 ? (
                     <ResponsiveContainer width="100%" height={Math.max(200, kategori.length*45)}>
@@ -218,19 +218,19 @@ export default function LaporanPrestasi() {
                         <XAxis type="number" tick={{fontSize:11,fontWeight:700,fill:'#94a3b8'}} axisLine={false} tickLine={false} allowDecimals={false} />
                         <YAxis type="category" dataKey="jenis_kerosakan" tick={{fontSize:10,fontWeight:700,fill:'#475569'}} axisLine={false} tickLine={false} width={120} />
                         <Tooltip content={<ChartTooltip />} />
-                        <Bar dataKey="total" name="Aduan" radius={[0,6,6,0]}>
+                        <Bar dataKey="total" name="Reports" radius={[0,6,6,0]}>
                           {kategori.map((_,i)=><Cell key={i} fill={COLORS[i%COLORS.length]} />)}
                         </Bar>
                       </BarChart>
                     </ResponsiveContainer>
-                  ) : <div className="h-[200px] flex items-center justify-center text-slate-400 text-sm font-bold">Tiada data</div>}
+                  ) : <div className="h-[200px] flex items-center justify-center text-slate-400 text-sm font-bold">No data available</div>}
                 </div>
 
                 {/* Zon */}
                 <div className="bg-white rounded-3xl p-7 border border-slate-200 shadow-sm">
                   <div className="flex items-center gap-3 mb-6">
                     <div className="w-10 h-10 bg-rose-50 rounded-2xl flex items-center justify-center text-rose-500 border border-rose-100"><MapPin className="w-5 h-5" /></div>
-                    <div><h4 className="text-base font-black text-slate-900">Taburan Zon (Hotspot)</h4><p className="text-xs text-slate-400 font-medium">Kawasan paling aktif</p></div>
+                    <div><h4 className="text-base font-black text-slate-900">Zone Distribution (Hotspots)</h4><p className="text-xs text-slate-400 font-medium">Most active areas</p></div>
                   </div>
                   {zon.length > 0 ? (
                     <div className="space-y-3">
@@ -242,8 +242,8 @@ export default function LaporanPrestasi() {
                             <div className="w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-black text-white shrink-0" style={{background:COLORS[i%COLORS.length]}}>{i+1}</div>
                             <div className="flex-1 min-w-0">
                               <div className="flex justify-between items-center mb-1">
-                                <span className="text-xs font-bold text-slate-700 truncate">Zon {z.id_zon}</span>
-                                <span className="text-xs font-black text-slate-900 ml-2">{z.total} aduan</span>
+                                <span className="text-xs font-bold text-slate-700 truncate">Zone {z.id_zon}</span>
+                                <span className="text-xs font-black text-slate-900 ml-2">{z.total} reports</span>
                               </div>
                               <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
                                 <div className="h-full rounded-full transition-all duration-700" style={{width:`${pct}%`,background:COLORS[i%COLORS.length]}}></div>
@@ -253,7 +253,7 @@ export default function LaporanPrestasi() {
                         );
                       })}
                     </div>
-                  ) : <div className="h-[200px] flex items-center justify-center text-slate-400 text-sm font-bold">Tiada data zon</div>}
+                  ) : <div className="h-[200px] flex items-center justify-center text-slate-400 text-sm font-bold">No zone data available</div>}
                 </div>
               </div>
 
@@ -261,19 +261,19 @@ export default function LaporanPrestasi() {
               <div className="bg-white rounded-3xl p-7 border border-slate-200 shadow-sm">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-600 border border-purple-100"><HardHat className="w-5 h-5" /></div>
-                  <div><h4 className="text-base font-black text-slate-900">Prestasi Kontraktor</h4><p className="text-xs text-slate-400 font-medium">Kadar penyelesaian dan ketepatan masa</p></div>
+                  <div><h4 className="text-base font-black text-slate-900">Contractor Performance</h4><p className="text-xs text-slate-400 font-medium">Completion rate and on-time delivery</p></div>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-sm">
                     <thead>
                       <tr className="border-b-2 border-slate-100 text-slate-400 font-black text-xs uppercase tracking-wider">
-                        <th className="pb-4 pl-2">Kontraktor</th>
-                        <th className="pb-4 text-center">Jumlah Tugasan</th>
-                        <th className="pb-4 text-center">Selesai</th>
-                        <th className="pb-4 text-center">Dalam Proses</th>
-                        <th className="pb-4 text-center text-emerald-600">Tepat Masa</th>
-                        <th className="pb-4 text-center text-rose-600">Lewat</th>
-                        <th className="pb-4 text-center">Kadar Selesai</th>
+                        <th className="pb-4 pl-2">Contractor</th>
+                        <th className="pb-4 text-center">Total Jobs</th>
+                        <th className="pb-4 text-center">Completed</th>
+                        <th className="pb-4 text-center">In Progress</th>
+                        <th className="pb-4 text-center text-emerald-600">On Time</th>
+                        <th className="pb-4 text-center text-rose-600">Late</th>
+                        <th className="pb-4 text-center">Completion Rate</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
@@ -298,7 +298,7 @@ export default function LaporanPrestasi() {
                           </tr>
                         );
                       }) : (
-                        <tr><td colSpan="7" className="py-10 text-center text-slate-400 font-bold text-xs">Tiada rekod kontraktor.</td></tr>
+                        <tr><td colSpan="7" className="py-10 text-center text-slate-400 font-bold text-xs">No contractor records found.</td></tr>
                       )}
                     </tbody>
                   </table>

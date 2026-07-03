@@ -32,9 +32,9 @@ const Register = () => {
         if (/[^A-Za-z0-9]/.test(pwd)) score += 1;
 
         if (pwd.length === 0) setPwdStrength({ score: 0, label: '', color: 'bg-slate-200' });
-        else if (score === 1) setPwdStrength({ score: 1, label: 'Lemah', color: 'bg-rose-500' });
-        else if (score === 2) setPwdStrength({ score: 2, label: 'Sederhana', color: 'bg-amber-400' });
-        else setPwdStrength({ score: 3, label: 'Kuat', color: 'bg-emerald-500' });
+        else if (score === 1) setPwdStrength({ score: 1, label: 'Weak', color: 'bg-rose-500' });
+        else if (score === 2) setPwdStrength({ score: 2, label: 'Medium', color: 'bg-amber-400' });
+        else setPwdStrength({ score: 3, label: 'Strong', color: 'bg-emerald-500' });
     }, [formData.password]);
 
     const handleNext = (e) => {
@@ -42,7 +42,7 @@ const Register = () => {
         if (formData.name && formData.no_telefon) {
             setStep(2);
         } else {
-            toast.error('Maklumat Tidak Lengkap', { description: 'Sila isi nama dan nombor telefon.' });
+            toast.error('Incomplete Details', { description: 'Please fill in your name and phone number.' });
         }
     };
 
@@ -50,7 +50,7 @@ const Register = () => {
         e.preventDefault();
         
         if (formData.password !== formData.password_confirmation) {
-            toast.error('Ralat Kata Laluan', { description: 'Kata laluan tidak sepadan!' });
+            toast.error('Password Error', { description: 'Passwords do not match!' });
             return;
         }
 
@@ -59,11 +59,11 @@ const Register = () => {
         try {
             await axios.post(`/api/register`, formData);
             
-            toast.success('Pendaftaran Berjaya!', { description: 'Akaun anda telah dicipta. Sila log masuk.' });
+            toast.success('Registration Successful!', { description: 'Your account has been created. Please sign in.' });
             setTimeout(() => navigate('/login'), 1500);
 
         } catch (error) {
-            toast.error('Pendaftaran Gagal', { description: 'Sila semak semula butiran anda.' });
+            toast.error('Registration Failed', { description: 'Please review your details and try again.' });
         } finally {
             setLoading(false);
         }
@@ -103,22 +103,22 @@ const Register = () => {
 
                 <div className="relative z-10 mt-20">
                     <h2 className="text-4xl md:text-5xl font-black text-white mb-6 leading-[1.1] tracking-tight">
-                        Sertai Inisiatif<br/>
+                        Join the Smart<br/>
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-400">
-                            Komuniti Pintar.
+                            Community Initiative.
                         </span>
                     </h2>
                     <p className="text-slate-400 text-lg max-w-md leading-relaxed font-medium">
-                        Daftar akaun percuma anda hari ini dan mula mainkan peranan dalam memastikan Ampang Jaya kekal selamat dan sejahtera.
+                        Register your free account today and take part in keeping Ampang Jaya safe, responsive, and well-maintained.
                     </p>
                 </div>
 
                 <div className="relative z-10 mt-auto bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 max-w-md shadow-2xl">
                     <div className="flex items-center gap-4 mb-2">
                         <Users className="w-8 h-8 text-teal-400" />
-                        <h3 className="text-white font-bold">15,000+ Penduduk</h3>
+                        <h3 className="text-white font-bold">15,000+ Residents</h3>
                     </div>
-                    <p className="text-slate-400 text-sm font-medium">Telah menyertai ekosistem BANDA+ di Ampang Jaya.</p>
+                    <p className="text-slate-400 text-sm font-medium">Have joined the BANDA+ ecosystem in Ampang Jaya.</p>
                 </div>
             </div>
 
@@ -139,10 +139,10 @@ const Register = () => {
                     </div>
 
                     <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-2">
-                        {step === 1 ? 'Mula di sini.' : 'Keselamatan Akaun.'}
+                        {step === 1 ? 'Get Started.' : 'Account Security.'}
                     </h1>
                     <p className="text-slate-500 font-medium mb-8">
-                        {step === 1 ? 'Pilih peranan dan masukkan profil anda.' : 'Lengkapkan butiran log masuk anda.'}
+                        {step === 1 ? 'Select your role and personal profile.' : 'Complete your login credentials.'}
                     </p>
 
                     <AnimatePresence mode="wait">
@@ -156,29 +156,29 @@ const Register = () => {
                             >
                                 {/* Role Selection */}
                                 <div className="space-y-3">
-                                    <label className="text-sm font-bold text-slate-700">Pilih Peranan Anda</label>
+                                    <label className="text-sm font-bold text-slate-700">Select Your Role</label>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div 
                                             onClick={() => setFormData({...formData, peranan: 'komuniti'})}
                                             className={`cursor-pointer rounded-2xl border p-4 transition-all duration-300 ${formData.peranan === 'komuniti' ? 'bg-teal-50 border-teal-500 shadow-[0_0_15px_rgba(20,184,166,0.15)]' : 'bg-white border-slate-200 hover:border-teal-200 hover:bg-slate-50'}`}
                                         >
                                             <Users className={`w-6 h-6 mb-3 ${formData.peranan === 'komuniti' ? 'text-teal-600' : 'text-slate-400'}`} />
-                                            <h4 className="text-slate-900 font-bold text-sm">Komuniti Awam</h4>
-                                            <p className="text-slate-500 text-xs mt-1">Lapor kerosakan infrastruktur.</p>
+                                            <h4 className="text-slate-900 font-bold text-sm">Community User</h4>
+                                            <p className="text-slate-500 text-xs mt-1">Report infrastructure issues.</p>
                                         </div>
                                         <div 
                                             onClick={() => setFormData({...formData, peranan: 'kontraktor'})}
                                             className={`cursor-pointer rounded-2xl border p-4 transition-all duration-300 ${formData.peranan === 'kontraktor' ? 'bg-amber-50 border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.15)]' : 'bg-white border-slate-200 hover:border-teal-200 hover:bg-slate-50'}`}
                                         >
                                             <HardHat className={`w-6 h-6 mb-3 ${formData.peranan === 'kontraktor' ? 'text-amber-500' : 'text-slate-400'}`} />
-                                            <h4 className="text-slate-900 font-bold text-sm">Kontraktor Sah</h4>
-                                            <p className="text-slate-500 text-xs mt-1">Urus kerja penyelenggaraan.</p>
+                                            <h4 className="text-slate-900 font-bold text-sm">Authorized Contractor</h4>
+                                            <p className="text-slate-500 text-xs mt-1">Manage maintenance works.</p>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-sm font-bold text-slate-700">Nama Penuh</label>
+                                    <label className="text-sm font-bold text-slate-700">Full Name</label>
                                     <div className="relative group">
                                         <User className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${focusedField === 'name' ? 'text-teal-600' : 'text-slate-400 group-hover:text-slate-500'}`} />
                                         <input 
@@ -187,13 +187,13 @@ const Register = () => {
                                             onFocus={() => setFocusedField('name')} onBlur={() => setFocusedField(null)}
                                             onChange={(e) => setFormData({...formData, name: e.target.value})}
                                             className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 outline-none transition-all"
-                                            placeholder="Ali bin Abu"
+                                            placeholder="John Doe"
                                         />
                                     </div>
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-sm font-bold text-slate-700">Nombor Telefon</label>
+                                    <label className="text-sm font-bold text-slate-700">Phone Number</label>
                                     <div className="relative group">
                                         <Phone className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${focusedField === 'phone' ? 'text-teal-600' : 'text-slate-400 group-hover:text-slate-500'}`} />
                                         <input 
@@ -208,7 +208,7 @@ const Register = () => {
                                 </div>
 
                                 <button type="submit" className="w-full mt-4 bg-teal-600 hover:bg-teal-700 text-white font-black py-4 rounded-2xl transition-all shadow-lg shadow-teal-600/20 hover:-translate-y-0.5 flex items-center justify-center gap-2">
-                                    Teruskan <ArrowRight className="w-5 h-5" />
+                                    Continue <ArrowRight className="w-5 h-5" />
                                 </button>
                             </motion.form>
                         )}
@@ -222,7 +222,7 @@ const Register = () => {
                                 className="space-y-6"
                             >
                                 <div className="space-y-2">
-                                    <label className="text-sm font-bold text-slate-700">Alamat E-mel</label>
+                                    <label className="text-sm font-bold text-slate-700">Email Address</label>
                                     <div className="relative group">
                                         <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${focusedField === 'email' ? 'text-teal-600' : 'text-slate-400 group-hover:text-slate-500'}`} />
                                         <input 
@@ -231,13 +231,13 @@ const Register = () => {
                                             onFocus={() => setFocusedField('email')} onBlur={() => setFocusedField(null)}
                                             onChange={(e) => setFormData({...formData, email: e.target.value})}
                                             className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 outline-none transition-all"
-                                            placeholder="nama@contoh.com"
+                                            placeholder="name@example.com"
                                         />
                                     </div>
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-sm font-bold text-slate-700">Kata Laluan</label>
+                                    <label className="text-sm font-bold text-slate-700">Password</label>
                                     <div className="relative group">
                                         <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${focusedField === 'password' ? 'text-teal-600' : 'text-slate-400 group-hover:text-slate-500'}`} />
                                         <input 
@@ -266,7 +266,7 @@ const Register = () => {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <label className="text-sm font-bold text-slate-700">Sahkan Kata Laluan</label>
+                                    <label className="text-sm font-bold text-slate-700">Confirm Password</label>
                                     <div className="relative group">
                                         <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${focusedField === 'confirm' ? 'text-teal-600' : 'text-slate-400 group-hover:text-slate-500'}`} />
                                         <input 
@@ -294,7 +294,7 @@ const Register = () => {
                                         <ArrowLeft className="w-5 h-5" />
                                     </button>
                                     <button type="submit" disabled={loading || formData.password !== formData.password_confirmation} className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-black py-4 rounded-2xl transition-all shadow-lg shadow-teal-600/20 disabled:opacity-50 disabled:hover:bg-teal-600 flex items-center justify-center gap-2">
-                                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Sahkan & Daftar'}
+                                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Confirm & Register'}
                                     </button>
                                 </div>
                             </motion.form>
@@ -304,7 +304,7 @@ const Register = () => {
                     <div className="mt-8">
                         <hr className="border-slate-100" />
                         <p className="mt-8 text-center text-sm font-medium text-slate-500">
-                            Sudah ada akaun? <Link to="/login" className="text-teal-600 font-bold hover:text-teal-700 hover:underline transition-colors">Log Masuk</Link>
+                            Already have an account? <Link to="/login" className="text-teal-600 font-bold hover:text-teal-700 hover:underline transition-colors">Sign In</Link>
                         </p>
                     </div>
                 </div>

@@ -27,13 +27,13 @@ const Login = () => {
             localStorage.setItem('token', response.data.access_token);
             localStorage.setItem('userRole', response.data.user.peranan || 'komuniti');
 
-            toast.success('Log Masuk Berjaya!', { description: 'Selamat kembali ke sistem BANDA+.' });
+            toast.success('Login Successful!', { description: 'Welcome back to the BANDA+ system.' });
             
             setTimeout(() => navigate('/dashboard'), 1000);
 
         } catch (error) {
-            const errorMessage = error.response?.data?.message || 'Sila semak e-mel dan kata laluan anda.';
-            toast.error('Log Masuk Gagal', { description: errorMessage });
+            const errorMessage = error.response?.data?.message || 'Please check your email and password.';
+            toast.error('Login Failed', { description: errorMessage });
         } finally {
             setLoading(false);
         }
@@ -80,13 +80,13 @@ const Login = () => {
 
                 <div className="relative z-10 mt-20">
                     <h2 className="text-4xl md:text-5xl font-black text-white mb-6 leading-[1.1] tracking-tight">
-                        Selamat Kembali ke<br/>
+                        Welcome Back to<br/>
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-400">
-                            Ekosistem Pintar.
+                            the Smart Ecosystem.
                         </span>
                     </h2>
                     <p className="text-slate-400 text-lg max-w-md leading-relaxed font-medium">
-                        Pantau status aduan anda, urus tugasan penyelenggaraan, dan pastikan Ampang Jaya kekal sejahtera.
+                        Monitor complaint statuses, manage maintenance work orders, and keep Ampang Jaya sustainable and well-maintained.
                     </p>
                 </div>
 
@@ -107,12 +107,12 @@ const Login = () => {
                         <span className="font-black text-xl text-slate-900">BANDA<span className="text-teal-600">+</span></span>
                     </motion.div>
 
-                    <motion.h1 variants={itemVariants} className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-2">Log Masuk.</motion.h1>
-                    <motion.p variants={itemVariants} className="text-slate-500 font-medium mb-10">Sila masukkan butiran pendaftaran anda.</motion.p>
+                    <motion.h1 variants={itemVariants} className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-2">Sign In.</motion.h1>
+                    <motion.p variants={itemVariants} className="text-slate-500 font-medium mb-10">Please enter your account credentials.</motion.p>
 
                     <form onSubmit={handleSubmit} className="space-y-5">
                         <motion.div variants={itemVariants} className="space-y-2">
-                            <label className="text-sm font-bold text-slate-700">Alamat E-mel</label>
+                            <label className="text-sm font-bold text-slate-700">Email Address</label>
                             <div className="relative group">
                                 <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors duration-300 ${focusedField === 'email' ? 'text-teal-600' : 'text-slate-400 group-hover:text-slate-500'}`} />
                                 <input 
@@ -123,15 +123,15 @@ const Login = () => {
                                     onBlur={() => setFocusedField(null)}
                                     onChange={(e) => setFormData({...formData, email: e.target.value})}
                                     className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 transition-all outline-none font-medium"
-                                    placeholder="nama@contoh.com"
+                                    placeholder="name@example.com"
                                 />
                             </div>
                         </motion.div>
 
                         <motion.div variants={itemVariants} className="space-y-2">
                             <div className="flex justify-between items-center">
-                                <label className="text-sm font-bold text-slate-700">Kata Laluan</label>
-                                <a href="#" className="text-xs font-bold text-teal-600 hover:text-teal-700 transition-colors">Lupa kata laluan?</a>
+                                <label className="text-sm font-bold text-slate-700">Password</label>
+                                <a href="#" className="text-xs font-bold text-teal-600 hover:text-teal-700 transition-colors">Forgot password?</a>
                             </div>
                             <div className="relative group">
                                 <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors duration-300 ${focusedField === 'password' ? 'text-teal-600' : 'text-slate-400 group-hover:text-slate-500'}`} />
@@ -161,7 +161,7 @@ const Login = () => {
                             disabled={loading}
                             className="w-full mt-8 bg-teal-600 hover:bg-teal-700 text-white font-black py-4 rounded-2xl transition-all shadow-lg shadow-teal-600/20 hover:shadow-teal-600/40 hover:-translate-y-0.5 flex items-center justify-center gap-2 disabled:opacity-70 disabled:hover:bg-teal-600 disabled:hover:translate-y-0"
                         >
-                            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Log Masuk Akses'}
+                            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Sign In to Dashboard'}
                             {!loading && <ArrowRight className="w-5 h-5" />}
                         </motion.button>
                     </form>
@@ -169,7 +169,7 @@ const Login = () => {
                     <motion.div variants={itemVariants} className="mt-8">
                         <hr className="border-slate-100" />
                         <p className="mt-8 text-center text-sm font-medium text-slate-500">
-                            Kali pertama di sini? <Link to="/register" className="text-teal-600 font-bold hover:text-teal-700 hover:underline transition-colors">Daftar Akaun Baru</Link>
+                            First time here? <Link to="/register" className="text-teal-600 font-bold hover:text-teal-700 hover:underline transition-colors">Create New Account</Link>
                         </p>
                     </motion.div>
                 </motion.div>

@@ -41,28 +41,28 @@ const Sidebar = ({ userData }) => {
   // Konfigurasi Navigasi Lengkap Berdasarkan 4 Peranan BANDA+
   const navigationConfig = {
     komuniti: [
-      { name: 'Papan Pemuka', path: '/dashboard', icon: Home },
-      { name: 'Lapor Aduan', path: '/lapor-aduan', icon: FilePlus },
-      { name: 'Sejarah Laporan', path: '/sejarah', icon: History },
-      { name: 'Profil Saya', path: '/profil', icon: UserCircle },
+      { name: 'Dashboard', path: '/dashboard', icon: Home },
+      { name: 'Submit Report', path: '/lapor-aduan', icon: FilePlus },
+      { name: 'Report History', path: '/sejarah', icon: History },
+      { name: 'My Profile', path: '/profil', icon: UserCircle },
     ],
     pentadbir: [
-      { name: 'Pusat Kawalan', path: '/dashboard', icon: Home },
-      { name: 'Saringan & Agihan', path: '/urus-aduan', icon: Search },
-      { name: 'Urus Pengguna', path: '/urus-pengguna', icon: Users },
-      { name: 'Pemetaan AI', path: '/peta-kluster', icon: Map },
-      { name: 'Laporan Prestasi', path: '/laporan-prestasi', icon: FileText },
-      { name: 'Tetapan Sistem', path: '/tetapan', icon: Settings },
+      { name: 'Dashboard', path: '/dashboard', icon: Home },
+      { name: 'Review & Assign', path: '/urus-aduan', icon: Search },
+      { name: 'User Management', path: '/urus-pengguna', icon: Users },
+      { name: 'AI Cluster Map', path: '/peta-kluster', icon: Map },
+      { name: 'Performance Report', path: '/laporan-prestasi', icon: FileText },
+      { name: 'System Settings', path: '/tetapan', icon: Settings },
     ],
     pegawai: [
-      { name: 'Papan Pemuka', path: '/dashboard', icon: Home },
-      { name: 'Arahan Kerja', path: '/arahan-kerja', icon: Building2 },
-      { name: 'Laporan Tugasan', path: '/laporan-tugasan', icon: ClipboardList },
-      { name: 'Log Bajet', path: '/bajet', icon: Wallet },
+      { name: 'Dashboard', path: '/dashboard', icon: Home },
+      { name: 'Work Orders', path: '/arahan-kerja', icon: Building2 },
+      { name: 'Task Reports', path: '/laporan-tugasan', icon: ClipboardList },
+      { name: 'Budget Log', path: '/bajet', icon: Wallet },
     ],
     kontraktor: [
-      { name: 'Tugasan Semasa', path: '/dashboard', icon: Home },
-      { name: 'Pengurusan Kerja', path: '/pembaikan', icon: HardHat },
+      { name: 'Dashboard', path: '/dashboard', icon: Home },
+      { name: 'Job Management', path: '/pembaikan', icon: HardHat },
     ]
   };
 
@@ -167,7 +167,7 @@ const Sidebar = ({ userData }) => {
                 </AnimatePresence>
 
                 {/* Titik Makluman Kecil (Contoh: Boleh disambung dengan state notification nanti) */}
-                {link.name === 'Saringan Aduan' && !isCollapsed && (
+                {link.path === '/urus-aduan' && !isCollapsed && (
                   <span className="absolute right-4 w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
                 )}
               </div>
@@ -180,7 +180,7 @@ const Sidebar = ({ userData }) => {
       <div className="p-4 border-t border-slate-100 bg-slate-50/50">
         <button 
           onClick={handleLogout}
-          title={isCollapsed ? "Log Keluar" : ""}
+          title={isCollapsed ? "Log Out" : ""}
           className={`group flex items-center gap-3.5 py-3 px-4 rounded-2xl font-medium text-slate-500 hover:bg-rose-50 hover:text-rose-600 transition-all duration-300 w-full ${isCollapsed ? 'justify-center px-0' : ''}`}
         >
           <div className="relative">
@@ -195,7 +195,7 @@ const Sidebar = ({ userData }) => {
                 transition={{ duration: 0.2 }}
                 className="whitespace-nowrap overflow-hidden group-hover:font-bold"
               >
-                Log Keluar
+                Log Out
               </motion.span>
             )}
           </AnimatePresence>
@@ -222,7 +222,7 @@ const Sidebar = ({ userData }) => {
       {/* Mobile Logout */}
       <button onClick={handleLogout} className="flex flex-col items-center gap-1">
         <LogOut className="w-6 h-6 text-slate-400" />
-        <span className="text-[10px] font-bold text-slate-500">Keluar</span>
+        <span className="text-[10px] font-bold text-slate-500">Log Out</span>
       </button>
     </div>
     </>

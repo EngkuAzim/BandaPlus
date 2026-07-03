@@ -54,8 +54,8 @@ function TetapanSistem() {
     // Simulasi kelewatan menyimpan data
     setTimeout(() => {
       setIsSaving(false);
-      toast.success('Tetapan Berjaya Disimpan!', {
-        description: 'Parameter sistem BANDA+ telah dikemas kini.'
+      toast.success('Settings Saved Successfully!', {
+        description: 'BANDA+ system parameters have been updated.'
       });
     }, 1000);
 
@@ -90,8 +90,8 @@ function TetapanSistem() {
       <div className="flex-1 flex flex-col overflow-hidden relative">
         <header className="flex items-center justify-between px-8 py-5 bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm">
           <div>
-            <h2 className="text-2xl font-black text-slate-900 tracking-tight">Tetapan Sistem</h2>
-            <p className="text-sm text-slate-500 font-medium mt-1">Konfigurasi parameter AI dan peraturan geo-spatial BANDA+</p>
+            <h2 className="text-2xl font-black text-slate-900 tracking-tight">System Settings</h2>
+            <p className="text-sm text-slate-500 font-medium mt-1">Configure AI parameters and BANDA+ geo-spatial rules</p>
           </div>
           <button 
             onClick={handleSave} 
@@ -99,7 +99,7 @@ function TetapanSistem() {
             className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-teal-200 transition-all flex items-center gap-2 disabled:opacity-50"
           >
             {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            Simpan Konfigurasi
+            Save Configuration
           </button>
         </header>
 
@@ -110,23 +110,23 @@ function TetapanSistem() {
             <motion.section variants={itemVariants} className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
               <div className="px-6 py-4 border-b border-slate-100 bg-slate-50 flex items-center gap-3">
                 <BrainCircuit className="w-5 h-5 text-teal-600" />
-                <h3 className="font-bold text-slate-800">Enjin Smart Vision (YOLOv8)</h3>
+                <h3 className="font-bold text-slate-800">Smart Vision Engine (YOLOv8)</h3>
               </div>
               <div className="p-6 space-y-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h4 className="text-sm font-bold text-slate-900">Aktifkan Pengesanan AI Automatik</h4>
-                    <p className="text-xs text-slate-500 mt-1">Gunakan model YOLOv8 untuk membaca gambar aduan secara automatik sebelum saringan admin.</p>
+                    <h4 className="text-sm font-bold text-slate-900">Enable Automatic AI Detection</h4>
+                    <p className="text-xs text-slate-500 mt-1">Use YOLOv8 model to automatically analyze complaint photos before admin screening.</p>
                   </div>
                   <ToggleSwitch checked={form.aiAktif} onChange={() => setForm({...form, aiAktif: !form.aiAktif})} />
                 </div>
                 
                 <div className="pt-4 border-t border-slate-100">
                   <div className="flex justify-between items-center mb-2">
-                    <label className="text-sm font-bold text-slate-900">Skor Keyakinan (Confidence Threshold)</label>
+                    <label className="text-sm font-bold text-slate-900">Confidence Score Threshold</label>
                     <span className="text-sm font-black text-teal-600 bg-teal-50 px-3 py-1 rounded-lg">{form.aiTahapKeyakinan}%</span>
                   </div>
-                  <p className="text-xs text-slate-500 mb-4">Gambar aduan yang mendapat skor AI di bawah nilai ini akan ditandakan sebagai 'Low Priority' atau 'Unclear'.</p>
+                  <p className="text-xs text-slate-500 mb-4">Complaint images scoring below this threshold will be flagged as 'Low Priority' or 'Unclear'.</p>
                   <input 
                     type="range" min="50" max="95" step="5"
                     value={form.aiTahapKeyakinan} 
@@ -135,7 +135,7 @@ function TetapanSistem() {
                     disabled={!form.aiAktif}
                   />
                   <div className="flex justify-between text-xs font-bold text-slate-400 mt-2">
-                    <span>50% (Longgar)</span><span>95% (Ketat)</span>
+                    <span>50% (Lenient)</span><span>95% (Strict)</span>
                   </div>
                 </div>
               </div>
@@ -145,12 +145,12 @@ function TetapanSistem() {
             <motion.section variants={itemVariants} className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
               <div className="px-6 py-4 border-b border-slate-100 bg-slate-50 flex items-center gap-3">
                 <Map className="w-5 h-5 text-amber-600" />
-                <h3 className="font-bold text-slate-800">Parameter Geo-Spatial</h3>
+                <h3 className="font-bold text-slate-800">Geo-Spatial Parameters</h3>
               </div>
               <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div>
-                  <label className="text-sm font-bold text-slate-900">Radius Kluster Aduan (Meter)</label>
-                  <p className="text-xs text-slate-500 mt-1 mb-3">Jarak logik untuk menggabungkan aduan bertindih (duplicate) ke dalam satu id_aduan_induk.</p>
+                  <label className="text-sm font-bold text-slate-900">Complaint Cluster Radius (Meters)</label>
+                  <p className="text-xs text-slate-500 mt-1 mb-3">Logical radius for grouping duplicate complaints under a single parent complaint.</p>
                   <div className="relative">
                     <input 
                       type="number" min="5" max="100"
@@ -161,8 +161,8 @@ function TetapanSistem() {
                   </div>
                 </div>
                 <div>
-                  <label className="text-sm font-bold text-slate-900">Validasi Geo-Fencing Kontraktor (Meter)</label>
-                  <p className="text-xs text-slate-500 mt-1 mb-3">Jarak maksimum kontraktor dibenarkan untuk memuat naik gambar bukti "Selesai Kerja" dari lokasi GPS asal.</p>
+                  <label className="text-sm font-bold text-slate-900">Contractor Geo-Fencing Validation (Meters)</label>
+                  <p className="text-xs text-slate-500 mt-1 mb-3">Maximum allowed distance from the original GPS location for contractors to submit job completion proof.</p>
                   <div className="relative">
                     <input 
                       type="number" min="10" max="200"
@@ -179,15 +179,15 @@ function TetapanSistem() {
             <motion.section variants={itemVariants} className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
               <div className="px-6 py-4 border-b border-slate-100 bg-slate-50 flex items-center gap-3">
                 <Server className="w-5 h-5 text-slate-600" />
-                <h3 className="font-bold text-slate-800">Sistem Teras</h3>
+                <h3 className="font-bold text-slate-800">Core System Settings</h3>
               </div>
               <div className="p-6 space-y-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className="p-2 bg-blue-50 text-blue-600 rounded-lg"><Bell className="w-5 h-5" /></div>
                     <div>
-                      <h4 className="text-sm font-bold text-slate-900">Hebahan Notifikasi Emel</h4>
-                      <p className="text-xs text-slate-500 mt-0.5">Hantar emel kepada komuniti apabila status aduan mereka berubah.</p>
+                      <h4 className="text-sm font-bold text-slate-900">Email Notifications</h4>
+                      <p className="text-xs text-slate-500 mt-0.5">Send automated emails to community reporters when their report status changes.</p>
                     </div>
                   </div>
                   <ToggleSwitch checked={form.notifikasiAktif} onChange={() => setForm({...form, notifikasiAktif: !form.notifikasiAktif})} />
@@ -197,8 +197,8 @@ function TetapanSistem() {
                   <div className="flex items-center gap-4">
                     <div className="p-2 bg-rose-50 text-rose-600 rounded-lg"><Power className="w-5 h-5" /></div>
                     <div>
-                      <h4 className="text-sm font-bold text-rose-600">Mod Penyelenggaraan (Maintenance Mode)</h4>
-                      <p className="text-xs text-slate-500 mt-0.5">Sekat akses pengguna luar buat sementara waktu. Hanya pentadbir boleh log masuk.</p>
+                      <h4 className="text-sm font-bold text-rose-600">Maintenance Mode</h4>
+                      <p className="text-xs text-slate-500 mt-0.5">Temporarily restrict external user access. Only MPAJ admins can log in.</p>
                     </div>
                   </div>
                   <ToggleSwitch checked={form.modPenyelenggaraan} onChange={() => setForm({...form, modPenyelenggaraan: !form.modPenyelenggaraan})} />
