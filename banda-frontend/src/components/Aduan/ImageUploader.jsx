@@ -10,10 +10,8 @@ const ImageUploader = ({
     aiPredictions,
     displayCategory
 }) => {
-    // Check if we have valid predictions
     const hasPredictions = aiPredictions && aiPredictions.length > 0;
     const topPrediction = hasPredictions ? aiPredictions[0] : null;
-    const isLowConfidence = topPrediction ? topPrediction.confidence < 0.5 : false;
 
     return (
         <div className="flex flex-col items-center text-center w-full">
@@ -73,41 +71,76 @@ const ImageUploader = ({
                     animate={{ opacity: 1, y: 0 }}
                     className="w-full max-w-lg mt-6 bg-white border border-slate-200 rounded-3xl p-6 text-left shadow-sm hover:shadow-md transition-shadow"
                 >
-                    <div className="flex items-center gap-3 mb-1">
-                        <div className="w-8 h-8 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center">
-                            <Sparkles className="w-4 h-4" />
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center">
+                                <Sparkles className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <h4 className="font-black text-slate-900 text-xl leading-tight">AI Result</h4>
+                                {topPrediction && (
+                                    <p className="text-slate-600 font-bold capitalize">
+                                        {displayCategory ? displayCategory(topPrediction.class) : topPrediction.class}
+                                    </p>
+                                )}
+                            </div>
                         </div>
-                        <div>
-                            <h4 className="font-black text-slate-900 text-lg leading-tight">AI Result</h4>
-                            <p className="text-xs text-slate-500 font-medium">Detected from your photo</p>
-                        </div>
+                        {topPrediction && (() => {
+                            const pct = Math.round(topPrediction.confidence * 100);
+                            let badgeText, badgeColor;
+                            if (pct >= 70) {
+                                badgeText = 'High confidence';
+                                badgeColor = 'bg-teal-100 text-teal-700 border-teal-200';
+                            } else if (pct >= 40) {
+                                badgeText = 'Needs confirmation';
+                                badgeColor = 'bg-amber-100 text-amber-700 border-amber-200';
+                            } else {
+                                badgeText = 'Please confirm';
+                                badgeColor = 'bg-rose-100 text-rose-700 border-rose-200';
+                            }
+                            return (
+                                <span className={`text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider border ${badgeColor}`}>
+                                    {badgeText}
+                                </span>
+                            );
+                        })()}
                     </div>
                     
-                    <div className="mt-5 space-y-3">
-                        {isLowConfidence ? (
-                            <div className="flex items-start gap-3 p-3 bg-amber-50 rounded-xl border border-amber-100">
-                                <AlertCircle className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-                                <p className="text-sm text-amber-700 font-medium">
-                                    Low confidence. Please confirm the issue category manually.
-                                </p>
+                    <div className="mb-5">
+                        {topPrediction && (() => {
+                            const pct = Math.round(topPrediction.confidence * 100);
+                            let msg, Icon;
+                            if (pct >= 70) {
+                                msg = 'AI detected this from your photo.';
+                                Icon = Sparkles;
+                            } else if (pct >= 40) {
+                                msg = 'AI detected a possible issue. Please confirm the category.';
+                                Icon = AlertCircle;
+                            } else {
+                                msg = 'AI found a possible match, but user confirmation is required.';
+                                Icon = AlertCircle;
+                            }
+                            return (
+                                <div className={`flex items-start gap-2 p-3 rounded-xl border ${pct >= 70 ? 'bg-slate-50 border-slate-100' : 'bg-slate-50 border-slate-200'}`}>
+                                    <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${pct >= 70 ? 'text-teal-600' : 'text-slate-500'}`} />
+                                    <p className="text-sm text-slate-600 font-medium">{msg}</p>
+                                </div>
+                            );
+                        })()}
+                    </div>
+
+                    <div className="space-y-2 border-t border-slate-100 pt-4">
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Top Predictions</p>
+                        {aiPredictions.slice(0, 3).map((pred, idx) => (
+                            <div key={idx} className="flex justify-between items-center px-2">
+                                <span className="font-semibold text-slate-700 text-sm capitalize">
+                                    {displayCategory ? displayCategory(pred.class) : pred.class}
+                                </span>
+                                <span className="font-bold text-slate-500 text-sm">
+                                    {Math.round(pred.confidence * 100)}%
+                                </span>
                             </div>
-                        ) : (
-                            <div className="space-y-3">
-                                {aiPredictions.slice(0, 3).map((pred, idx) => (
-                                    <div key={idx} className={`flex justify-between items-center ${idx === 0 ? 'bg-slate-50 p-3 rounded-xl border border-slate-100' : 'px-3'}`}>
-                                        <div className="flex items-center gap-2">
-                                            <span className={`font-bold capitalize ${idx === 0 ? 'text-slate-900' : 'text-slate-600 text-sm'}`}>
-                                                {displayCategory ? displayCategory(pred.class) : pred.class}
-                                            </span>
-                                            {idx === 0 && <span className="text-[10px] bg-teal-100 text-teal-700 font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Top Match</span>}
-                                        </div>
-                                        <span className={`font-black ${idx === 0 ? 'text-teal-600' : 'text-slate-400 text-sm'}`}>
-                                            {Math.round(pred.confidence * 100)}%
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
+                        ))}
                     </div>
                 </motion.div>
             )}

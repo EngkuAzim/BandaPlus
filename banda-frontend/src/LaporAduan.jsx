@@ -152,7 +152,6 @@ function LaporAduan() {
   const handleScanCompleted = (scanData) => {
     try {
       setIsScanning(false);
-      setAiPredictions(scanData.predictions);
       
       if (scanData.image_path) {
           const apiUrl = import.meta.env.VITE_API_URL || 'http://banda-api.test';
@@ -161,6 +160,7 @@ function LaporAduan() {
       
       if (scanData.predictions && scanData.predictions.length > 0) {
           const sorted = [...scanData.predictions].sort((a, b) => b.confidence - a.confidence);
+          setAiPredictions(sorted);
           const topPrediction = sorted[0].class;
           
           let matchedValue = "Lain-lain";
@@ -522,6 +522,7 @@ function LaporAduan() {
                                         <option value="Infrastruktur Awam">Public Infrastructure</option>
                                         <option value="Lain-lain">Others</option>
                                     </select>
+                                    <p className="text-[11px] text-slate-500">You can keep the AI suggestion or choose another category.</p>
                                 </div>
                             </div>
 
