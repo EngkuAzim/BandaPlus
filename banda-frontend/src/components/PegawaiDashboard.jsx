@@ -25,6 +25,20 @@ function PegawaiDashboard({ userData }) {
   const [loading, setLoading] = useState(true);
   const [expandedCluster, setExpandedCluster] = useState(null);
   const displayStatus = (s) => ({ 'Baru': 'New', 'Dalam Tindakan': 'In Progress', 'Selesai': 'Completed', 'Ditolak': 'Rejected', 'KIV': 'On Hold' })[s] || s;
+  
+  const displayCategory = (c) => ({
+    'Jalan Berlubang': 'Pothole',
+    'Banjir': 'Flood',
+    'Anjing Liar / Haiwan Terbiar': 'Stray Animal',
+    'Haiwan Liar': 'Stray Animal',
+    'Pembuangan Sampah Haram': 'Illegal Dumping',
+    'Lampu Jalan Rosak': 'Faulty Streetlight',
+    'Longkang Tersumbat/Pecah': 'Clogged Drain',
+    'Longkang Tersumbat': 'Clogged Drain',
+    'Pokok Tumbang': 'Fallen Tree',
+    'Infrastruktur Awam': 'Public Infrastructure',
+    'Lain-lain': 'Others'
+  })[c] || c;
 
   // Data Bajet dari DB atau Fallback Mokap
   const bajet = { 
@@ -173,7 +187,7 @@ function PegawaiDashboard({ userData }) {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex flex-col">
-                            <span className="font-semibold text-slate-800">{aduan.jenis_kerosakan}</span>
+                            <span className="font-semibold text-slate-800">{displayCategory(aduan.jenis_kerosakan)}</span>
                             <span className="text-xs text-slate-500 truncate max-w-[200px]">{aduan.alamat_lokasi}</span>
                           </div>
                         </td>
@@ -220,7 +234,7 @@ function PegawaiDashboard({ userData }) {
                           </td>
                           <td className="px-6 py-3">
                             <div className="flex flex-col">
-                              <span className="text-xs font-semibold text-slate-700">{anak.jenis_kerosakan}</span>
+                              <span className="text-xs font-semibold text-slate-700">{displayCategory(anak.jenis_kerosakan)}</span>
                               <span className="text-[10px] text-slate-400 truncate max-w-[200px] flex items-center gap-1">
                                 <MapPin className="w-2.5 h-2.5 shrink-0" />{anak.alamat_lokasi}
                               </span>

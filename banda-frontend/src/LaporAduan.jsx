@@ -30,6 +30,20 @@ function LaporAduan() {
     lat: null, 
     lng: null, 
   });
+
+  const displayCategory = (c) => ({
+      'Jalan Berlubang': 'Pothole',
+      'Banjir': 'Flood',
+      'Anjing Liar / Haiwan Terbiar': 'Stray Animal',
+      'Haiwan Liar': 'Stray Animal',
+      'Pembuangan Sampah Haram': 'Illegal Dumping',
+      'Lampu Jalan Rosak': 'Faulty Streetlight',
+      'Longkang Tersumbat/Pecah': 'Clogged Drain',
+      'Longkang Tersumbat': 'Clogged Drain',
+      'Pokok Tumbang': 'Fallen Tree',
+      'Infrastruktur Awam': 'Public Infrastructure',
+      'Lain-lain': 'Others'
+    })[c] || c;
   
   const [locationMethod, setLocationMethod] = useState('alamat'); // 'alamat', 'peta', 'gps'
   const [specificLocation, setSpecificLocation] = useState('');
@@ -163,7 +177,7 @@ function LaporAduan() {
           }
 
           setFormData(prev => ({ ...prev, jenis_kerosakan: matchedValue }));
-          toast.success('AI Analysis Complete!', { description: `AI detected: ${matchedValue}` });
+          toast.success('AI Analysis Complete!', { description: `AI detected: ${displayCategory(matchedValue)}` });
       } else {
           toast.info('AI Analysis Complete', { description: 'Please select a category manually.' });
       }
@@ -395,28 +409,28 @@ function LaporAduan() {
                                 <div className="space-y-1.5">
                                     <label className="text-sm font-bold text-slate-700">Issue Category</label>
                                     <select required value={formData.jenis_kerosakan} onChange={(e) => setFormData({...formData, jenis_kerosakan: e.target.value})} className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all shadow-sm">
-                                    <option value="" disabled>Select Category...</option>
-                                    <option value="Jalan Berlubang">Jalan Berlubang</option>
-                                    <option value="Banjir">Banjir</option>
-                                    <option value="Anjing Liar / Haiwan Terbiar">Anjing Liar / Haiwan Terbiar</option>
-                                    <option value="Pembuangan Sampah Haram">Pembuangan Sampah Haram</option>
-                                    <option value="Lampu Jalan Rosak">Lampu Jalan Rosak</option>
-                                    <option value="Longkang Tersumbat/Pecah">Longkang Tersumbat/Pecah</option>
-                                    <option value="Pokok Tumbang">Pokok Tumbang</option>
-                                    <option value="Infrastruktur Awam">Infrastruktur Awam (Taman/Surau)</option>
-                                    <option value="Lain-lain">Lain-lain</option>
+                                        <option value="" disabled>Select Category...</option>
+                                        <option value="Jalan Berlubang">Pothole</option>
+                                        <option value="Banjir">Flood</option>
+                                        <option value="Anjing Liar / Haiwan Terbiar">Stray Animal</option>
+                                        <option value="Pembuangan Sampah Haram">Illegal Dumping</option>
+                                        <option value="Lampu Jalan Rosak">Faulty Streetlight</option>
+                                        <option value="Longkang Tersumbat/Pecah">Clogged Drain</option>
+                                        <option value="Pokok Tumbang">Fallen Tree</option>
+                                        <option value="Infrastruktur Awam">Public Infrastructure</option>
+                                        <option value="Lain-lain">Others</option>
                                     </select>
                                 </div>
 
                                 <div className="space-y-1.5">
                                     <label className="text-sm font-bold text-slate-700">MPAJ Zone</label>
                                     <select required value={formData.id_zon} onChange={(e) => setFormData({...formData, id_zon: e.target.value})} className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all shadow-sm">
-                                    <option value="" disabled>Select Your Zone...</option>
-                                    <option value="1">Zon 1 (Taman Melawati)</option>
-                                    <option value="2">Zon 2 (Klang Gates / Ukay Perdana)</option>
-                                    <option value="3">Zon 3 (Bukit Antarabangsa)</option>
-                                    <option value="4">Zon 4 (Ukay Bistari)</option>
-                                    <option value="5">Zon 5 (Ampang Jaya)</option>
+                                        <option value="" disabled>Select Your Zone...</option>
+                                        <option value="1">Zone 1 (Taman Melawati)</option>
+                                        <option value="2">Zone 2 (Klang Gates / Ukay Perdana)</option>
+                                        <option value="3">Zone 3 (Bukit Antarabangsa)</option>
+                                        <option value="4">Zone 4 (Ukay Bistari)</option>
+                                        <option value="5">Zone 5 (Ampang Jaya)</option>
                                     </select>
                                 </div>
                             </div>
@@ -469,7 +483,7 @@ function LaporAduan() {
                         <div className="space-y-4">
                             <div>
                                 <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">Category</p>
-                                <p className="text-lg font-bold text-slate-900">{formData.jenis_kerosakan}</p>
+                                <p className="text-lg font-bold text-slate-900">{displayCategory(formData.jenis_kerosakan)}</p>
                             </div>
                             <div>
                                 <p className="text-xs font-bold text-slate-400 uppercase tracking-wide">Zone</p>

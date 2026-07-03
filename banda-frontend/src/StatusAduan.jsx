@@ -14,6 +14,20 @@ function StatusAduan() {
   
   const [selectedAduan, setSelectedAduan] = useState(null);
   const displayStatus = (s) => ({ 'Baru': 'New', 'Dalam Tindakan': 'In Progress', 'Selesai': 'Completed', 'Ditolak': 'Rejected', 'KIV': 'On Hold' })[s] || s;
+  
+  const displayCategory = (c) => ({
+    'Jalan Berlubang': 'Pothole',
+    'Banjir': 'Flood',
+    'Anjing Liar / Haiwan Terbiar': 'Stray Animal',
+    'Haiwan Liar': 'Stray Animal',
+    'Pembuangan Sampah Haram': 'Illegal Dumping',
+    'Lampu Jalan Rosak': 'Faulty Streetlight',
+    'Longkang Tersumbat/Pecah': 'Clogged Drain',
+    'Longkang Tersumbat': 'Clogged Drain',
+    'Pokok Tumbang': 'Fallen Tree',
+    'Infrastruktur Awam': 'Public Infrastructure',
+    'Lain-lain': 'Others'
+  })[c] || c;
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -154,7 +168,7 @@ function StatusAduan() {
                         className="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-teal-300 transition-all overflow-hidden flex flex-col md:flex-row cursor-pointer group"
                       >
                         <div className="w-full md:w-56 h-48 md:h-auto bg-slate-100 flex-shrink-0 relative overflow-hidden">
-                          <img src={`/storage/${aduan.gambar_bukti}`} alt={aduan.jenis_kerosakan} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
+                          <img src={`/storage/${aduan.gambar_bukti}`} alt={displayCategory(aduan.jenis_kerosakan)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
                           <div className="absolute top-3 left-3 bg-slate-900/70 backdrop-blur-md text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm">
                             Zone {aduan.id_zon}
                           </div>
@@ -164,7 +178,7 @@ function StatusAduan() {
                           <div className="flex justify-between items-start mb-3">
                             <div>
                               <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">ID: {aduan.id_aduan}</p>
-                              <h4 className="text-xl font-black text-slate-900 group-hover:text-teal-700 transition-colors">{aduan.jenis_kerosakan}</h4>
+                              <h4 className="text-xl font-black text-slate-900 group-hover:text-teal-700 transition-colors">{displayCategory(aduan.jenis_kerosakan)}</h4>
                             </div>
                             <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border shadow-sm ${badge.color}`}>
                               {badge.icon} {displayStatus(aduan.status)}
@@ -235,7 +249,7 @@ function StatusAduan() {
                     </div>
                     
                     <div>
-                        <h4 className="text-2xl font-black text-slate-900 mb-2">{selectedAduan.jenis_kerosakan}</h4>
+                        <h4 className="text-2xl font-black text-slate-900 mb-2">{displayCategory(selectedAduan.jenis_kerosakan)}</h4>
                         <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border shadow-sm ${getStatusBadge(selectedAduan.status).color}`}>
                           {getStatusBadge(selectedAduan.status).icon} Status: {displayStatus(selectedAduan.status)}
                         </div>

@@ -25,10 +25,16 @@ function UrusAduan() {
   const [filterStatus, setFilterStatus] = useState('Semua');
   const [expandedCluster, setExpandedCluster] = useState(null);
 
-  const displayStatus = (status) => {
-    const map = { 'Baru': 'New', 'Dalam Tindakan': 'In Progress', 'Selesai': 'Completed', 'Ditolak': 'Rejected', 'KIV': 'On Hold' };
-    return map[status] || status;
-  };
+  const displayStatus = (s) => ({ 'Baru': 'New', 'Dalam Tindakan': 'In Progress', 'Selesai': 'Completed', 'Ditolak': 'Rejected', 'KIV': 'On Hold' })[s] || s;
+  const displayCategory = (c) => ({
+    'Jalan Berlubang': 'Pothole',
+    'Banjir': 'Flood',
+    'Pokok Tumbang': 'Fallen Tree',
+    'Pembuangan Sampah Haram': 'Illegal Dumping',
+    'Haiwan Liar': 'Stray Animal',
+    'Lampu Jalan Rosak': 'Faulty Streetlight',
+    'Longkang Tersumbat': 'Clogged Drain'
+  })[c] || c;
 
   const displayPriority = (prio) => {
     const map = { 'Tinggi': 'High', 'Sederhana': 'Medium', 'Rendah': 'Low' };
@@ -85,7 +91,7 @@ function UrusAduan() {
               // Slide new complaint into the top of the list
               setAduans(prev => [e.aduan, ...prev]);
               toast.success('New Report Received!', {
-                description: `${e.aduan.jenis_kerosakan || 'New report'} received from ${e.aduan.pengguna?.name || 'Community User'}.`,
+                description: `${displayCategory(e.aduan.jenis_kerosakan) || 'New report'} received from ${e.aduan.pengguna?.name || 'Community User'}.`,
                 duration: 6000,
               });
            }
@@ -312,39 +318,43 @@ function UrusAduan() {
                       <BrainCircuit className="w-8 h-8 text-teal-600" />
                       <div>
                         <p className="text-[10px] font-black text-teal-600 uppercase">AI Suggestion</p>
-                        <p className="text-sm font-bold text-slate-800">Issue: {selectedAduan.jenis_kerosakan} ({selectedAduan.skor_ai || 0}% Confidence)</p>
+                        <p className="text-sm font-bold text-slate-800">Issue: {displayCategory(selectedAduan.jenis_kerosakan)} ({selectedAduan.skor_ai || 0}% Confidence)</p>
                       </div>
                     </div>
 
                     <div className="space-y-4">
                       {/* Penugasan Jabatan (CRITICAL FLOW) */}
-                      <div>
-                        <label className="text-xs font-black text-slate-400 uppercase ml-1">Choose Responsible Department</label>
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-black text-slate-400 uppercase ml-1">Department</label>
                         <select 
-                          value={editForm.id_jabatan} onChange={(e) => setEditForm({...editForm, id_jabatan: e.target.value})}
-                          className="w-full mt-1 px-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-teal-500 focus:bg-white transition-all font-bold text-slate-700"
+                          required 
+                          value={editForm.id_jabatan} 
+                          onChange={(e) => setEditForm({...editForm, id_jabatan: e.target.value})}
+                          className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-semibold text-slate-700"
                         >
-                          <option value="">-- Choose Responsible Department --</option>
+                          <option value="">-- Select Department --</option>
                           <option value="J01">J01 - Jabatan Kejuruteraan</option>
                           <option value="J02">J02 - Jabatan Belia Masyarakat dan Landskap</option>
                           <option value="J03">J03 - Jabatan Perkhidmatan Bandar dan Kesihatan</option>
                         </select>
                       </div>
 
-                      <div>
-                        <label className="text-xs font-black text-slate-400 uppercase ml-1">Complaint Decision</label>
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-black text-slate-400 uppercase ml-1">Decision</label>
                         <select 
-                          value={editForm.status} onChange={(e) => setEditForm({...editForm, status: e.target.value})}
-                          className="w-full mt-1 px-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-teal-500 focus:bg-white transition-all font-bold text-slate-700"
+                          required 
+                          value={editForm.status} 
+                          onChange={(e) => setEditForm({...editForm, status: e.target.value})}
+                          className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-semibold text-slate-700"
                         >
-                          <option value="Baru">New (Unverified)</option>
-                          <option value="Dalam Tindakan">In Progress (Verify & Assign)</option>
-                          <option value="Ditolak">Rejected (Invalid / Out of Scope)</option>
+                          <option value="Baru">New</option>
+                          <option value="Dalam Tindakan">In Progress</option>
+                          <option value="Ditolak">Rejected</option>
                         </select>
                       </div>
 
                       <div>
-                        <label className="text-xs font-black text-slate-400 uppercase ml-1">Response to Reporter</label>
+                        <label className="text-xs font-black text-slate-400 uppercase ml-1">Response</label>
                         <textarea 
                           rows="3" value={editForm.maklum_balas} onChange={(e) => setEditForm({...editForm, maklum_balas: e.target.value})}
                           className="w-full mt-1 px-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-teal-500 focus:bg-white transition-all text-sm font-medium"
@@ -355,7 +365,7 @@ function UrusAduan() {
 
                     <button type="submit" disabled={isSaving || !editForm.id_jabatan} className="mt-auto w-full bg-slate-900 text-white font-black py-5 rounded-3xl hover:bg-teal-600 disabled:opacity-50 disabled:hover:bg-slate-900 flex items-center justify-center gap-3 shadow-xl shadow-teal-100 transition-all">
                       {isSaving ? <Loader2 className="animate-spin" /> : <Save />}
-                      Confirm & Send to Department
+                      Send to Department
                     </button>
                   </form>
                 </div>

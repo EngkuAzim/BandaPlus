@@ -17,6 +17,20 @@ function KontraktorDashboard({ userData, stats }) {
   const [tugasanList, setTugasanList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const displayStatus = (s) => ({ 'Baru': 'New', 'Dalam Tindakan': 'In Progress', 'Selesai': 'Completed', 'Disahkan': 'Verified', 'Ditolak': 'Rejected', 'KIV': 'On Hold', 'Dalam Proses': 'In Progress' })[s] || s;
+  
+  const displayCategory = (c) => ({
+    'Jalan Berlubang': 'Pothole',
+    'Banjir': 'Flood',
+    'Anjing Liar / Haiwan Terbiar': 'Stray Animal',
+    'Haiwan Liar': 'Stray Animal',
+    'Pembuangan Sampah Haram': 'Illegal Dumping',
+    'Lampu Jalan Rosak': 'Faulty Streetlight',
+    'Longkang Tersumbat/Pecah': 'Clogged Drain',
+    'Longkang Tersumbat': 'Clogged Drain',
+    'Pokok Tumbang': 'Fallen Tree',
+    'Infrastruktur Awam': 'Public Infrastructure',
+    'Lain-lain': 'Others'
+  })[c] || c;
 
   useEffect(() => {
     const fetchTugasan = async () => {
@@ -46,7 +60,7 @@ function KontraktorDashboard({ userData, stats }) {
         .listen('.ArahanKerjaBaru', (e) => {
           // Pop-up notification with task details
           toast.success('New Work Order Received!', {
-            description: `${e.arahanKerja?.aduan?.jenis_kerosakan || 'New task'} has been assigned to you.`,
+            description: `${displayCategory(e.arahanKerja?.aduan?.jenis_kerosakan) || 'New task'} has been assigned to you.`,
             duration: 8000,
           });
           // Refresh the job list instantly
@@ -115,7 +129,7 @@ function KontraktorDashboard({ userData, stats }) {
                     }`}>
                       {displayStatus(t.status_kerja)}
                     </span>
-                    <h5 className="font-bold text-slate-800 mt-2">{t.aduan?.jenis_kerosakan || 'Repair Work'}</h5>
+                    <h5 className="font-bold text-slate-800 mt-2">{displayCategory(t.aduan?.jenis_kerosakan) || 'Repair Work'}</h5>
                     <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
                       <MapPin className="w-3 h-3" /> {t.aduan?.alamat_lokasi || 'Location not specified'}
                     </p>

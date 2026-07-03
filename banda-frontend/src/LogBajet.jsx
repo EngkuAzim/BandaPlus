@@ -43,6 +43,20 @@ export default function LogBajet() {
   const [data,      setData]      = useState(null);
   const [loading,   setLoading]   = useState(true);
   const displayStatus = (s) => ({ 'Selesai': 'Completed', 'Dalam Proses': 'In Progress', 'Ditolak': 'Rejected' })[s] || s;
+  
+  const displayCategory = (c) => ({
+    'Jalan Berlubang': 'Pothole',
+    'Banjir': 'Flood',
+    'Anjing Liar / Haiwan Terbiar': 'Stray Animal',
+    'Haiwan Liar': 'Stray Animal',
+    'Pembuangan Sampah Haram': 'Illegal Dumping',
+    'Lampu Jalan Rosak': 'Faulty Streetlight',
+    'Longkang Tersumbat/Pecah': 'Clogged Drain',
+    'Longkang Tersumbat': 'Clogged Drain',
+    'Pokok Tumbang': 'Fallen Tree',
+    'Infrastruktur Awam': 'Public Infrastructure',
+    'Lain-lain': 'Others'
+  })[c] || c;
 
   useEffect(() => {
     const fetchAll = async (isInitial = true) => {
@@ -267,7 +281,7 @@ export default function LogBajet() {
                           <td className="px-6 py-4 font-mono text-xs font-black text-teal-700">{t.id_arahan}</td>
                           <td className="px-6 py-4 text-slate-500 whitespace-nowrap">{t.tarikh}</td>
                           <td className="px-6 py-4">
-                            <p className="font-semibold text-slate-800">{t.jenis_kerosakan}</p>
+                            <p className="font-semibold text-slate-800">{displayCategory(t.jenis_kerosakan)}</p>
                             <p className="text-xs text-slate-400 truncate max-w-[180px]">{t.alamat_lokasi}</p>
                           </td>
                           <td className="px-6 py-4">

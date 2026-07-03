@@ -86,6 +86,20 @@ function SenaraiPembaikan() {
   const [showTutupKes, setShowTutupKes] = useState(false);
 
   const displayStatus = (s) => ({ 'Baru': 'New', 'Dalam Tindakan': 'In Progress', 'Selesai': 'Completed', 'Ditolak': 'Rejected', 'KIV': 'On Hold', 'Dalam Proses': 'In Progress' })[s] || s;
+  
+  const displayCategory = (c) => ({
+    'Jalan Berlubang': 'Pothole',
+    'Banjir': 'Flood',
+    'Anjing Liar / Haiwan Terbiar': 'Stray Animal',
+    'Haiwan Liar': 'Stray Animal',
+    'Pembuangan Sampah Haram': 'Illegal Dumping',
+    'Lampu Jalan Rosak': 'Faulty Streetlight',
+    'Longkang Tersumbat/Pecah': 'Clogged Drain',
+    'Longkang Tersumbat': 'Clogged Drain',
+    'Pokok Tumbang': 'Fallen Tree',
+    'Infrastruktur Awam': 'Public Infrastructure',
+    'Lain-lain': 'Others'
+  })[c] || c;
 
   // Derived state to check if job is already accepted
   const hasAccepted = selectedTask?.log_kemajuan?.some(log => log.nota.includes('Kerja telah diterima') || log.nota.includes('Job officially accepted') || log.nota.includes('accepted'));
@@ -374,7 +388,7 @@ function SenaraiPembaikan() {
                       </div>
                       
                       <h3 className="text-lg font-black text-slate-800 leading-tight mb-2">
-                        {task.aduan?.jenis_kerosakan || 'General Maintenance'}
+                        {displayCategory(task.aduan?.jenis_kerosakan) || 'General Maintenance'}
                       </h3>
                       
                       <div className="flex items-center gap-2 text-slate-500 text-xs font-medium mb-4 bg-slate-50 p-2 rounded-xl border border-slate-100">
@@ -437,7 +451,7 @@ function SenaraiPembaikan() {
                   )}
 
                   <div className="px-6 py-6">
-                    <h3 className="text-2xl font-black text-slate-900 leading-tight mb-2">{selectedTask.aduan?.jenis_kerosakan}</h3>
+                    <h3 className="text-2xl font-black text-slate-900 leading-tight mb-2">{displayCategory(selectedTask.aduan?.jenis_kerosakan)}</h3>
                     
                     {/* Location & Zon */}
                     <div className="flex flex-col gap-2 mb-6 p-4 bg-slate-50 rounded-2xl border border-slate-100">

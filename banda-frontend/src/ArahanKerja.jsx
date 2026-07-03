@@ -21,6 +21,19 @@ function ArahanKerja() {
 
   const [senaraiKontraktor, setSenaraiKontraktor] = useState([]);
   const displayStatus = (status) => ({ 'Baru': 'New', 'Dalam Tindakan': 'In Progress', 'Selesai': 'Completed', 'Ditolak': 'Rejected', 'KIV': 'On Hold' })[status] || status;
+  const displayCategory = (c) => ({
+    'Jalan Berlubang': 'Pothole',
+    'Banjir': 'Flood',
+    'Anjing Liar / Haiwan Terbiar': 'Stray Animal',
+    'Haiwan Liar': 'Stray Animal',
+    'Pembuangan Sampah Haram': 'Illegal Dumping',
+    'Lampu Jalan Rosak': 'Faulty Streetlight',
+    'Longkang Tersumbat/Pecah': 'Clogged Drain',
+    'Longkang Tersumbat': 'Clogged Drain',
+    'Pokok Tumbang': 'Fallen Tree',
+    'Infrastruktur Awam': 'Public Infrastructure',
+    'Lain-lain': 'Others'
+  })[c] || c;
   const [form, setForm] = useState({
     id_kontraktor: '',
     tarikh_jangkaan_siap: '',
@@ -147,7 +160,7 @@ function ArahanKerja() {
                         </div>
 
                         <div className="flex items-center gap-2 mb-1 flex-wrap">
-                          <h5 className="font-bold text-slate-800 text-lg">{aduan.jenis_kerosakan}</h5>
+                          <h5 className="font-bold text-slate-800 text-lg">{displayCategory(aduan.jenis_kerosakan)}</h5>
                           {hasCluster && (
                             <span className="flex items-center gap-1 px-2 py-0.5 bg-purple-100 text-purple-700 text-[10px] font-bold rounded-full border border-purple-200 whitespace-nowrap">
                               <Layers className="w-3 h-3" />
@@ -216,7 +229,7 @@ function ArahanKerja() {
                                           anak.status === 'Baru' ? 'bg-blue-100 text-blue-600' : 'bg-amber-100 text-amber-600'
                                         }`}>{displayStatus(anak.status)}</span>
                                       </div>
-                                      <p className="text-xs font-semibold text-slate-700">{anak.jenis_kerosakan}</p>
+                                      <p className="text-xs font-semibold text-slate-700">{displayCategory(anak.jenis_kerosakan)}</p>
                                       <p className="text-[10px] text-slate-400 truncate flex items-center gap-1 mt-0.5">
                                         <MapPin className="w-2.5 h-2.5 shrink-0" />
                                         {anak.alamat_lokasi}
@@ -272,7 +285,7 @@ function ArahanKerja() {
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                       <div className="absolute bottom-6 left-8">
                         <h3 className="text-white font-black text-xl leading-none">{selectedAduan.id_aduan}</h3>
-                        <p className="text-teal-300 text-xs font-bold mt-1 uppercase tracking-widest">{selectedAduan.jenis_kerosakan}</p>
+                        <p className="text-teal-300 text-xs font-bold mt-1 uppercase tracking-widest">{displayCategory(selectedAduan.jenis_kerosakan)}</p>
                         {selectedAduan.anak_aduan_count > 0 && (
                           <span className="mt-2 inline-flex items-center gap-1 px-2 py-1 bg-purple-600/80 text-white text-[10px] font-bold rounded-lg">
                             <Layers className="w-3 h-3" />

@@ -14,6 +14,20 @@ function LaporanTugasan() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedTask, setSelectedTask] = useState(null);
   const displayStatus = (s) => ({ 'Baru': 'New', 'Dalam Tindakan': 'In Progress', 'Selesai': 'Completed', 'Disahkan': 'Verified', 'Ditolak': 'Rejected', 'KIV': 'On Hold', 'Dalam Proses': 'In Progress' })[s] || s;
+  
+  const displayCategory = (c) => ({
+    'Jalan Berlubang': 'Pothole',
+    'Banjir': 'Flood',
+    'Anjing Liar / Haiwan Terbiar': 'Stray Animal',
+    'Haiwan Liar': 'Stray Animal',
+    'Pembuangan Sampah Haram': 'Illegal Dumping',
+    'Lampu Jalan Rosak': 'Faulty Streetlight',
+    'Longkang Tersumbat/Pecah': 'Clogged Drain',
+    'Longkang Tersumbat': 'Clogged Drain',
+    'Pokok Tumbang': 'Fallen Tree',
+    'Infrastruktur Awam': 'Public Infrastructure',
+    'Lain-lain': 'Others'
+  })[c] || c;
 
   // Komentar Pegawai
   const [komen, setKomen] = useState('');
@@ -171,7 +185,7 @@ function LaporanTugasan() {
                       {displayStatus(task.status_kerja)}
                     </span>
                   </div>
-                  <h4 className="font-bold text-slate-800 text-sm mb-1 line-clamp-1">{task.aduan?.jenis_kerosakan}</h4>
+                  <h4 className="font-bold text-slate-800 text-sm mb-1 line-clamp-1">{displayCategory(task.aduan?.jenis_kerosakan)}</h4>
                   <p className="text-xs text-slate-500 font-medium">By: {task.kontraktor?.name}</p>
                 </div>
               ))

@@ -49,6 +49,20 @@ export default function LaporanPrestasi() {
   const [data, setData] = useState(null);
   const [filterMonth, setFilterMonth] = useState('Semua');
 
+  const displayCategory = (c) => ({
+    'Jalan Berlubang': 'Pothole',
+    'Banjir': 'Flood',
+    'Anjing Liar / Haiwan Terbiar': 'Stray Animal',
+    'Haiwan Liar': 'Stray Animal',
+    'Pembuangan Sampah Haram': 'Illegal Dumping',
+    'Lampu Jalan Rosak': 'Faulty Streetlight',
+    'Longkang Tersumbat/Pecah': 'Clogged Drain',
+    'Longkang Tersumbat': 'Clogged Drain',
+    'Pokok Tumbang': 'Fallen Tree',
+    'Infrastruktur Awam': 'Public Infrastructure',
+    'Lain-lain': 'Others'
+  })[c] || c;
+
   useEffect(() => {
     fetchData(true);
     const interval = setInterval(() => fetchData(false), 10000);
@@ -78,7 +92,7 @@ export default function LaporanPrestasi() {
     doc.text(`Date: ${new Date().toLocaleDateString('en-GB')}`, 14, 36);
     let y = 45;
     doc.setFontSize(14); doc.text('1. Reports by Category', 14, y);
-    doc.autoTable({ startY: y+5, head:[['Category','Total']], body: data.kategori.map(k=>[k.jenis_kerosakan, k.total]), theme:'grid', headStyles:{fillColor:[13,148,136]} });
+    doc.autoTable({ startY: y+5, head:[['Category','Total']], body: data.kategori.map(k=>[displayCategory(k.jenis_kerosakan), k.total]), theme:'grid', headStyles:{fillColor:[13,148,136]} });
     y = doc.lastAutoTable.finalY + 15;
     doc.text('2. Reports by Zone', 14, y);
     doc.autoTable({ startY: y+5, head:[['Zone','Total']], body: data.zon.map(z=>[z.id_zon, z.total]), theme:'grid', headStyles:{fillColor:[13,148,136]} });
@@ -92,7 +106,7 @@ export default function LaporanPrestasi() {
   const exportExcel = () => {
     if (!data) return;
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data.kategori), 'Category');
+    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data.kategori.map(k => ({ ...k, jenis_kerosakan: displayCategory(k.jenis_kerosakan) }))), 'Category');
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data.zon.map(z=>({Zone:z.id_zon,Total:z.total}))), 'Zone');
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data.kontraktor), 'Contractors');
     XLSX.writeFile(wb, `BandaPlus_Report_${filterMonth}.xlsx`);
@@ -101,7 +115,7 @@ export default function LaporanPrestasi() {
 
   const ring = data?.ringkasan || {};
   const trend = data?.trend_bulanan || [];
-  const kategori = data?.kategori || [];
+  const kategori = (data?.kategori || []).map(k => ({ ...k, jenis_kerosakan: displayCategory(k.jenis_kerosakan) }));
   const zon = data?.zon || [];
   const kontraktor = data?.kontraktor || [];
   const statusDist = data?.status_distribusi || [];
