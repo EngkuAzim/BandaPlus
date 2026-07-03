@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { UploadCloud, FileText, MapPin, Send, Loader2, Image as ImageIcon, Map as MapIcon, ChevronRight, ChevronLeft, CheckCircle, Navigation, MapPinned, PencilLine } from 'lucide-react';
+import { UploadCloud, FileText, MapPin, Send, Loader2, Image as ImageIcon, Map as MapIcon, ChevronRight, ChevronLeft, CheckCircle, Navigation, MapPinned, PencilLine, BrainCircuit } from 'lucide-react';
 import { toast } from 'sonner';
 import Sidebar from './Sidebar';
 import exifr from 'exifr';
@@ -124,9 +124,17 @@ function LaporAduan() {
       const id = res.data.scan_id;
       setScanId(id);
       
+      // Start a timeout for the AI response in case AI service is offline/broken
+      const timeoutId = setTimeout(() => {
+        setIsScanning(false);
+        toast.info('AI Service Offline', { description: 'AI analysis is currently unavailable. Please select the category manually and proceed.' });
+        echo.leaveChannel(`scans.${id}`);
+      }, 15000); // 15 seconds timeout
+      
       // Listen to the WebSocket channel for this specific scan ID
       echo.channel(`scans.${id}`)
         .listen('.ScanCompleted', (e) => {
+          clearTimeout(timeoutId);
           console.log("WebSocket Broadcast Received!", e);
           handleScanCompleted(e.scanData);
           echo.leaveChannel(`scans.${id}`);
@@ -134,7 +142,7 @@ function LaporAduan() {
 
     } catch (error) {
       setIsScanning(false);
-      toast.error('AI Upload Failed', { description: 'Please try again.' });
+      toast.info('AI Service Offline', { description: 'AI analysis is currently unavailable. Please select the category manually and proceed.' });
     }
   };
 
@@ -386,6 +394,33 @@ function LaporAduan() {
                                 )}
                             </div>
                             <p className="text-xs text-slate-500 text-center">Use this reference photo to help complete the damage report details.</p>
+
+                            {/* Show AI Prediction Data to User */}
+                            {aiPredictions && aiPredictions.length > 0 && (
+                                <motion.div 
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="mt-6 bg-slate-900 border border-slate-800 rounded-3xl p-5 shadow-lg relative overflow-hidden"
+                                >
+                                    <div className="absolute top-0 right-0 p-4 opacity-10">
+                                        <BrainCircuit className="w-20 h-20 text-teal-400" />
+                                    </div>
+                                    <h4 className="text-[10px] font-black text-teal-400 uppercase tracking-widest mb-4 flex items-center gap-2 relative z-10">
+                                        <BrainCircuit className="w-4 h-4" /> BANDA+ AI Analysis Data
+                                    </h4>
+                                    <div className="space-y-3 relative z-10">
+                                        {aiPredictions.map((pred, idx) => (
+                                            <div key={idx} className="flex justify-between items-center text-sm border-b border-slate-800 pb-2 last:border-0 last:pb-0">
+                                                <span className="font-bold text-slate-300 capitalize">{displayCategory(pred.class) || pred.class}</span>
+                                                <span className="font-black text-teal-400 bg-teal-400/10 px-2 py-0.5 rounded text-xs">{Math.round(pred.confidence * 100)}%</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <p className="text-[9px] text-slate-500 mt-4 leading-relaxed relative z-10">
+                                        The AI automatically processes your image to determine the issue category. The highest confidence result is pre-selected.
+                                    </p>
+                                </motion.div>
+                            )}
                         </div>
                     </div>
 
