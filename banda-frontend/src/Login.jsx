@@ -56,59 +56,39 @@ const Login = () => {
     return (
         <div className="min-h-screen bg-white flex font-sans selection:bg-teal-500/20">
             
-            {/* Left Side: Branding (High Contrast Slate) */}
-            <div className="hidden lg:flex w-1/2 bg-slate-900 relative overflow-hidden flex-col justify-between p-12">
+            {/* Left Side: Branding (Image with Overlay) */}
+            <div 
+                className="hidden lg:flex w-1/2 relative overflow-hidden flex-col justify-end p-16 bg-cover bg-center"
+                style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop")' }}
+            >
+                {/* Dark Overlay */}
+                <div className="absolute inset-0 bg-slate-900/80 mix-blend-multiply z-0 pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent z-0" />
                 
-                {/* Animated Orbs */}
-                <div className="absolute inset-0 z-0 pointer-events-none">
-                    <motion.div 
-                        animate={{ y: [-20, 20, -20], opacity: [0.15, 0.25, 0.15] }}
-                        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-                        className="absolute top-[-10%] left-[-10%] w-[600px] h-[600px] rounded-full bg-teal-500/20 blur-[120px]" 
-                    />
-                    <motion.div 
-                        animate={{ y: [20, -20, 20], opacity: [0.1, 0.2, 0.1] }}
-                        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                        className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] rounded-full bg-emerald-500/20 blur-[120px]" 
-                    />
-                </div>
-                
-                <Link to="/" className="relative z-10 flex items-center gap-3 w-fit">
-                    <div className="w-10 h-10 bg-white/10 backdrop-blur-md rounded-xl flex items-center justify-center text-white text-xl border border-white/20 shadow-lg">🏛️</div>
-                    <span className="text-2xl font-black text-white tracking-tight">BANDA<span className="text-teal-400">+</span></span>
-                </Link>
-
-                <div className="relative z-10 mt-20">
-                    <h2 className="text-4xl md:text-5xl font-black text-white mb-6 leading-[1.1] tracking-tight">
-                        Welcome Back to<br/>
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-400">
-                            the Smart Ecosystem.
-                        </span>
+                <div className="relative z-10 mb-8">
+                    <h2 className="text-4xl md:text-5xl font-black text-white mb-6 leading-[1.2] tracking-tight">
+                        Track your<br/>
+                        infrastructure complaints.
                     </h2>
-                    <p className="text-slate-400 text-lg max-w-md leading-relaxed font-medium">
-                        Monitor complaint statuses, manage maintenance work orders, and keep Ampang Jaya sustainable and well-maintained.
+                    <p className="text-teal-400 text-sm font-bold tracking-[0.2em] uppercase">
+                        SIMPLE • EFFICIENT • DETAILED
                     </p>
                 </div>
-
-                {/* Trust/Testimonial Card */}
-                <ReviewCarousel />
             </div>
 
             {/* Right Side: Form (Bright & Clean) */}
-            <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 relative z-10">
+            <div className="w-full lg:w-1/2 flex flex-col justify-center p-8 sm:p-12 lg:p-20 relative z-10 bg-slate-50">
                 <motion.div 
                     variants={containerVariants}
                     initial="hidden"
                     animate="visible"
-                    className="w-full max-w-md"
+                    className="w-full max-w-md mx-auto"
                 >
-                    <motion.div variants={itemVariants} className="lg:hidden flex items-center gap-2 mb-10">
-                        <div className="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center text-white text-sm shadow-md">🏛️</div>
-                        <span className="font-black text-xl text-slate-900">BANDA<span className="text-teal-600">+</span></span>
+                    <motion.div variants={itemVariants} className="flex flex-col mb-10 items-center lg:items-start text-center lg:text-left">
+                        <img src="https://upload.wikimedia.org/wikipedia/ms/a/a2/Logo_Majlis_Perbandaran_Ampang_Jaya.png" alt="MPAJ Logo" className="h-16 mb-8 object-contain" />
+                        <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-3">Sign In</h1>
+                        <p className="text-slate-500 font-medium">Enter your account details to proceed.</p>
                     </motion.div>
-
-                    <motion.h1 variants={itemVariants} className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-2">Sign In.</motion.h1>
-                    <motion.p variants={itemVariants} className="text-slate-500 font-medium mb-10">Please enter your account credentials.</motion.p>
 
                     <form onSubmit={handleSubmit} className="space-y-5">
                         <motion.div variants={itemVariants} className="space-y-2">

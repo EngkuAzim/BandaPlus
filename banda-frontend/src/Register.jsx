@@ -79,57 +79,33 @@ const Register = () => {
     return (
         <div className="min-h-screen bg-white flex font-sans selection:bg-teal-500/20">
             
-            {/* Left Side: Branding (High Contrast Slate) */}
-            <div className="hidden lg:flex w-1/2 bg-slate-900 relative overflow-hidden flex-col justify-between p-12 border-r border-slate-200">
+            {/* Left Side: Branding (Image with Overlay) */}
+            <div 
+                className="hidden lg:flex w-1/2 relative overflow-hidden flex-col justify-end p-16 bg-cover bg-center border-r border-slate-200"
+                style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop")' }}
+            >
+                {/* Dark Overlay */}
+                <div className="absolute inset-0 bg-slate-900/80 mix-blend-multiply z-0 pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent z-0" />
                 
-                {/* Animated Orbs */}
-                <div className="absolute inset-0 z-0 pointer-events-none">
-                    <motion.div 
-                        animate={{ y: [-20, 20, -20], opacity: [0.15, 0.25, 0.15] }}
-                        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-                        className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] rounded-full bg-teal-500/20 blur-[120px]" 
-                    />
-                    <motion.div 
-                        animate={{ y: [20, -20, 20], opacity: [0.1, 0.2, 0.1] }}
-                        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                        className="absolute bottom-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-emerald-500/20 blur-[120px]" 
-                    />
-                </div>
-                
-                <Link to="/" className="relative z-10 flex items-center gap-3 w-fit">
-                    <div className="w-10 h-10 bg-white/10 backdrop-blur-md rounded-xl flex items-center justify-center text-white text-xl border border-white/20 shadow-lg">🏛️</div>
-                    <span className="text-2xl font-black text-white tracking-tight">BANDA<span className="text-teal-400">+</span></span>
-                </Link>
-
-                <div className="relative z-10 mt-20">
-                    <h2 className="text-4xl md:text-5xl font-black text-white mb-6 leading-[1.1] tracking-tight">
-                        Join the Smart<br/>
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-emerald-400">
-                            Community Initiative.
-                        </span>
+                <div className="relative z-10 mb-8">
+                    <h2 className="text-4xl md:text-5xl font-black text-white mb-6 leading-[1.2] tracking-tight">
+                        Track your<br/>
+                        infrastructure complaints.
                     </h2>
-                    <p className="text-slate-400 text-lg max-w-md leading-relaxed font-medium">
-                        Register your free account today and take part in keeping Ampang Jaya safe, responsive, and well-maintained.
+                    <p className="text-teal-400 text-sm font-bold tracking-[0.2em] uppercase">
+                        SIMPLE • EFFICIENT • DETAILED
                     </p>
-                </div>
-
-                <div className="relative z-10 mt-auto bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 max-w-md shadow-2xl">
-                    <div className="flex items-center gap-4 mb-2">
-                        <Users className="w-8 h-8 text-teal-400" />
-                        <h3 className="text-white font-bold">15,000+ Residents</h3>
-                    </div>
-                    <p className="text-slate-400 text-sm font-medium">Have joined the BANDA+ ecosystem in Ampang Jaya.</p>
                 </div>
             </div>
 
             {/* Right Side: Form Wizard (Bright & Clean) */}
-            <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 relative z-10 overflow-y-auto">
-                <div className="w-full max-w-md">
+            <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 relative z-10 overflow-y-auto bg-slate-50">
+                <div className="w-full max-w-md mx-auto">
                     
-                    {/* Mobile Logo */}
-                    <div className="lg:hidden flex items-center gap-2 mb-8">
-                        <div className="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center text-white text-sm shadow-md">🏛️</div>
-                        <span className="font-black text-xl text-slate-900">BANDA<span className="text-teal-600">+</span></span>
+                    {/* MPAJ Logo */}
+                    <div className="flex flex-col mb-8 items-center lg:items-start text-center lg:text-left">
+                        <img src="https://upload.wikimedia.org/wikipedia/ms/a/a2/Logo_Majlis_Perbandaran_Ampang_Jaya.png" alt="MPAJ Logo" className="h-16 mb-2 object-contain" />
                     </div>
 
                     {/* Wizard Progress Bar */}
