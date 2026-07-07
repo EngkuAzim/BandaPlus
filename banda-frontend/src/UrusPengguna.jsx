@@ -135,14 +135,14 @@ function UrusPengguna() {
             <h2 className="text-2xl font-black text-slate-900 tracking-tight">User Directory</h2>
             <p className="text-sm text-slate-500 font-medium mt-1">Manage accounts for MPAJ officers, contractors, and community users</p>
           </div>
-          <button onClick={() => handleOpenModal()} className="bg-teal-600 hover:bg-teal-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-teal-200 transition-all flex items-center gap-2">
+          <button onClick={() => handleOpenModal()} className="bg-blue-800 hover:bg-blue-900 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-blue-200 transition-all flex items-center gap-2">
             <Plus className="w-5 h-5" /> Add New Account
           </button>
         </header>
 
         <main className="flex-1 overflow-x-hidden overflow-y-auto p-8">
           {isLoading ? (
-            <div className="flex items-center justify-center h-full"><Loader2 className="w-10 h-10 animate-spin text-teal-600" /></div>
+            <div className="flex items-center justify-center h-full"><Loader2 className="w-10 h-10 animate-spin text-blue-800" /></div>
           ) : (
             <div className="max-w-7xl mx-auto space-y-8">
               
@@ -171,11 +171,11 @@ function UrusPengguna() {
                 <div className="p-5 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row gap-4 justify-between items-center">
                   <div className="relative w-full sm:w-80">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <input type="text" placeholder="Search name or email..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-teal-500 transition-colors" />
+                    <input type="text" placeholder="Search name or email..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-800 transition-colors" />
                   </div>
                   <div className="relative w-full sm:w-auto">
                     <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <select value={filterRole} onChange={(e) => setFilterRole(e.target.value)} className="w-full sm:w-auto pl-9 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:border-teal-500 appearance-none font-medium text-slate-700 cursor-pointer">
+                    <select value={filterRole} onChange={(e) => setFilterRole(e.target.value)} className="w-full sm:w-auto pl-9 pr-8 py-2 bg-white border border-slate-200 rounded-xl text-sm outline-none focus:border-blue-800 appearance-none font-medium text-slate-700 cursor-pointer">
                       <option value="Semua">All Roles</option>
                       <option value="pentadbir">MPAJ Admin</option>
                       <option value="pegawai">Department Officer</option>
@@ -201,7 +201,7 @@ function UrusPengguna() {
                         <tr key={user.id} className="hover:bg-slate-50/80 transition-colors group">
                           <td className="p-5">
                             <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-teal-100 to-teal-50 flex items-center justify-center text-teal-700 font-bold border border-teal-200 uppercase">
+                              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-100 to-blue-50 flex items-center justify-center text-blue-800 font-bold border border-blue-200 uppercase">
                                 {user.name.charAt(0)}
                               </div>
                               <div>
@@ -231,7 +231,7 @@ function UrusPengguna() {
                             }`} title={user.status === 'tidak_aktif' ? 'Activate Account' : 'Deactivate Account'}>
                               <Power className="w-4 h-4" />
                             </button>
-                            <button onClick={() => handleOpenModal(user)} className="text-slate-400 hover:text-teal-600 p-2 bg-white hover:bg-teal-50 rounded-lg transition-colors border border-transparent hover:border-teal-100">
+                            <button onClick={() => handleOpenModal(user)} className="text-slate-400 hover:text-blue-800 p-2 bg-white hover:bg-blue-50 rounded-lg transition-colors border border-transparent hover:border-blue-100">
                               <Edit2 className="w-4 h-4" />
                             </button>
                           </td>
@@ -262,21 +262,21 @@ function UrusPengguna() {
                 <form onSubmit={handleSave} className="p-6 space-y-4">
                   <div>
                     <label className="text-xs font-bold text-slate-600 uppercase ml-1">Full Name</label>
-                    <input type="text" required value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-teal-500 outline-none transition-colors" />
+                    <input type="text" required value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-blue-800 outline-none transition-colors" />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="text-xs font-bold text-slate-600 uppercase ml-1">Email Address</label>
-                      <input type="email" required value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-teal-500 outline-none transition-colors" />
+                      <input type="email" required value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-blue-800 outline-none transition-colors" />
                     </div>
                     <div>
                       <label className="text-xs font-bold text-slate-600 uppercase ml-1">Phone Number</label>
-                      <input type="text" value={formData.no_telefon} onChange={(e) => setFormData({...formData, no_telefon: e.target.value})} className="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-teal-500 outline-none transition-colors" />
+                      <input type="text" value={formData.no_telefon} onChange={(e) => setFormData({...formData, no_telefon: e.target.value})} className="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-blue-800 outline-none transition-colors" />
                     </div>
                   </div>
                   <div>
                     <label className="text-xs font-bold text-slate-600 uppercase ml-1">System Role Setting</label>
-                    <select value={formData.peranan} onChange={(e) => setFormData({...formData, peranan: e.target.value, id_jabatan: e.target.value !== 'pegawai' ? '' : formData.id_jabatan})} className="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-teal-500 outline-none font-bold text-slate-700 transition-colors">
+                    <select value={formData.peranan} onChange={(e) => setFormData({...formData, peranan: e.target.value, id_jabatan: e.target.value !== 'pegawai' ? '' : formData.id_jabatan})} className="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-blue-800 outline-none font-bold text-slate-700 transition-colors">
                       <option value="komuniti">Community (General User)</option>
                       <option value="kontraktor">Contractor (Job Orders Access)</option>
                       <option value="pegawai">Department Officer (Budget Access)</option>
@@ -287,8 +287,8 @@ function UrusPengguna() {
                   {/* Pilihan Jabatan (Hanya muncul jika peranan == 'pegawai') */}
                   {formData.peranan === 'pegawai' && (
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
-                      <label className="text-xs font-bold text-teal-600 uppercase ml-1">Assigned Department (Required for Officer)</label>
-                      <select required value={formData.id_jabatan} onChange={(e) => setFormData({...formData, id_jabatan: e.target.value})} className="w-full mt-1 px-4 py-3 bg-teal-50 border border-teal-200 rounded-xl focus:border-teal-500 outline-none font-bold text-teal-800 transition-colors">
+                      <label className="text-xs font-bold text-blue-800 uppercase ml-1">Assigned Department (Required for Officer)</label>
+                      <select required value={formData.id_jabatan} onChange={(e) => setFormData({...formData, id_jabatan: e.target.value})} className="w-full mt-1 px-4 py-3 bg-blue-50 border border-blue-200 rounded-xl focus:border-blue-800 outline-none font-bold text-blue-800 transition-colors">
                         <option value="">-- Select Department --</option>
                         {jabatansList.map(jab => (
                           <option key={jab.id_jabatan} value={jab.id_jabatan}>{jab.nama_jabatan}</option>
@@ -298,12 +298,12 @@ function UrusPengguna() {
                   )}
                   <div>
                     <label className="text-xs font-bold text-slate-600 uppercase ml-1">Password {editMode && <span className="text-slate-400 normal-case font-normal">(Leave blank to keep unchanged)</span>}</label>
-                    <input type="password" required={!editMode} value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} placeholder="********" className="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-teal-500 outline-none transition-colors" />
+                    <input type="password" required={!editMode} value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} placeholder="********" className="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-blue-800 outline-none transition-colors" />
                   </div>
 
                   <div className="pt-4 mt-6 border-t border-slate-100 flex gap-3">
                     <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-3.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors">Cancel</button>
-                    <button type="submit" disabled={isSaving} className="flex-[2] py-3.5 px-4 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl transition-all shadow-md flex justify-center items-center gap-2">
+                    <button type="submit" disabled={isSaving} className="flex-[2] py-3.5 px-4 bg-blue-800 hover:bg-blue-900 text-white font-bold rounded-xl transition-all shadow-md flex justify-center items-center gap-2">
                       {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />} Save Record
                     </button>
                   </div>

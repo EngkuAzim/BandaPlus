@@ -70,14 +70,14 @@ function TetapanSistem() {
     <button 
       type="button"
       onClick={onChange}
-      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 ${checked ? 'bg-teal-600' : 'bg-slate-200'}`}
+      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-800 focus:ring-offset-2 ${checked ? 'bg-blue-800' : 'bg-slate-200'}`}
     >
       <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
     </button>
   );
 
   if (isLoading) {
-    return <div className="flex h-screen items-center justify-center bg-slate-50"><Loader2 className="w-10 h-10 animate-spin text-teal-600" /></div>;
+    return <div className="flex h-screen items-center justify-center bg-slate-50"><Loader2 className="w-10 h-10 animate-spin text-blue-800" /></div>;
   }
 
   const containerVariants = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } };
@@ -96,7 +96,7 @@ function TetapanSistem() {
           <button 
             onClick={handleSave} 
             disabled={isSaving}
-            className="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-teal-200 transition-all flex items-center gap-2 disabled:opacity-50"
+            className="bg-blue-800 hover:bg-blue-900 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-blue-200 transition-all flex items-center gap-2 disabled:opacity-50"
           >
             {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             Save Configuration
@@ -109,7 +109,7 @@ function TetapanSistem() {
             {/* PANEL 1: AI SMART VISION (YOLOv8) */}
             <motion.section variants={itemVariants} className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
               <div className="px-6 py-4 border-b border-slate-100 bg-slate-50 flex items-center gap-3">
-                <BrainCircuit className="w-5 h-5 text-teal-600" />
+                <BrainCircuit className="w-5 h-5 text-blue-800" />
                 <h3 className="font-bold text-slate-800">Smart Vision Engine (YOLOv8)</h3>
               </div>
               <div className="p-6 space-y-6">
@@ -124,14 +124,14 @@ function TetapanSistem() {
                 <div className="pt-4 border-t border-slate-100">
                   <div className="flex justify-between items-center mb-2">
                     <label className="text-sm font-bold text-slate-900">Confidence Score Threshold</label>
-                    <span className="text-sm font-black text-teal-600 bg-teal-50 px-3 py-1 rounded-lg">{form.aiTahapKeyakinan}%</span>
+                    <span className="text-sm font-black text-blue-800 bg-blue-50 px-3 py-1 rounded-lg">{form.aiTahapKeyakinan}%</span>
                   </div>
                   <p className="text-xs text-slate-500 mb-4">Complaint images scoring below this threshold will be flagged as 'Low Priority' or 'Unclear'.</p>
                   <input 
                     type="range" min="50" max="95" step="5"
                     value={form.aiTahapKeyakinan} 
                     onChange={(e) => setForm({...form, aiTahapKeyakinan: Number(e.target.value)})}
-                    className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-teal-600"
+                    className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-800"
                     disabled={!form.aiAktif}
                   />
                   <div className="flex justify-between text-xs font-bold text-slate-400 mt-2">
@@ -155,7 +155,7 @@ function TetapanSistem() {
                     <input 
                       type="number" min="5" max="100"
                       value={form.klusterRadius} onChange={(e) => setForm({...form, klusterRadius: Number(e.target.value)})}
-                      className="w-full pl-4 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-teal-500 outline-none font-bold text-slate-700"
+                      className="w-full pl-4 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-blue-800 outline-none font-bold text-slate-700"
                     />
                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">m</span>
                   </div>
@@ -167,7 +167,7 @@ function TetapanSistem() {
                     <input 
                       type="number" min="10" max="200"
                       value={form.geoFencingRadius} onChange={(e) => setForm({...form, geoFencingRadius: Number(e.target.value)})}
-                      className="w-full pl-4 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-teal-500 outline-none font-bold text-slate-700"
+                      className="w-full pl-4 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-blue-800 outline-none font-bold text-slate-700"
                     />
                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">m</span>
                   </div>

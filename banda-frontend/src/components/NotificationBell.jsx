@@ -86,7 +86,7 @@ function NotificationBell() {
     <div className="relative">
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-slate-400 hover:text-teal-600 hover:bg-slate-100 rounded-full transition-colors"
+        className="relative p-2 text-slate-400 hover:text-blue-800 hover:bg-slate-100 rounded-full transition-colors"
       >
         <Bell className="w-6 h-6" />
         {unreadCount > 0 && (
@@ -101,7 +101,7 @@ function NotificationBell() {
             <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
               <h4 className="font-black text-slate-800 text-sm">Notifications</h4>
               {unreadCount > 0 && (
-                <button onClick={markAllAsRead} className="text-xs font-bold text-teal-600 hover:text-teal-700">Mark All as Read</button>
+                <button onClick={markAllAsRead} className="text-xs font-bold text-blue-800 hover:text-blue-900">Mark All as Read</button>
               )}
             </div>
             <div className="max-h-96 overflow-y-auto">
@@ -110,14 +110,14 @@ function NotificationBell() {
               ) : (
                 <div className="divide-y divide-slate-50">
                   {notifications.map(n => (
-                    <div key={n.id} className={`p-4 hover:bg-slate-50 transition-colors ${!n.status_baca ? 'bg-teal-50/50' : ''}`}>
+                    <div key={n.id} className={`p-4 hover:bg-slate-50 transition-colors ${!n.status_baca ? 'bg-blue-50/50' : ''}`}>
                       <div className="flex justify-between items-start gap-3">
                         <div>
                           <p className={`text-sm ${!n.status_baca ? 'font-bold text-slate-900' : 'font-medium text-slate-600'}`}>{n.mesej}</p>
                           <p className="text-[10px] text-slate-400 font-bold mt-1 uppercase tracking-wider">{new Date(n.created_at).toLocaleString('en-GB')}</p>
                         </div>
                         {!n.status_baca && (
-                          <button onClick={() => markAsRead(n.id)} className="text-teal-600 p-1 hover:bg-teal-100 rounded-full transition-colors" title="Mark as read">
+                          <button onClick={() => markAsRead(n.id)} className="text-blue-800 p-1 hover:bg-blue-100 rounded-full transition-colors" title="Mark as read">
                             <Check className="w-4 h-4" />
                           </button>
                         )}

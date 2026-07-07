@@ -15,8 +15,8 @@ const ImageUploader = ({
 
     return (
         <div className="flex flex-col items-center text-center w-full">
-            <div className="w-16 h-16 bg-teal-50 rounded-2xl flex items-center justify-center mb-4">
-                <ImageIcon className="w-8 h-8 text-teal-600" />
+            <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mb-4">
+                <ImageIcon className="w-8 h-8 text-blue-800" />
             </div>
             <h3 className="text-2xl font-black text-slate-900 mb-2">Upload Photo Evidence</h3>
             <p className="text-slate-500 mb-8 max-w-md">
@@ -25,8 +25,8 @@ const ImageUploader = ({
 
             <div className="w-full max-w-lg aspect-square">
                 {!imagePreview ? (
-                <label className="w-full h-full border-2 border-dashed border-slate-300 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:border-teal-500 hover:bg-teal-50/50 transition-colors group">
-                    <UploadCloud className="w-12 h-12 text-teal-600 mb-4 group-hover:scale-110 transition-transform" />
+                <label className="w-full h-full border-2 border-dashed border-slate-300 rounded-3xl flex flex-col items-center justify-center cursor-pointer hover:border-blue-800 hover:bg-blue-50/50 transition-colors group">
+                    <UploadCloud className="w-12 h-12 text-blue-800 mb-4 group-hover:scale-110 transition-transform" />
                     <p className="font-bold text-slate-700 text-lg">Click to Upload Photo</p>
                     <p className="text-sm text-slate-400 mt-2">Format: JPG, PNG (Max 5MB)</p>
                     <input type="file" accept="image/jpeg, image/png" className="hidden" onChange={handleImageChange} />
@@ -38,7 +38,7 @@ const ImageUploader = ({
                     {isScanning && (
                     <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm z-10 flex flex-col items-center justify-center overflow-hidden">
                         <motion.div 
-                        className="absolute left-0 right-0 h-0.5 bg-teal-400 shadow-[0_0_15px_4px_rgba(45,212,191,0.8)]"
+                        className="absolute left-0 right-0 h-0.5 bg-blue-400 shadow-[0_0_15px_4px_rgba(59,130,246,0.8)]"
                         animate={{ top: ["0%", "100%", "0%"] }}
                         transition={{ repeat: Infinity, duration: 2.5, ease: "linear" }}
                         />
@@ -47,8 +47,8 @@ const ImageUploader = ({
                         transition={{ repeat: Infinity, duration: 1.5 }}
                         className="flex flex-col items-center z-20"
                         >
-                        <div className="w-16 h-16 rounded-full bg-teal-500/20 border-2 border-teal-400 flex items-center justify-center mb-3">
-                            <Loader2 className="w-8 h-8 text-teal-400 animate-spin" />
+                        <div className="w-16 h-16 rounded-full bg-blue-500/20 border-2 border-blue-400 flex items-center justify-center mb-3">
+                            <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
                         </div>
                         <span className="text-white font-bold tracking-widest text-sm uppercase">Analyzing...</span>
                         </motion.div>
@@ -73,7 +73,7 @@ const ImageUploader = ({
                 >
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center">
+                            <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-800 flex items-center justify-center">
                                 <Sparkles className="w-5 h-5" />
                             </div>
                             <div>
@@ -90,7 +90,7 @@ const ImageUploader = ({
                             let badgeText, badgeColor;
                             if (pct >= 70) {
                                 badgeText = 'High confidence';
-                                badgeColor = 'bg-teal-100 text-teal-700 border-teal-200';
+                                badgeColor = 'bg-blue-100 text-blue-800 border-blue-200';
                             } else if (pct >= 40) {
                                 badgeText = 'Needs confirmation';
                                 badgeColor = 'bg-amber-100 text-amber-700 border-amber-200';
@@ -122,7 +122,7 @@ const ImageUploader = ({
                             }
                             return (
                                 <div className={`flex items-start gap-2 p-3 rounded-xl border ${pct >= 70 ? 'bg-slate-50 border-slate-100' : 'bg-slate-50 border-slate-200'}`}>
-                                    <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${pct >= 70 ? 'text-teal-600' : 'text-slate-500'}`} />
+                                    <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${pct >= 70 ? 'text-blue-800' : 'text-slate-500'}`} />
                                     <p className="text-sm text-slate-600 font-medium">{msg}</p>
                                 </div>
                             );

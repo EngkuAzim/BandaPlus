@@ -11,7 +11,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
 
-const CHART_COLORS = ['#0d9488', '#f59e0b', '#10b981', '#f43f5e'];
+const CHART_COLORS = ['#1e40af', '#f59e0b', '#10b981', '#f43f5e'];
 
 function StatCard({ icon: Icon, label, value, change, color, bgColor, borderColor }) {
   const isPositive = change > 0;
@@ -68,7 +68,7 @@ function AdminDashboard({ userData, stats }) {
       <motion.div variants={itemVariants} className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
         <div>
           <h3 className="text-2xl font-black text-slate-800">
-            Control Center <span className="text-teal-600 italic">BANDA+</span>
+            Control Center <span className="text-blue-800 italic">BANDA+</span>
           </h3>
           <p className="text-sm font-medium text-slate-500 mt-1">
             Monitor complaint reviews, damage clusters, and system performance
@@ -77,13 +77,13 @@ function AdminDashboard({ userData, stats }) {
         <div className="flex gap-3">
           <button
             onClick={() => navigate('/peta-kluster')}
-            className="bg-teal-50 hover:bg-teal-100 text-teal-700 px-5 py-2.5 rounded-xl text-sm font-bold border border-teal-200 transition-all flex items-center gap-2"
+            className="bg-blue-50 hover:bg-blue-100 text-blue-800 px-5 py-2.5 rounded-xl text-sm font-bold border border-blue-200 transition-all flex items-center gap-2"
           >
             <MapPin className="w-4 h-4" /> Cluster Map
           </button>
           <button
             onClick={() => navigate('/urus-aduan')}
-            className="bg-slate-900 hover:bg-teal-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-slate-200 transition-all flex items-center gap-2"
+            className="bg-slate-900 hover:bg-blue-800 text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-slate-200 transition-all flex items-center gap-2"
           >
             <ShieldAlert className="w-4 h-4" /> Manage Reports
           </button>
@@ -95,7 +95,7 @@ function AdminDashboard({ userData, stats }) {
         <StatCard
           icon={AlertCircle} label="Pending Review" value={stats?.baru || 0}
           change={stats?.perubahan_baru}
-          color="text-teal-600" bgColor="bg-teal-50" borderColor="border-teal-100"
+          color="text-blue-800" bgColor="bg-blue-50" borderColor="border-blue-100"
         />
         <StatCard
           icon={Clock} label="In Progress" value={stats?.diproses || 0}
@@ -120,7 +120,7 @@ function AdminDashboard({ userData, stats }) {
         <motion.div variants={itemVariants} className="lg:col-span-2 bg-white rounded-3xl p-7 border border-slate-200 shadow-sm">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-teal-50 rounded-2xl flex items-center justify-center text-teal-600 border border-teal-100">
+              <div className="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-800 border border-blue-100">
                 <Activity className="w-5 h-5" />
               </div>
               <div>
@@ -134,15 +134,15 @@ function AdminDashboard({ userData, stats }) {
               <AreaChart data={trendData} margin={{ top: 5, right: 5, bottom: 0, left: -20 }}>
                 <defs>
                   <linearGradient id="colorJumlah" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#0d9488" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#0d9488" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#1e40af" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#1e40af" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                 <XAxis dataKey="name" tick={{ fontSize: 11, fontWeight: 700, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
                 <YAxis allowDecimals={false} tick={{ fontSize: 11, fontWeight: 700, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
                 <Tooltip content={<CustomTooltip />} />
-                <Area type="monotone" dataKey="jumlah" name="Reports" stroke="#0d9488" strokeWidth={3} fill="url(#colorJumlah)" dot={{ fill: '#0d9488', r: 4, strokeWidth: 2, stroke: '#fff' }} />
+                <Area type="monotone" dataKey="jumlah" name="Reports" stroke="#1e40af" strokeWidth={3} fill="url(#colorJumlah)" dot={{ fill: '#1e40af', r: 4, strokeWidth: 2, stroke: '#fff' }} />
               </AreaChart>
             </ResponsiveContainer>
           ) : (
@@ -166,7 +166,7 @@ function AdminDashboard({ userData, stats }) {
             <h4 className="text-4xl font-black text-slate-900 mb-2">{stats?.jumlah_keseluruhan || 0}</h4>
             <div className="flex gap-1.5">
               {[
-                { label: 'New', val: stats?.baru || 0, color: 'bg-teal-500' },
+                { label: 'New', val: stats?.baru || 0, color: 'bg-blue-600' },
                 { label: 'In Progress', val: stats?.diproses || 0, color: 'bg-amber-500' },
                 { label: 'Completed', val: stats?.selesai || 0, color: 'bg-emerald-500' },
               ].map(({ label, val, color }) => {
@@ -221,7 +221,7 @@ function AdminDashboard({ userData, stats }) {
               </ResponsiveContainer>
               <div className="grid grid-cols-2 gap-2 mt-2">
                 {[
-                  { label: 'New', color: '#0d9488', val: stats?.baru || 0 },
+                  { label: 'New', color: '#1e40af', val: stats?.baru || 0 },
                   { label: 'In Progress', color: '#f59e0b', val: stats?.diproses || 0 },
                   { label: 'Completed', color: '#10b981', val: stats?.selesai || 0 },
                   { label: 'Rejected', color: '#f43f5e', val: stats?.ditolak || 0 },
@@ -241,7 +241,7 @@ function AdminDashboard({ userData, stats }) {
         {/* Aktiviti Saringan Card */}
         <motion.div variants={itemVariants} className="bg-white rounded-3xl p-7 border border-slate-200 shadow-sm">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-teal-50 rounded-2xl flex items-center justify-center text-teal-600 border border-teal-100">
+            <div className="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-800 border border-blue-100">
               <ShieldAlert className="w-5 h-5" />
             </div>
             <h4 className="text-base font-black text-slate-900">Review Activity</h4>
@@ -250,7 +250,7 @@ function AdminDashboard({ userData, stats }) {
             <ShieldAlert className="w-12 h-12 text-slate-300 mx-auto mb-3" />
             <h5 className="font-bold text-slate-700 mb-1">{stats?.baru || 0} new reports require attention</h5>
             <p className="text-sm text-slate-500 mb-5">Requires Admin review to assign to the responsible Department.</p>
-            <button onClick={() => navigate('/urus-aduan')} className="text-teal-600 font-bold text-sm bg-teal-50 px-5 py-2.5 rounded-xl hover:bg-teal-100 transition-colors inline-flex items-center gap-2">
+            <button onClick={() => navigate('/urus-aduan')} className="text-blue-800 font-bold text-sm bg-blue-50 px-5 py-2.5 rounded-xl hover:bg-blue-100 transition-colors inline-flex items-center gap-2">
               Review Now <ArrowRight className="w-4 h-4" />
             </button>
           </div>

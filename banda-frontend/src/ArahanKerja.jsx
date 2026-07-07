@@ -110,12 +110,12 @@ function ArahanKerja() {
       <div className="flex-1 flex flex-col overflow-hidden">
         <header className="px-8 py-6 bg-white border-b border-slate-200">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-teal-50 rounded-2xl text-teal-600">
+            <div className="p-3 bg-blue-50 rounded-2xl text-blue-800">
               <Building2 className="w-6 h-6" />
             </div>
             <div>
               <h2 className="text-2xl font-black text-slate-900">Work Order Management</h2>
-              <p className="text-sm text-slate-500 font-medium italic">BANDA<span className="text-teal-600">+</span> Department Officer Operations</p>
+              <p className="text-sm text-slate-500 font-medium italic">BANDA<span className="text-blue-800">+</span> Department Officer Operations</p>
             </div>
           </div>
         </header>
@@ -129,7 +129,7 @@ function ArahanKerja() {
             </h4>
             
             {isLoading ? (
-              <div className="flex justify-center py-20"><Loader2 className="w-10 h-10 animate-spin text-teal-600" /></div>
+              <div className="flex justify-center py-20"><Loader2 className="w-10 h-10 animate-spin text-blue-800" /></div>
             ) : (
               <div className="space-y-4">
                 {aduans.map(aduan => {
@@ -145,8 +145,8 @@ function ArahanKerja() {
                       animate={{ opacity: 1, y: 0 }}
                       className={`rounded-3xl border-2 transition-all shadow-sm overflow-hidden ${
                         isSelected 
-                        ? 'border-teal-500 ring-4 ring-teal-50' 
-                        : 'border-slate-100 hover:border-teal-200'
+                        ? 'border-blue-600 ring-4 ring-blue-50' 
+                        : 'border-slate-100 hover:border-blue-200'
                       } bg-white`}
                     >
                       {/* Main card — click to select for assignment */}
@@ -155,7 +155,7 @@ function ArahanKerja() {
                         onClick={() => handleSelectAduan(aduan)}
                       >
                         <div className="flex justify-between items-start mb-3">
-                          <span className="font-mono text-xs font-black text-teal-600">{aduan.id_aduan}</span>
+                          <span className="font-mono text-xs font-black text-blue-800">{aduan.id_aduan}</span>
                           <span className="px-2 py-1 bg-amber-100 text-amber-700 text-[10px] font-black rounded uppercase">Officer Action</span>
                         </div>
 
@@ -192,7 +192,7 @@ function ArahanKerja() {
                               {isExpanded ? 'Close Cluster' : 'View Cluster'}
                             </button>
                           ) : (
-                            <span className="text-teal-600 font-black text-xs flex items-center gap-1">Assign Contractor →</span>
+                            <span className="text-blue-800 font-black text-xs flex items-center gap-1">Assign Contractor →</span>
                           )}
                         </div>
                       </div>
@@ -285,7 +285,7 @@ function ArahanKerja() {
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                         <div className="absolute bottom-6 left-8">
                           <h3 className="text-white font-black text-xl leading-none">{selectedAduan.id_aduan}</h3>
-                          <p className="text-teal-300 text-xs font-bold mt-1 uppercase tracking-widest">{displayCategory(selectedAduan.jenis_kerosakan)}</p>
+                          <p className="text-blue-300 text-xs font-bold mt-1 uppercase tracking-widest">{displayCategory(selectedAduan.jenis_kerosakan)}</p>
                           {selectedAduan.anak_aduan_count > 0 && (
                             <span className="mt-2 inline-flex items-center gap-1 px-2 py-1 bg-purple-600/80 text-white text-[10px] font-bold rounded-lg">
                               <Layers className="w-3 h-3" />
@@ -322,7 +322,7 @@ function ArahanKerja() {
                         <select 
                           required value={form.id_kontraktor}
                           onChange={(e) => setForm({...form, id_kontraktor: e.target.value})}
-                          className="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-teal-500 focus:bg-white transition-all font-bold text-slate-700"
+                          className="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-blue-800 focus:bg-white transition-all font-bold text-slate-700"
                         >
                           <option value="">-- Select Contractor --</option>
                           {senaraiKontraktor.map(k => <option key={k.id} value={k.id}>{k.name} ({k.no_pengguna})</option>)}
@@ -335,7 +335,7 @@ function ArahanKerja() {
                           <input 
                             type="date" required value={form.tarikh_jangkaan_siap}
                             onChange={(e) => setForm({...form, tarikh_jangkaan_siap: e.target.value})}
-                            className="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-teal-500 focus:bg-white transition-all font-bold text-slate-700"
+                            className="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-blue-800 focus:bg-white transition-all font-bold text-slate-700"
                           />
                         </div>
                         <div>
@@ -344,7 +344,7 @@ function ArahanKerja() {
                             type="number" min="0" step="0.01" required value={form.kos_anggaran}
                             onChange={(e) => setForm({...form, kos_anggaran: e.target.value})}
                             placeholder="Example: 1500.00"
-                            className="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-teal-500 focus:bg-white transition-all font-bold text-slate-700"
+                            className="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-blue-800 focus:bg-white transition-all font-bold text-slate-700"
                           />
                         </div>
                       </div>
@@ -354,7 +354,7 @@ function ArahanKerja() {
                         <textarea 
                           rows="3" value={form.nota_pegawai}
                           onChange={(e) => setForm({...form, nota_pegawai: e.target.value})}
-                          className="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-teal-500 focus:bg-white transition-all text-sm font-medium"
+                          className="w-full px-6 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-blue-800 focus:bg-white transition-all text-sm font-medium"
                           placeholder="Additional repair specifications or notes..."
                         />
                       </div>
@@ -374,8 +374,8 @@ function ArahanKerja() {
                           <span className="font-bold text-rose-500">- RM {kosAnggaran.toLocaleString('ms-MY', {minimumFractionDigits: 2})}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className={`text-xs font-bold uppercase tracking-wider ${isOverBudget ? 'text-rose-600' : 'text-teal-600'}`}>Remaining Balance:</span>
-                          <span className={`text-lg font-black ${isOverBudget ? 'text-rose-600' : 'text-teal-600'}`}>RM {bakiSelepas.toLocaleString('ms-MY', {minimumFractionDigits: 2})}</span>
+                          <span className={`text-xs font-bold uppercase tracking-wider ${isOverBudget ? 'text-rose-600' : 'text-blue-800'}`}>Remaining Balance:</span>
+                          <span className={`text-lg font-black ${isOverBudget ? 'text-rose-600' : 'text-blue-800'}`}>RM {bakiSelepas.toLocaleString('ms-MY', {minimumFractionDigits: 2})}</span>
                         </div>
                         {isOverBudget && (
                           <div className="mt-3 flex items-start gap-2 bg-rose-100 p-3 rounded-xl text-rose-700 text-xs font-bold">
@@ -387,7 +387,7 @@ function ArahanKerja() {
 
                       <button 
                         type="submit" disabled={isSaving || !form.id_kontraktor || isOverBudget}
-                        className="w-full bg-slate-900 text-white font-black py-5 rounded-[25px] hover:bg-teal-600 disabled:opacity-50 flex items-center justify-center gap-3 shadow-xl shadow-teal-100 transition-all mt-4"
+                        className="w-full bg-slate-900 text-white font-black py-5 rounded-[25px] hover:bg-blue-800 disabled:opacity-50 flex items-center justify-center gap-3 shadow-xl shadow-blue-100 transition-all mt-4"
                       >
                         {isSaving ? <Loader2 className="animate-spin" /> : <CheckCircle2 />}
                         ISSUE WORK ORDER

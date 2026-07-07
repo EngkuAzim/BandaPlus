@@ -20,10 +20,11 @@ import {
   LayoutDashboard,
   ShieldAlert,
   Search,
-  FileText,
   MapPin
 } from 'lucide-react';
 import NotificationBell from './components/NotificationBell';
+import bandaLogoFull from './assets/banda-logo-full.png';
+import bandaLogoIcon from './assets/banda-logo-icon.png';
 
 const Sidebar = ({ userData }) => {
   const location = useLocation();
@@ -77,43 +78,39 @@ const Sidebar = ({ userData }) => {
       <motion.aside 
         animate={{ width: isCollapsed ? 84 : 290 }}
         transition={springConfig}
-        className="hidden md:flex bg-white shadow-[10px_0_40px_-15px_rgba(0,0,0,0.05)] border-r border-slate-100 flex-col h-full relative z-40 selection:bg-teal-500/20 shrink-0"
+        className="hidden md:flex bg-white shadow-[10px_0_40px_-15px_rgba(0,0,0,0.05)] border-r border-slate-100 flex-col h-full relative z-40 selection:bg-blue-800/20 shrink-0"
       >
-      {/* Collapse Toggle dengan Efek Timbul */}
-      <motion.button 
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute -right-3.5 top-10 bg-white border border-slate-200 shadow-md rounded-full p-1.5 text-slate-400 hover:text-teal-600 hover:border-teal-200 transition-colors z-50 flex items-center justify-center"
+        {/* Butang Lipat Sidebar (Desktop Sahaja) */}
+        <motion.button 
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="absolute -right-3.5 top-10 bg-white border border-slate-200 shadow-md rounded-full p-1.5 text-slate-400 hover:text-blue-800 hover:border-blue-200 transition-colors z-50 flex items-center justify-center"
       >
         {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
       </motion.button>
 
       {/* Brand Logo & Peranan */}
-      <div className={`pt-8 pb-6 px-6 flex items-center ${isCollapsed ? 'justify-center px-0' : 'gap-4'} transition-all duration-300 relative overflow-hidden`}>
+      <div className={`pt-8 pb-6 px-6 flex items-center ${isCollapsed ? 'justify-center px-0' : 'gap-3'} transition-all duration-300 relative overflow-hidden`}>
         {/* Latar Belakang Abstrak Halus di bawah Logo */}
-        <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-teal-50/50 to-transparent -z-10"></div>
+        <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-blue-50/50 to-transparent -z-10"></div>
         
-        <div className="w-11 h-11 rounded-[14px] bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center shadow-lg shadow-teal-500/30 shrink-0 border border-teal-400/20">
-          <span className="text-white text-lg font-black tracking-tighter leading-none">B+</span>
-        </div>
-        
-        <AnimatePresence mode="wait">
-          {!isCollapsed && (
+        {isCollapsed ? (
+          <img src={bandaLogoIcon} alt="BANDA+ Icon" className="w-10 h-10 object-contain shrink-0" />
+        ) : (
+          <AnimatePresence mode="wait">
             <motion.div 
               initial={{ opacity: 0, x: -10 }} 
               animate={{ opacity: 1, x: 0 }} 
               exit={{ opacity: 0, x: -10 }}
               transition={{ duration: 0.2 }}
-              className="whitespace-nowrap overflow-hidden"
+              className="flex flex-col overflow-hidden"
             >
-              <h1 className="text-2xl font-black text-slate-900 tracking-tight leading-none mb-1">
-                BANDA<span className="text-teal-600">+</span>
-              </h1>
-              <p className="text-[10px] font-black text-teal-600/70 uppercase tracking-[0.2em]">{role}</p>
+              <img src={bandaLogoFull} alt="BANDA+ Logo" className="h-10 object-contain mb-1" />
+              <p className="text-[10px] font-black text-amber-500 uppercase tracking-[0.2em] pl-1">{role}</p>
             </motion.div>
-          )}
-        </AnimatePresence>
+          </AnimatePresence>
+        )}
 
         <div className={`transition-all duration-300 ${isCollapsed ? 'hidden' : 'ml-auto'}`}>
           <NotificationBell />
@@ -137,19 +134,19 @@ const Sidebar = ({ userData }) => {
               {isActive && (
                 <motion.div 
                   layoutId="activeSidebarIndicator"
-                  className="absolute inset-0 bg-teal-50 rounded-2xl"
+                  className="absolute inset-0 bg-blue-50 rounded-2xl"
                   transition={springConfig}
                 />
               )}
 
               <div className={`relative flex items-center gap-3.5 py-3.5 px-4 rounded-2xl font-medium transition-all duration-200 z-10 ${
                 isActive 
-                  ? 'text-teal-700 font-bold' 
+                  ? 'text-blue-900 font-bold' 
                   : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
               } ${isCollapsed ? 'justify-center px-0' : ''}`}>
                 
                 <Icon className={`w-5 h-5 shrink-0 transition-all duration-300 ${
-                  isActive ? 'text-teal-600 stroke-[2.5px]' : 'text-slate-400 group-hover:text-slate-600'
+                  isActive ? 'text-blue-800 stroke-[2.5px]' : 'text-slate-400 group-hover:text-slate-600'
                 }`} />
                 
                 <AnimatePresence mode="wait">
@@ -211,10 +208,10 @@ const Sidebar = ({ userData }) => {
         return (
           <Link key={link.name} to={link.path} className="flex flex-col items-center gap-1 relative">
             {isActive && (
-              <motion.div layoutId="mobileActiveIndicator" className="absolute -top-3 w-1.5 h-1.5 rounded-full bg-teal-500" />
+              <motion.div layoutId="mobileActiveIndicator" className="absolute -top-3 w-1.5 h-1.5 rounded-full bg-amber-500" />
             )}
-            <Icon className={`w-6 h-6 transition-all duration-300 ${isActive ? 'text-teal-600 stroke-[2.5px]' : 'text-slate-400'}`} />
-            <span className={`text-[10px] font-bold ${isActive ? 'text-teal-700' : 'text-slate-500'}`}>{link.name.split(' ')[0]}</span>
+            <Icon className={`w-6 h-6 transition-all duration-300 ${isActive ? 'text-blue-800 stroke-[2.5px]' : 'text-slate-400'}`} />
+            <span className={`text-[10px] font-bold ${isActive ? 'text-blue-900' : 'text-slate-500'}`}>{link.name.split(' ')[0]}</span>
           </Link>
         );
       })}

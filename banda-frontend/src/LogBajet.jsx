@@ -84,7 +84,7 @@ export default function LogBajet() {
   if (loading) {
     return (
       <div className="flex h-screen bg-slate-50 items-center justify-center">
-        <Loader2 className="w-10 h-10 animate-spin text-teal-600" />
+        <Loader2 className="w-10 h-10 animate-spin text-blue-800" />
       </div>
     );
   }
@@ -104,7 +104,7 @@ export default function LogBajet() {
   const { jabatan, ringkasan, transaksi } = data;
   const peratus   = ringkasan.peratus_penggunaan;
   const isKritis  = peratus >= 85;
-  const barColor  = peratus >= 85 ? 'bg-rose-500' : peratus >= 60 ? 'bg-amber-400' : 'bg-teal-500';
+  const barColor  = peratus >= 85 ? 'bg-rose-500' : peratus >= 60 ? 'bg-amber-400' : 'bg-blue-600';
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -120,7 +120,7 @@ export default function LogBajet() {
         {/* ── Header ── */}
         <header className="px-8 py-6 bg-white border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-teal-50 rounded-2xl text-teal-600">
+            <div className="p-3 bg-blue-50 rounded-2xl text-blue-800">
               <Wallet className="w-6 h-6" />
             </div>
             <div>
@@ -179,7 +179,7 @@ export default function LogBajet() {
                       <circle cx="50" cy="50" r="40" fill="none" stroke="#334155" strokeWidth="10" />
                       <circle
                         cx="50" cy="50" r="40" fill="none"
-                        stroke={peratus >= 85 ? '#f87171' : peratus >= 60 ? '#fbbf24' : '#2dd4bf'}
+                        stroke={peratus >= 85 ? '#f87171' : peratus >= 60 ? '#fbbf24' : '#2563eb'}
                         strokeWidth="10"
                         strokeDasharray={`${peratus * 2.513} 251.3`}
                         strokeLinecap="round"
@@ -216,7 +216,7 @@ export default function LogBajet() {
               <StatCard
                 icon={Receipt} label="Total Orders" value={ringkasan.bilangan_kerja}
                 sub="work orders issued"
-                color="text-teal-600" bg="bg-teal-50" border="border-teal-100"
+                color="text-blue-800" bg="bg-blue-50" border="border-blue-100"
               />
               <StatCard
                 icon={CheckCircle2} label="Completed Jobs" value={ringkasan.kerja_selesai}
@@ -247,7 +247,7 @@ export default function LogBajet() {
             >
               <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <ArrowDownLeft className="w-5 h-5 text-teal-600" />
+                  <ArrowDownLeft className="w-5 h-5 text-blue-800" />
                   <h4 className="text-lg font-black text-slate-800">Expenditure Transaction Log</h4>
                 </div>
                 <span className="text-xs text-slate-400 font-bold">{transaksi.length} records</span>
@@ -278,7 +278,7 @@ export default function LogBajet() {
                           variants={{ hidden: { opacity: 0 }, show: { opacity: 1 } }}
                           className="hover:bg-slate-50 transition-colors"
                         >
-                          <td className="px-6 py-4 font-mono text-xs font-black text-teal-700">{t.id_arahan}</td>
+                          <td className="px-6 py-4 font-mono text-xs font-black text-blue-800">{t.id_arahan}</td>
                           <td className="px-6 py-4 text-slate-500 whitespace-nowrap">{t.tarikh}</td>
                           <td className="px-6 py-4">
                             <p className="font-semibold text-slate-800">{displayCategory(t.jenis_kerosakan)}</p>

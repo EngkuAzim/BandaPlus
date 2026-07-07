@@ -33,7 +33,7 @@ function SwipeButton({ onSwipe, text }) {
 
   if (swiped) {
     return (
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-14 bg-teal-500 rounded-2xl flex items-center justify-center text-white font-bold shadow-sm border border-teal-600">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white font-bold shadow-sm border border-blue-700">
         <Check className="w-5 h-5 mr-2" /> Job Accepted
       </motion.div>
     );
@@ -41,7 +41,7 @@ function SwipeButton({ onSwipe, text }) {
 
   return (
     <div ref={containerRef} className="relative h-14 bg-slate-900 rounded-2xl flex items-center justify-center overflow-hidden border border-slate-700 shadow-lg">
-      <span className="text-teal-400 font-bold text-sm ml-6">{text}</span>
+      <span className="text-blue-400 font-bold text-sm ml-6">{text}</span>
       {width > 0 && (
         <motion.div
           drag="x"
@@ -49,7 +49,7 @@ function SwipeButton({ onSwipe, text }) {
           dragElastic={0.05}
           onDragEnd={handleDragEnd}
           animate={controls}
-          className="absolute left-1 w-12 h-12 bg-teal-500 rounded-xl shadow-lg flex items-center justify-center cursor-grab active:cursor-grabbing border border-teal-400"
+          className="absolute left-1 w-12 h-12 bg-blue-600 rounded-xl shadow-lg flex items-center justify-center cursor-grab active:cursor-grabbing border border-blue-400"
         >
           <ChevronRight className="w-6 h-6 text-white" />
         </motion.div>
@@ -351,19 +351,19 @@ function SenaraiPembaikan() {
               {/* App Theme Header */}
               <header className="px-6 pt-10 pb-6 bg-slate-900 text-white shadow-lg sticky top-0 z-10 lg:rounded-b-3xl">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-teal-500 rounded-2xl flex items-center justify-center text-slate-900 border border-teal-400 shadow-md">
+                  <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-slate-900 border border-blue-400 shadow-md">
                     <HardHat className="w-6 h-6" />
                   </div>
                   <div>
                     <h1 className="text-2xl font-black tracking-tight text-white">Repair Jobs</h1>
-                    <p className="text-teal-300 text-sm font-medium">Manage on-site work orders and progress</p>
+                    <p className="text-blue-300 text-sm font-medium">Manage on-site work orders and progress</p>
                   </div>
                 </div>
               </header>
 
               <main className="flex-1 overflow-y-auto px-4 pb-24 space-y-4 pt-4">
                 {isLoading ? (
-                  <div className="flex justify-center p-12"><Loader2 className="w-10 h-10 animate-spin text-teal-600" /></div>
+                  <div className="flex justify-center p-12"><Loader2 className="w-10 h-10 animate-spin text-blue-800" /></div>
                 ) : tugasanList.length === 0 ? (
                   <div className="text-center p-10 mt-10 bg-white border border-slate-200 rounded-3xl">
                     <CheckCircle2 className="w-16 h-16 mx-auto mb-4 text-emerald-200" />
@@ -374,7 +374,7 @@ function SenaraiPembaikan() {
                     <div 
                       key={task.id_arahan} 
                       onClick={() => handleOpenTask(task)}
-                      className="bg-white rounded-3xl p-5 shadow-sm border border-slate-200 cursor-pointer active:scale-95 transition-all hover:shadow-md hover:border-teal-300"
+                      className="bg-white rounded-3xl p-5 shadow-sm border border-slate-200 cursor-pointer active:scale-95 transition-all hover:shadow-md hover:border-blue-300"
                     >
                       <div className="flex justify-between items-center mb-3">
                         <span className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider ${
@@ -481,7 +481,7 @@ function SenaraiPembaikan() {
                       </div>
                       {selectedTask.aduan?.zon && (
                         <div className="flex items-center gap-2 mt-2">
-                          <span className="px-3 py-1 rounded-lg bg-teal-100 text-teal-800 text-[10px] font-black uppercase border border-teal-200">
+                          <span className="px-3 py-1 rounded-lg bg-blue-100 text-blue-800 text-[10px] font-black uppercase border border-blue-200">
                             Zone: {selectedTask.aduan.zon}
                           </span>
                         </div>
@@ -532,14 +532,14 @@ function SenaraiPembaikan() {
                 {/* Section 2: Kemaskini Timeline (Voice to Text Feature) */}
                 <div className="px-6 mb-8">
                   <div className="flex items-center gap-2 mb-4">
-                    <History className="w-5 h-5 text-teal-600" />
+                    <History className="w-5 h-5 text-blue-800" />
                     <h4 className="font-black text-slate-800 text-lg">On-Site Progress Log</h4>
                   </div>
 
                   {/* Add New Log Input */}
                   {selectedTask.status_kerja !== 'Selesai' && (
                     <div className="mb-6">
-                      <div className="bg-white p-2.5 rounded-3xl border-2 border-slate-200 shadow-sm flex items-end gap-2 focus-within:border-teal-500 transition-colors">
+                      <div className="bg-white p-2.5 rounded-3xl border-2 border-slate-200 shadow-sm flex items-end gap-2 focus-within:border-blue-800 transition-colors">
                         <div className="flex-1 pl-3 pb-2 pt-2">
                           <textarea 
                             rows="2"
@@ -562,7 +562,7 @@ function SenaraiPembaikan() {
                           type="button"
                           onClick={submitLog}
                           disabled={(!newLogText.trim() && !audioBlob) || isSendingLog}
-                          className="p-3.5 rounded-2xl bg-slate-900 text-white transition-all flex-shrink-0 disabled:opacity-50 hover:bg-teal-600"
+                          className="p-3.5 rounded-2xl bg-slate-900 text-white transition-all flex-shrink-0 disabled:opacity-50 hover:bg-blue-800"
                         >
                           {isSendingLog ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5 ml-0.5" />}
                         </button>
@@ -570,12 +570,12 @@ function SenaraiPembaikan() {
 
                       {/* Audio Attachment Preview */}
                       {audioBlob && (
-                        <div className="mt-3 flex items-center justify-between bg-teal-50 p-3 rounded-2xl border border-teal-200">
+                        <div className="mt-3 flex items-center justify-between bg-blue-50 p-3 rounded-2xl border border-blue-200">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-teal-500 rounded-full flex items-center justify-center text-white"><Volume2 className="w-4 h-4" /></div>
-                            <span className="text-sm font-bold text-teal-800">Audio Recording Ready</span>
+                            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white"><Volume2 className="w-4 h-4" /></div>
+                            <span className="text-sm font-bold text-blue-800">Audio Recording Ready</span>
                           </div>
-                          <button onClick={() => setAudioBlob(null)} className="p-2 hover:bg-teal-100 rounded-full text-teal-700">
+                          <button onClick={() => setAudioBlob(null)} className="p-2 hover:bg-blue-100 rounded-full text-blue-800">
                             <X className="w-5 h-5" />
                           </button>
                         </div>
@@ -590,7 +590,7 @@ function SenaraiPembaikan() {
                     ) : (
                       selectedTask.log_kemajuan.slice().reverse().map((log, idx) => (
                         <div key={idx} className="relative flex items-start">
-                          <div className={`w-10 h-10 rounded-full border-4 border-slate-50 flex items-center justify-center shrink-0 z-10 shadow-sm mt-0.5 ${log.role === 'pegawai' ? 'bg-amber-100 text-amber-600' : 'bg-teal-50 text-teal-600'}`}>
+                          <div className={`w-10 h-10 rounded-full border-4 border-slate-50 flex items-center justify-center shrink-0 z-10 shadow-sm mt-0.5 ${log.role === 'pegawai' ? 'bg-amber-100 text-amber-600' : 'bg-blue-50 text-blue-800'}`}>
                             {log.role === 'pegawai' ? <CheckCircle2 className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
                           </div>
                           <div className={`p-4 rounded-3xl border ml-3 flex-1 shadow-sm ${log.role === 'pegawai' ? 'bg-amber-50 border-amber-200' : 'bg-white border-slate-200'}`}>
@@ -627,12 +627,12 @@ function SenaraiPembaikan() {
                 {showTutupKes && selectedTask.status_kerja !== 'Selesai' && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="px-6 mb-10">
                     <h4 className="font-black text-slate-800 text-lg mb-4 flex items-center gap-2">
-                      <Camera className="w-5 h-5 text-teal-600" /> Upload Final Proof
+                      <Camera className="w-5 h-5 text-blue-800" /> Upload Final Proof
                     </h4>
                     
                     <form onSubmit={updateStatusAndProof} className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-5">
                       <div>
-                        <div className={`relative border-2 border-dashed rounded-2xl p-8 text-center overflow-hidden transition-colors cursor-pointer ${file ? 'border-teal-500 bg-teal-50' : 'border-slate-300 bg-slate-50 hover:bg-slate-100'}`}>
+                        <div className={`relative border-2 border-dashed rounded-2xl p-8 text-center overflow-hidden transition-colors cursor-pointer ${file ? 'border-blue-600 bg-blue-50' : 'border-slate-300 bg-slate-50 hover:bg-slate-100'}`}>
                           <input 
                             type="file" accept="image/*" capture="environment"
                             onChange={(e) => setFile(e.target.files[0])}
@@ -642,8 +642,8 @@ function SenaraiPembaikan() {
                           
                           {file ? (
                             <div className="flex flex-col items-center gap-2">
-                              <CheckCircle2 className="w-12 h-12 text-teal-500" />
-                              <p className="text-sm font-bold text-teal-800 break-all">{file.name}</p>
+                              <CheckCircle2 className="w-12 h-12 text-blue-600" />
+                              <p className="text-sm font-bold text-blue-800 break-all">{file.name}</p>
                             </div>
                           ) : (
                             <div className="flex flex-col items-center gap-3">
@@ -662,7 +662,7 @@ function SenaraiPembaikan() {
                       <button 
                         type="submit" 
                         disabled={isSavingStatus} 
-                        className="w-full bg-slate-900 text-white hover:bg-teal-600 font-black py-4 rounded-2xl transition-all flex items-center justify-center gap-2 text-lg disabled:opacity-50 shadow-lg shadow-slate-200"
+                        className="w-full bg-slate-900 text-white hover:bg-blue-800 font-black py-4 rounded-2xl transition-all flex items-center justify-center gap-2 text-lg disabled:opacity-50 shadow-lg shadow-slate-200"
                       >
                         {isSavingStatus ? <Loader2 className="w-6 h-6 animate-spin" /> : <Save className="w-6 h-6" />} Confirm Job Completion
                       </button>

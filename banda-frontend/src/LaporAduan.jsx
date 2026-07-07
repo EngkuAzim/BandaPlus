@@ -414,7 +414,7 @@ function LaporAduan() {
     <div className="mb-8 relative max-w-3xl mx-auto">
         <div className="absolute top-1/2 left-0 right-0 h-1 bg-slate-200 -translate-y-1/2 rounded-full z-0"></div>
         <div 
-            className="absolute top-1/2 left-0 h-1 bg-teal-500 -translate-y-1/2 rounded-full z-0 transition-all duration-500 ease-in-out" 
+            className="absolute top-1/2 left-0 h-1 bg-blue-600 -translate-y-1/2 rounded-full z-0 transition-all duration-500 ease-in-out" 
             style={{ width: `${((currentStep - 1) / (totalSteps - 1)) * 100}%` }}
         ></div>
         
@@ -422,12 +422,12 @@ function LaporAduan() {
             {[1, 2, 3].map((step) => (
                 <div key={step} className="flex flex-col items-center">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold border-4 transition-colors duration-300 ${
-                        currentStep > step ? 'bg-teal-500 border-teal-500 text-white' : 
-                        currentStep === step ? 'bg-white border-teal-500 text-teal-600' : 'bg-white border-slate-200 text-slate-400'
+                        currentStep > step ? 'bg-blue-800 border-blue-800 text-white' : 
+                        currentStep === step ? 'bg-white border-blue-800 text-blue-800' : 'bg-white border-slate-200 text-slate-400'
                     }`}>
                         {currentStep > step ? <CheckCircle className="w-5 h-5" /> : step}
                     </div>
-                    <span className={`mt-2 text-xs font-bold ${currentStep >= step ? 'text-teal-700' : 'text-slate-400'}`}>
+                    <span className={`mt-2 text-xs font-bold ${currentStep >= step ? 'text-blue-800' : 'text-slate-400'}`}>
                         {step === 1 ? 'Photo Evidence' : step === 2 ? 'Location & Details' : 'Review'}
                     </span>
                 </div>
@@ -479,7 +479,7 @@ function LaporAduan() {
                     <div className="lg:col-span-4 hidden md:block">
                         <div className="sticky top-8 space-y-4">
                             <h3 className="font-bold text-slate-800 flex items-center gap-2">
-                                <ImageIcon className="w-5 h-5 text-teal-600" /> Reference Photo
+                                <ImageIcon className="w-5 h-5 text-blue-800" /> Reference Photo
                             </h3>
                             <div className="rounded-3xl overflow-hidden border-2 border-slate-200 shadow-sm aspect-square bg-slate-100 relative group">
                                 {imagePreview ? (
@@ -499,7 +499,7 @@ function LaporAduan() {
                             
                             <div className="flex items-center gap-3 border-b border-slate-200 pb-4">
                                 <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-sm shrink-0 border border-slate-100">
-                                    <FileText className="w-5 h-5 text-teal-600" />
+                                    <FileText className="w-5 h-5 text-blue-800" />
                                 </div>
                                 <div>
                                     <h3 className="text-lg font-black text-slate-900">Basic Info & Location</h3>
@@ -510,7 +510,7 @@ function LaporAduan() {
                             <div className="grid grid-cols-1 gap-5">
                                 <div className="space-y-1.5">
                                     <label className="text-sm font-bold text-slate-700">Issue Category</label>
-                                    <select required value={formData.jenis_kerosakan} onChange={(e) => setFormData({...formData, jenis_kerosakan: e.target.value})} className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all shadow-sm">
+                                    <select required value={formData.jenis_kerosakan} onChange={(e) => setFormData({...formData, jenis_kerosakan: e.target.value})} className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-800/20 focus:border-blue-800 transition-all shadow-sm">
                                         <option value="" disabled>Select Category...</option>
                                         <option value="Jalan Berlubang">Pothole</option>
                                         <option value="Banjir">Flood</option>
@@ -543,7 +543,7 @@ function LaporAduan() {
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-4">
                                 <div className="space-y-1.5">
                                     <label className="text-sm font-bold text-slate-700">MPAJ Zone</label>
-                                    <select required value={formData.id_zon} onChange={(e) => setFormData({...formData, id_zon: e.target.value})} className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all shadow-sm">
+                                    <select required value={formData.id_zon} onChange={(e) => setFormData({...formData, id_zon: e.target.value})} className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-800/20 focus:border-blue-800 transition-all shadow-sm">
                                         <option value="" disabled>Select Your Zone...</option>
                                         <option value="1">Zone 1</option>
                                         <option value="2">Zone 2</option>
@@ -554,7 +554,7 @@ function LaporAduan() {
                                 </div>
                                 <div className="space-y-1.5">
                                     <label className="text-sm font-bold text-slate-700">Specific Landmark</label>
-                                    <input type="text" value={specificLocation} onChange={(e) => setSpecificLocation(e.target.value)} placeholder="e.g. In front of ABC Restaurant..." className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all shadow-sm" />
+                                    <input type="text" value={specificLocation} onChange={(e) => setSpecificLocation(e.target.value)} placeholder="e.g. In front of ABC Restaurant..." className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-800/20 focus:border-blue-800 transition-all shadow-sm" />
                                 </div>
                             </div>
                             
@@ -562,7 +562,7 @@ function LaporAduan() {
                             
                             <div className="space-y-1.5">
                                 <label className="text-sm font-bold text-slate-700">Additional Details</label>
-                                <textarea value={formData.keterangan_aduan} onChange={(e) => setFormData({...formData, keterangan_aduan: e.target.value})} placeholder="Describe the issue in more detail..." className="w-full min-h-[100px] px-4 py-3.5 bg-white border border-slate-200 rounded-xl resize-none outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all shadow-sm"></textarea>
+                                <textarea value={formData.keterangan_aduan} onChange={(e) => setFormData({...formData, keterangan_aduan: e.target.value})} placeholder="Describe the issue in more detail..." className="w-full min-h-[100px] px-4 py-3.5 bg-white border border-slate-200 rounded-xl resize-none outline-none focus:ring-2 focus:ring-blue-800/20 focus:border-blue-800 transition-all shadow-sm"></textarea>
                                 
                                 <button
                                     type="button"
@@ -613,8 +613,8 @@ function LaporAduan() {
                                     })}
                                     
                                     {additionalFiles.length < 3 && (
-                                        <label className="aspect-square rounded-2xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center cursor-pointer hover:border-teal-500 hover:bg-teal-50/50 transition-colors bg-white">
-                                            <Plus className="w-8 h-8 text-teal-600 mb-1" />
+                                        <label className="aspect-square rounded-2xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center cursor-pointer hover:border-blue-800 hover:bg-blue-50/50 transition-colors bg-white">
+                                            <Plus className="w-8 h-8 text-blue-800 mb-1" />
                                             <span className="text-xs font-bold text-slate-500">Add File</span>
                                             <input type="file" multiple accept="image/jpeg, image/png, image/webp, video/mp4, video/quicktime, video/webm" className="hidden" onChange={handleAdditionalFileChange} />
                                         </label>
@@ -676,7 +676,7 @@ function LaporAduan() {
                             type="button" 
                             onClick={handleNext}
                             disabled={isScanning || (currentStep === 1 && !selectedImage)}
-                            className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-8 rounded-xl flex items-center gap-2 shadow-lg shadow-teal-500/30 transition-all disabled:opacity-50 disabled:shadow-none"
+                            className="bg-blue-800 hover:bg-blue-900 text-white font-bold py-3 px-8 rounded-xl flex items-center gap-2 shadow-lg shadow-blue-800/30 transition-all disabled:opacity-50 disabled:shadow-none"
                         >
                             Next <ChevronRight className="w-5 h-5" />
                         </button>

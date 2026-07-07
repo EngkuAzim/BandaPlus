@@ -73,7 +73,7 @@ function Dashboard() {
   if (isLoading || !userData) {
     return (
       <div className="flex h-screen bg-slate-50 items-center justify-center">
-        <Loader2 className="w-10 h-10 animate-spin text-teal-600" />
+        <Loader2 className="w-10 h-10 animate-spin text-blue-800" />
       </div>
     );
   }
@@ -99,7 +99,7 @@ function Dashboard() {
   };
 
   return (
-    <div className="flex h-screen bg-slate-50 font-sans selection:bg-teal-500/20">
+    <div className="flex h-screen bg-slate-50 font-sans selection:bg-blue-800/20">
       <Sidebar userData={userData} />
 
       <div className="flex-1 flex flex-col overflow-hidden relative">
@@ -107,13 +107,13 @@ function Dashboard() {
           <div>
             <h2 className="text-2xl font-black text-slate-900 tracking-tight">Dashboard</h2>
             <div className="flex items-center gap-2 text-sm text-slate-500 font-medium mt-1">
-              <Calendar className="w-4 h-4 text-teal-600" />
+              <Calendar className="w-4 h-4 text-blue-800" />
               <span>{formattedDate}</span>
             </div>
           </div>
           
           <div className="flex items-center gap-5">
-            <button className="relative p-2 text-slate-400 hover:text-teal-600 transition-colors">
+            <button className="relative p-2 text-slate-400 hover:text-blue-800 transition-colors">
               <Bell className="w-6 h-6" />
               <span className="absolute top-1 right-2 w-2.5 h-2.5 bg-rose-500 border-2 border-white rounded-full"></span>
             </button>
@@ -122,7 +122,7 @@ function Dashboard() {
                 <p className="text-sm font-bold text-slate-900 leading-tight">{userData.name}</p>
                 <p className="text-xs text-slate-500 capitalize">{userData.peranan} &bull; {userData.no_pengguna}</p>
               </div>
-              <div className="w-10 h-10 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center font-bold border border-teal-200 shadow-sm">
+              <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center font-bold border border-blue-200 shadow-sm">
                 {initial}
               </div>
             </div>

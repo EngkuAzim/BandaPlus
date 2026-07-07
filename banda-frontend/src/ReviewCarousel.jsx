@@ -42,7 +42,7 @@ const ReviewCarousel = () => {
         return (
             <div className="relative z-10 mt-auto bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 max-w-md shadow-2xl">
                 <div className="flex items-center gap-4 mb-3">
-                    <MessageSquare className="w-8 h-8 text-teal-400" />
+                    <MessageSquare className="w-8 h-8 text-blue-400" />
                     <h3 className="text-white font-bold text-lg">Community Voices</h3>
                 </div>
                 <p className="text-slate-400 text-sm font-medium leading-relaxed">
@@ -77,7 +77,7 @@ const ReviewCarousel = () => {
                         "{currentReview.text}"
                     </p>
                     <div className="flex items-center gap-3 mt-auto">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center text-white font-bold text-xs uppercase">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center text-white font-bold text-xs uppercase">
                             {currentReview.author.charAt(0)}
                         </div>
                         <span className="text-white text-sm font-bold">

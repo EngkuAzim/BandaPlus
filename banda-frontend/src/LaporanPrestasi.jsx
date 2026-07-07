@@ -15,7 +15,7 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
 
-const COLORS = ['#0d9488','#f59e0b','#10b981','#f43f5e','#6366f1','#8b5cf6'];
+const COLORS = ['#1e40af','#f59e0b','#10b981','#f43f5e','#6366f1','#8b5cf6'];
 
 const ChartTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
@@ -160,7 +160,7 @@ export default function LaporanPrestasi() {
               {/* ── Summary Cards ── */}
               <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
                 <SummaryCard icon={Layers} label="Total Reports" value={ring.jumlah||0} color="text-indigo-600" bg="bg-indigo-50" border="border-indigo-100" />
-                <SummaryCard icon={AlertCircle} label="New" value={ring.baru||0} color="text-teal-600" bg="bg-teal-50" border="border-teal-100" />
+                <SummaryCard icon={AlertCircle} label="New" value={ring.baru||0} color="text-blue-800" bg="bg-blue-50" border="border-blue-100" />
                 <SummaryCard icon={Clock} label="In Progress" value={ring.dalam_tindakan||0} color="text-amber-600" bg="bg-amber-50" border="border-amber-100" />
                 <SummaryCard icon={CheckCircle2} label="Completed" value={ring.selesai||0} color="text-emerald-600" bg="bg-emerald-50" border="border-emerald-100" />
                 <SummaryCard icon={XCircle} label="Rejected" value={ring.ditolak||0} color="text-rose-600" bg="bg-rose-50" border="border-rose-100" />
@@ -171,14 +171,14 @@ export default function LaporanPrestasi() {
                 {/* Trend 12 Bulan */}
                 <div className="lg:col-span-2 bg-white rounded-3xl p-7 border border-slate-200 shadow-sm">
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 bg-teal-50 rounded-2xl flex items-center justify-center text-teal-600 border border-teal-100"><Activity className="w-5 h-5" /></div>
+                    <div className="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-800 border border-blue-100"><Activity className="w-5 h-5" /></div>
                     <div><h4 className="text-base font-black text-slate-900">Report & Resolution Trends</h4><p className="text-xs text-slate-400 font-medium">Last 12 months</p></div>
                   </div>
                   {trend.length > 0 ? (
                     <ResponsiveContainer width="100%" height={250}>
                       <AreaChart data={trend} margin={{top:5,right:5,bottom:0,left:-20}}>
                         <defs>
-                          <linearGradient id="gAduan" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#0d9488" stopOpacity={0.3}/><stop offset="95%" stopColor="#0d9488" stopOpacity={0}/></linearGradient>
+                          <linearGradient id="gAduan" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#1e40af" stopOpacity={0.3}/><stop offset="95%" stopColor="#1e40af" stopOpacity={0}/></linearGradient>
                           <linearGradient id="gSelesai" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/><stop offset="95%" stopColor="#10b981" stopOpacity={0}/></linearGradient>
                         </defs>
                         <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
@@ -186,7 +186,7 @@ export default function LaporanPrestasi() {
                         <YAxis allowDecimals={false} tick={{fontSize:11,fontWeight:700,fill:'#94a3b8'}} axisLine={false} tickLine={false} />
                         <Tooltip content={<ChartTooltip />} />
                         <Legend wrapperStyle={{fontSize:11,fontWeight:700}} />
-                        <Area type="monotone" dataKey="aduan" name="Incoming Reports" stroke="#0d9488" strokeWidth={2.5} fill="url(#gAduan)" dot={{fill:'#0d9488',r:3,strokeWidth:2,stroke:'#fff'}} />
+                        <Area type="monotone" dataKey="aduan" name="Incoming Reports" stroke="#1e40af" strokeWidth={2.5} fill="url(#gAduan)" dot={{fill:'#1e40af',r:3,strokeWidth:2,stroke:'#fff'}} />
                         <Area type="monotone" dataKey="selesai" name="Resolved" stroke="#10b981" strokeWidth={2.5} fill="url(#gSelesai)" dot={{fill:'#10b981',r:3,strokeWidth:2,stroke:'#fff'}} />
                       </AreaChart>
                     </ResponsiveContainer>

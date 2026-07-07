@@ -148,7 +148,7 @@ function UrusAduan() {
       <div className="flex-1 flex flex-col overflow-hidden relative">
         <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-8 py-5 bg-white border-b border-slate-200 sticky top-0 z-10 gap-4">
           <div>
-            <h2 className="text-2xl font-black text-slate-900 tracking-tight italic">BANDA<span className="text-teal-600">+</span> Admin</h2>
+            <h2 className="text-2xl font-black text-slate-900 tracking-tight italic">BANDA<span className="text-blue-800">+</span> Admin</h2>
             <p className="text-sm text-slate-500 font-medium mt-1">Review incoming reports and assign responsible MPAJ departments.</p>
           </div>
           
@@ -158,7 +158,7 @@ function UrusAduan() {
               <input 
                 type="text" placeholder="Search ID or Reporter..." 
                 value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-teal-500"
+                className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-800"
               />
             </div>
           </div>
@@ -166,7 +166,7 @@ function UrusAduan() {
 
         <main className="flex-1 overflow-auto p-8">
           {isLoading ? (
-            <div className="flex items-center justify-center h-full"><Loader2 className="w-10 h-10 animate-spin text-teal-600" /></div>
+            <div className="flex items-center justify-center h-full"><Loader2 className="w-10 h-10 animate-spin text-blue-800" /></div>
           ) : (
             <div className="max-w-7xl mx-auto bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
               <table className="w-full text-left border-collapse">
@@ -188,7 +188,7 @@ function UrusAduan() {
                       <React.Fragment key={aduan.id_aduan}>
                         <tr className="hover:bg-slate-50 transition-colors border-b border-slate-100">
                           <td className="p-5">
-                            <div className="font-mono text-sm font-bold text-teal-700">{aduan.id_aduan}</div>
+                            <div className="font-mono text-sm font-bold text-blue-800">{aduan.id_aduan}</div>
                             {hasCluster && (
                               <div className="flex items-center gap-1 text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded font-bold uppercase mt-1 w-max border border-purple-200">
                                 <Layers className="w-2.5 h-2.5" />
@@ -212,7 +212,7 @@ function UrusAduan() {
                           </td>
                           <td className="p-5">
                             <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                              aduan.status === 'Baru' ? 'bg-teal-100 text-teal-700' : 'bg-slate-100 text-slate-600'
+                              aduan.status === 'Baru' ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-600'
                             }`}>
                               {displayStatus(aduan.status)}
                             </span>
@@ -229,7 +229,7 @@ function UrusAduan() {
                                 Related
                               </button>
                             )}
-                            <button onClick={() => handleOpenModal(aduan)} className="text-sm font-bold text-white bg-slate-900 px-4 py-2 rounded-xl hover:bg-teal-600 transition-all">
+                            <button onClick={() => handleOpenModal(aduan)} className="text-sm font-bold text-white bg-slate-900 px-4 py-2 rounded-xl hover:bg-blue-800 transition-all">
                               Review
                             </button>
                           </td>
@@ -262,7 +262,7 @@ function UrusAduan() {
                             </td>
                             <td className="p-5">
                               <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${
-                                anak.status === 'Baru' ? 'bg-teal-100 text-teal-700' : 'bg-slate-100 text-slate-600'
+                                anak.status === 'Baru' ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-600'
                               }`}>
                                 {displayStatus(anak.status)}
                               </span>
@@ -318,7 +318,7 @@ function UrusAduan() {
                     <div className="bg-slate-50 p-5 rounded-3xl border border-slate-100 mt-4">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
                         <h4 className="flex items-center gap-2 font-black text-slate-900 text-sm uppercase tracking-widest">
-                          <MapPin className="w-4 h-4 text-teal-600" /> Location & Details
+                          <MapPin className="w-4 h-4 text-blue-800" /> Location & Details
                         </h4>
                         <span className="text-[10px] font-bold bg-white px-3 py-1 rounded-full border border-slate-200 text-slate-500 w-max">
                           {new Date(selectedAduan.tarikh_lapor).toLocaleString('ms-MY', {
@@ -333,10 +333,10 @@ function UrusAduan() {
 
                   {/* Borang Saringan Pentadbir */}
                   <form onSubmit={handleSaveUpdate} className="flex flex-col gap-5">
-                    <div className="flex items-center gap-3 p-4 bg-teal-50 rounded-2xl border border-teal-100">
-                      <BrainCircuit className="w-8 h-8 text-teal-600" />
+                    <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-2xl border border-blue-100">
+                      <BrainCircuit className="w-8 h-8 text-blue-800" />
                       <div>
-                        <p className="text-[10px] font-black text-teal-600 uppercase">AI Suggestion</p>
+                        <p className="text-[10px] font-black text-blue-800 uppercase">AI Suggestion</p>
                         <p className="text-sm font-bold text-slate-800">Issue: {displayCategory(selectedAduan.jenis_kerosakan)} ({selectedAduan.skor_ai || 0}% Confidence)</p>
                       </div>
                     </div>
@@ -349,7 +349,7 @@ function UrusAduan() {
                           required 
                           value={editForm.id_jabatan} 
                           onChange={(e) => setEditForm({...editForm, id_jabatan: e.target.value})}
-                          className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-semibold text-slate-700"
+                          className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-800/20 focus:border-blue-800 transition-all font-semibold text-slate-700"
                         >
                           <option value="">-- Select Department --</option>
                           <option value="J01">J01 - Jabatan Kejuruteraan</option>
@@ -364,7 +364,7 @@ function UrusAduan() {
                           required 
                           value={editForm.status} 
                           onChange={(e) => setEditForm({...editForm, status: e.target.value})}
-                          className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all font-semibold text-slate-700"
+                          className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-800/20 focus:border-blue-800 transition-all font-semibold text-slate-700"
                         >
                           <option value="Baru">New</option>
                           <option value="Dalam Tindakan">In Progress</option>
@@ -376,13 +376,13 @@ function UrusAduan() {
                         <label className="text-xs font-black text-slate-400 uppercase ml-1">Response</label>
                         <textarea 
                           rows="3" value={editForm.maklum_balas} onChange={(e) => setEditForm({...editForm, maklum_balas: e.target.value})}
-                          className="w-full mt-1 px-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-teal-500 focus:bg-white transition-all text-sm font-medium"
+                          className="w-full mt-1 px-5 py-4 bg-slate-50 border-2 border-transparent rounded-2xl outline-none focus:border-blue-800 focus:bg-white transition-all text-sm font-medium"
                           placeholder="Write a response or explanation for the reporter..."
                         />
                       </div>
                     </div>
 
-                    <button type="submit" disabled={isSaving || !editForm.id_jabatan} className="mt-auto w-full bg-slate-900 text-white font-black py-5 rounded-3xl hover:bg-teal-600 disabled:opacity-50 disabled:hover:bg-slate-900 flex items-center justify-center gap-3 shadow-xl shadow-teal-100 transition-all">
+                    <button type="submit" disabled={isSaving || !editForm.id_jabatan} className="mt-auto w-full bg-slate-900 text-white font-black py-5 rounded-3xl hover:bg-blue-800 disabled:opacity-50 disabled:hover:bg-slate-900 flex items-center justify-center gap-3 shadow-xl shadow-blue-100 transition-all">
                       {isSaving ? <Loader2 className="animate-spin" /> : <Save />}
                       Send to Department
                     </button>

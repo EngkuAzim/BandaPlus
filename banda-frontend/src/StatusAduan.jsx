@@ -87,7 +87,7 @@ function StatusAduan() {
 
   const getStatusBadge = (status) => {
     switch (status) {
-      case 'Baru': return { color: 'bg-teal-50 text-teal-700 border-teal-200', icon: <AlertCircle className="w-4 h-4" /> };
+      case 'Baru': return { color: 'bg-blue-50 text-blue-800 border-blue-200', icon: <AlertCircle className="w-4 h-4" /> };
       case 'Dalam Tindakan': return { color: 'bg-amber-50 text-amber-700 border-amber-200', icon: <Activity className="w-4 h-4" /> };
       case 'Selesai': return { color: 'bg-emerald-50 text-emerald-700 border-emerald-200', icon: <CheckCircle2 className="w-4 h-4" /> };
       case 'Ditolak': return { color: 'bg-rose-50 text-rose-700 border-rose-200', icon: <XCircle className="w-4 h-4" /> };
@@ -139,7 +139,7 @@ function StatusAduan() {
         <main className="flex-1 overflow-x-hidden overflow-y-auto p-8 relative">
           {isLoading ? (
             <div className="flex items-center justify-center h-full">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-800"></div>
             </div>
           ) : (
             <motion.div variants={containerVariants} initial="hidden" animate="show" className="max-w-5xl mx-auto">
@@ -151,7 +151,7 @@ function StatusAduan() {
                   </div>
                   <h3 className="text-xl font-black text-slate-900 mb-2">No Reports Found</h3>
                   <p className="text-slate-500 mb-6">You have not submitted any infrastructure damage reports yet.</p>
-                  <button onClick={() => navigate('/lapor-aduan')} className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-6 rounded-xl transition-all">
+                  <button onClick={() => navigate('/lapor-aduan')} className="bg-blue-800 hover:bg-blue-900 text-white font-bold py-3 px-6 rounded-xl transition-all">
                     Report an Issue
                   </button>
                 </div>
@@ -165,7 +165,7 @@ function StatusAduan() {
                       <motion.div 
                         key={aduan.id_aduan} variants={itemVariants} 
                         onClick={() => setSelectedAduan(aduan)}
-                        className="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-teal-300 transition-all overflow-hidden flex flex-col md:flex-row cursor-pointer group"
+                        className="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-300 transition-all overflow-hidden flex flex-col md:flex-row cursor-pointer group"
                       >
                         <div className="w-full md:w-56 h-48 md:h-auto bg-slate-100 flex-shrink-0 relative overflow-hidden">
                           <img src={`/storage/${aduan.gambar_bukti}`} alt={displayCategory(aduan.jenis_kerosakan)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" />
@@ -178,7 +178,7 @@ function StatusAduan() {
                           <div className="flex justify-between items-start mb-3">
                             <div>
                               <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">ID: {aduan.id_aduan}</p>
-                              <h4 className="text-xl font-black text-slate-900 group-hover:text-teal-700 transition-colors">{displayCategory(aduan.jenis_kerosakan)}</h4>
+                              <h4 className="text-xl font-black text-slate-900 group-hover:text-blue-800 transition-colors">{displayCategory(aduan.jenis_kerosakan)}</h4>
                             </div>
                             <span className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border shadow-sm ${badge.color}`}>
                               {badge.icon} {displayStatus(aduan.status)}
@@ -196,7 +196,7 @@ function StatusAduan() {
                             </p>
                           </div>
 
-                          <div className="absolute right-6 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-teal-50 group-hover:text-teal-600 transition-colors shadow-sm border border-slate-100 group-hover:border-teal-100">
+                          <div className="absolute right-6 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-800 transition-colors shadow-sm border border-slate-100 group-hover:border-blue-100">
                             <ChevronRight className="w-5 h-5" />
                           </div>
                         </div>
@@ -226,8 +226,8 @@ function StatusAduan() {
                 {/* Modal Header */}
                 <div className="px-8 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center">
-                        <Package className="w-5 h-5 text-teal-700" />
+                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                        <Package className="w-5 h-5 text-blue-800" />
                     </div>
                     <div>
                         <h3 className="text-lg font-black text-slate-900">Report Tracking</h3>
@@ -259,7 +259,7 @@ function StatusAduan() {
                         <div>
                             <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Location</p>
                             <p className="text-sm font-medium text-slate-700 flex items-start gap-2">
-                            <MapPin className="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
+                            <MapPin className="w-4 h-4 text-blue-800 shrink-0 mt-0.5" />
                             {selectedAduan.alamat_lokasi}
                             </p>
                         </div>
@@ -275,7 +275,7 @@ function StatusAduan() {
                   {/* Right Column: SHOPEE-STYLE TIMELINE */}
                   <div className="w-full md:w-1/2 bg-slate-50/50 p-6 rounded-3xl border border-slate-100">
                     <h4 className="text-lg font-black text-slate-900 mb-8 flex items-center gap-2">
-                      <Activity className="w-5 h-5 text-teal-600" /> Status Timeline
+                      <Activity className="w-5 h-5 text-blue-800" /> Status Timeline
                     </h4>
                     
                     <div className="relative pl-4 space-y-10">
@@ -287,8 +287,8 @@ function StatusAduan() {
                                 {/* The Circle */}
                                 <div className={`relative z-10 w-5 h-5 rounded-full flex items-center justify-center border-[3px] ring-4 ring-slate-50 transition-colors ${
                                     step.isRejected ? 'bg-white border-rose-500' :
-                                    step.active && step.completed ? 'bg-teal-500 border-teal-500' : 
-                                    step.active ? 'bg-white border-teal-500' : 'bg-slate-200 border-slate-200'
+                                    step.active && step.completed ? 'bg-blue-600 border-blue-600' : 
+                                    step.active ? 'bg-white border-blue-600' : 'bg-slate-200 border-slate-200'
                                 }`}>
                                     {step.completed && !step.isRejected && <CheckCircle2 className="w-3 h-3 text-white" />}
                                     {step.isRejected && <XCircle className="w-4 h-4 text-rose-500" />}
@@ -318,9 +318,9 @@ function StatusAduan() {
                     </div>
 
                     {/* MAKLUM BALAS RASMI (Dynamic Data Fetching) */}
-                    <div className={`mt-10 p-5 rounded-2xl flex flex-col gap-3 shadow-sm border ${selectedAduan.maklum_balas ? 'bg-white border-teal-100' : 'bg-slate-100 border-slate-200/60'}`}>
+                    <div className={`mt-10 p-5 rounded-2xl flex flex-col gap-3 shadow-sm border ${selectedAduan.maklum_balas ? 'bg-white border-blue-100' : 'bg-slate-100 border-slate-200/60'}`}>
                       <div className="flex items-center gap-2">
-                        <MessageSquare className={`w-4 h-4 ${selectedAduan.maklum_balas ? 'text-teal-600' : 'text-slate-400'}`} />
+                        <MessageSquare className={`w-4 h-4 ${selectedAduan.maklum_balas ? 'text-blue-800' : 'text-slate-400'}`} />
                         <h5 className="text-sm font-black text-slate-900">Latest Feedback</h5>
                       </div>
                       <p className={`text-sm leading-relaxed ${selectedAduan.maklum_balas ? 'text-slate-700' : 'text-slate-500 italic'}`}>

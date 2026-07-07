@@ -165,7 +165,7 @@ function LaporanTugasan() {
 
           <main className="flex-1 overflow-y-auto p-4 space-y-3">
             {isLoading ? (
-              <div className="flex justify-center p-10"><Loader2 className="w-8 h-8 animate-spin text-teal-600" /></div>
+              <div className="flex justify-center p-10"><Loader2 className="w-8 h-8 animate-spin text-blue-800" /></div>
             ) : tugasanList.length === 0 ? (
               <p className="text-center text-sm font-bold text-slate-400 p-10">No work reports available yet.</p>
             ) : (
@@ -249,7 +249,7 @@ function LaporanTugasan() {
                       ) : (
                         selectedTask.log_kemajuan.map((log, idx) => (
                           <div key={idx} className="relative flex items-start">
-                            <div className={`w-10 h-10 rounded-full border-4 border-white flex items-center justify-center shrink-0 z-10 shadow-sm mt-0.5 ${log.role === 'pegawai' ? 'bg-amber-100 text-amber-600' : 'bg-teal-50 text-teal-600'}`}>
+                            <div className={`w-10 h-10 rounded-full border-4 border-white flex items-center justify-center shrink-0 z-10 shadow-sm mt-0.5 ${log.role === 'pegawai' ? 'bg-amber-100 text-amber-600' : 'bg-blue-50 text-blue-800'}`}>
                               {log.role === 'pegawai' ? <CheckCircle2 className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
                             </div>
                             <div className={`p-4 rounded-3xl border ml-3 flex-1 shadow-sm ${log.role === 'pegawai' ? 'bg-amber-50/50 border-amber-200' : 'bg-slate-50 border-slate-200'}`}>
@@ -260,7 +260,7 @@ function LaporanTugasan() {
                               <p className="text-sm font-medium text-slate-800 leading-relaxed mb-2">{log.nota}</p>
                               {log.audio && (
                                 <div className="mt-3 p-2 bg-white rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3">
-                                  <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center text-teal-600 shrink-0"><Volume2 className="w-4 h-4" /></div>
+                                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-800 shrink-0"><Volume2 className="w-4 h-4" /></div>
                                   <audio controls src={`/storage/${log.audio}`} className="w-full h-8 outline-none" />
                                 </div>
                               )}

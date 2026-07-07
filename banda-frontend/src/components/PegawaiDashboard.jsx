@@ -96,7 +96,7 @@ function PegawaiDashboard({ userData }) {
   }
 
   const statCards = [
-    { title: 'Total Reports', value: statsData?.jumlah_keseluruhan || 0, increase: `${statsData?.perubahan_jumlah > 0 ? '+' : ''}${statsData?.perubahan_jumlah || 0}%`, icon: ClipboardList, color: 'text-teal-600', bg: 'bg-teal-50', border: 'border-teal-100' },
+    { title: 'Total Reports', value: statsData?.jumlah_keseluruhan || 0, increase: `${statsData?.perubahan_jumlah > 0 ? '+' : ''}${statsData?.perubahan_jumlah || 0}%`, icon: ClipboardList, color: 'text-blue-800', bg: 'bg-blue-50', border: 'border-blue-100' },
     { title: 'Pending Assignment', value: statsData?.baru || 0, increase: `${statsData?.perubahan_baru > 0 ? '+' : ''}${statsData?.perubahan_baru || 0}%`, icon: Clock, color: 'text-amber-500', bg: 'bg-amber-50', border: 'border-amber-100' },
     { title: 'In Progress', value: statsData?.diproses || 0, increase: `${statsData?.perubahan_diproses > 0 ? '+' : ''}${statsData?.perubahan_diproses || 0}%`, icon: Wrench, color: 'text-indigo-500', bg: 'bg-indigo-50', border: 'border-indigo-100' },
     { title: 'Completed', value: statsData?.selesai || 0, increase: `${statsData?.perubahan_selesai > 0 ? '+' : ''}${statsData?.perubahan_selesai || 0}%`, icon: CheckCircle2, color: 'text-emerald-500', bg: 'bg-emerald-50', border: 'border-emerald-100' }
@@ -108,7 +108,7 @@ function PegawaiDashboard({ userData }) {
       {/* Header */}
       <motion.div variants={itemVariants} className="mb-8">
         <h3 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-          <Building2 className="w-7 h-7 text-teal-600" />
+          <Building2 className="w-7 h-7 text-blue-800" />
           Officer Dashboard - {bajet.nama}
         </h3>
         <p className="text-sm font-medium text-slate-500 mt-1">Manage contractor assignments and monitor report status in real time.</p>
@@ -157,7 +157,7 @@ function PegawaiDashboard({ userData }) {
         <motion.div variants={itemVariants} className="lg:col-span-2 bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
           <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
             <h4 className="text-lg font-black text-slate-800">Recent System Reports</h4>
-            <button className="text-sm text-teal-600 hover:text-teal-700 font-bold">View All</button>
+            <button className="text-sm text-blue-800 hover:text-blue-900 font-bold">View All</button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
@@ -210,12 +210,12 @@ function PegawaiDashboard({ userData }) {
                           ) : aduan.status === 'Baru' || aduan.status === 'Dalam Tindakan' ? (
                             <button 
                               onClick={() => navigate('/arahan-kerja')}
-                              className="bg-slate-900 hover:bg-teal-600 text-white text-xs font-bold px-4 py-2 rounded-lg transition-all shadow-sm whitespace-nowrap"
+                              className="bg-slate-900 hover:bg-blue-800 text-white text-xs font-bold px-4 py-2 rounded-lg transition-all shadow-sm whitespace-nowrap"
                             >
                               Work Order
                             </button>
                           ) : (
-                            <button className="p-2 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-teal-600 transition-colors">
+                            <button className="p-2 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-blue-800 transition-colors">
                               <MoreVertical className="w-5 h-5" />
                             </button>
                           )}
@@ -277,7 +277,7 @@ function PegawaiDashboard({ userData }) {
               <span>{Math.round(((bajet.tahunan - bajet.bakiSemasa) / bajet.tahunan) * 100)}%</span>
             </div>
             <div className="w-full bg-slate-700 rounded-full h-2.5 mb-3">
-              <div className="bg-teal-400 h-2.5 rounded-full" style={{ width: `${((bajet.tahunan - bajet.bakiSemasa) / bajet.tahunan) * 100}%` }}></div>
+              <div className="bg-blue-500 h-2.5 rounded-full" style={{ width: `${((bajet.tahunan - bajet.bakiSemasa) / bajet.tahunan) * 100}%` }}></div>
             </div>
             <p className="text-xs text-slate-400">Out of allocated RM {(bajet.tahunan).toLocaleString('ms-MY')}</p>
           </div>
