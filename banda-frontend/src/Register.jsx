@@ -77,12 +77,12 @@ const Register = () => {
     };
 
     return (
-        <div className="min-h-screen bg-white flex font-sans selection:bg-teal-500/20">
+        <div className="h-screen overflow-hidden bg-white flex font-sans selection:bg-teal-500/20">
             
             {/* Left Side: Branding (Image with Overlay) */}
             <div 
                 className="hidden lg:flex w-1/2 relative overflow-hidden flex-col justify-end p-16 bg-cover bg-center border-r border-slate-200"
-                style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop")' }}
+                style={{ backgroundImage: 'url("/bangunan-mpaj.jpg")' }}
             >
                 {/* Dark Overlay */}
                 <div className="absolute inset-0 bg-slate-900/80 mix-blend-multiply z-0 pointer-events-none" />
@@ -105,7 +105,7 @@ const Register = () => {
                     
                     {/* MPAJ Logo */}
                     <div className="flex flex-col mb-8 items-center lg:items-start text-center lg:text-left">
-                        <img src="https://upload.wikimedia.org/wikipedia/ms/a/a2/Logo_Majlis_Perbandaran_Ampang_Jaya.png" alt="MPAJ Logo" className="h-16 mb-2 object-contain" />
+                        <img src="/mpaj-logo.png" alt="MPAJ Logo" className="h-16 mb-2 object-contain" />
                     </div>
 
                     {/* Wizard Progress Bar */}
@@ -118,7 +118,7 @@ const Register = () => {
                         {step === 1 ? 'Get Started.' : 'Account Security.'}
                     </h1>
                     <p className="text-slate-500 font-medium mb-8">
-                        {step === 1 ? 'Select your role and personal profile.' : 'Complete your login credentials.'}
+                        {step === 1 ? 'Complete your personal profile.' : 'Complete your login credentials.'}
                     </p>
 
                     <AnimatePresence mode="wait">
@@ -130,29 +130,6 @@ const Register = () => {
                                 onSubmit={handleNext} 
                                 className="space-y-6"
                             >
-                                {/* Role Selection */}
-                                <div className="space-y-3">
-                                    <label className="text-sm font-bold text-slate-700">Select Your Role</label>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div 
-                                            onClick={() => setFormData({...formData, peranan: 'komuniti'})}
-                                            className={`cursor-pointer rounded-2xl border p-4 transition-all duration-300 ${formData.peranan === 'komuniti' ? 'bg-teal-50 border-teal-500 shadow-[0_0_15px_rgba(20,184,166,0.15)]' : 'bg-white border-slate-200 hover:border-teal-200 hover:bg-slate-50'}`}
-                                        >
-                                            <Users className={`w-6 h-6 mb-3 ${formData.peranan === 'komuniti' ? 'text-teal-600' : 'text-slate-400'}`} />
-                                            <h4 className="text-slate-900 font-bold text-sm">Community User</h4>
-                                            <p className="text-slate-500 text-xs mt-1">Report infrastructure issues.</p>
-                                        </div>
-                                        <div 
-                                            onClick={() => setFormData({...formData, peranan: 'kontraktor'})}
-                                            className={`cursor-pointer rounded-2xl border p-4 transition-all duration-300 ${formData.peranan === 'kontraktor' ? 'bg-amber-50 border-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.15)]' : 'bg-white border-slate-200 hover:border-teal-200 hover:bg-slate-50'}`}
-                                        >
-                                            <HardHat className={`w-6 h-6 mb-3 ${formData.peranan === 'kontraktor' ? 'text-amber-500' : 'text-slate-400'}`} />
-                                            <h4 className="text-slate-900 font-bold text-sm">Authorized Contractor</h4>
-                                            <p className="text-slate-500 text-xs mt-1">Manage maintenance works.</p>
-                                        </div>
-                                    </div>
-                                </div>
-
                                 <div className="space-y-2">
                                     <label className="text-sm font-bold text-slate-700">Full Name</label>
                                     <div className="relative group">

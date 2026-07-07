@@ -54,12 +54,12 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen bg-white flex font-sans selection:bg-teal-500/20">
+        <div className="h-screen overflow-hidden bg-white flex font-sans selection:bg-teal-500/20">
             
             {/* Left Side: Branding (Image with Overlay) */}
             <div 
                 className="hidden lg:flex w-1/2 relative overflow-hidden flex-col justify-end p-16 bg-cover bg-center"
-                style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop")' }}
+                style={{ backgroundImage: 'url("/bangunan-mpaj.jpg")' }}
             >
                 {/* Dark Overlay */}
                 <div className="absolute inset-0 bg-slate-900/80 mix-blend-multiply z-0 pointer-events-none" />
@@ -77,7 +77,7 @@ const Login = () => {
             </div>
 
             {/* Right Side: Form (Bright & Clean) */}
-            <div className="w-full lg:w-1/2 flex flex-col justify-center p-8 sm:p-12 lg:p-20 relative z-10 bg-slate-50">
+            <div className="w-full lg:w-1/2 flex flex-col justify-center p-8 sm:p-12 lg:p-20 relative z-10 bg-slate-50 overflow-y-auto">
                 <motion.div 
                     variants={containerVariants}
                     initial="hidden"
@@ -85,7 +85,7 @@ const Login = () => {
                     className="w-full max-w-md mx-auto"
                 >
                     <motion.div variants={itemVariants} className="flex flex-col mb-10 items-center lg:items-start text-center lg:text-left">
-                        <img src="https://upload.wikimedia.org/wikipedia/ms/a/a2/Logo_Majlis_Perbandaran_Ampang_Jaya.png" alt="MPAJ Logo" className="h-16 mb-8 object-contain" />
+                        <img src="/mpaj-logo.png" alt="MPAJ Logo" className="h-16 mb-8 object-contain" />
                         <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-3">Sign In</h1>
                         <p className="text-slate-500 font-medium">Enter your account details to proceed.</p>
                     </motion.div>
