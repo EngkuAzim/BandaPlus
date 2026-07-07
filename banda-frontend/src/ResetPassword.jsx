@@ -1,42 +1,50 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Lock, ArrowRight, Loader2, Eye, EyeOff, Star } from 'lucide-react';
+import { Lock, ArrowRight, Loader2, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
-import ReviewCarousel from './ReviewCarousel';
 
 import mpajLogo from './assets/mpaj-logo.png';
 import bangunanMpaj from './assets/bangunan-mpaj.jpg';
 
-const Login = () => {
+const ResetPassword = () => {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const token = searchParams.get('token');
+    const email = searchParams.get('email');
+
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
-    const [focusedField, setFocusedField] = useState(null); // Tracks which field is active
-    
+    const [focusedField, setFocusedField] = useState(null);
+
     const [formData, setFormData] = useState({
-        email: '',
         password: '',
+        password_confirmation: ''
     });
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        if (formData.password !== formData.password_confirmation) {
+            toast.error('Ralat', { description: 'Kata laluan tidak sepadan.' });
+            return;
+        }
+
         setLoading(true);
 
         try {
-            const response = await axios.post(`/api/login`, formData);
-            
-            localStorage.setItem('token', response.data.access_token);
-            localStorage.setItem('userRole', response.data.user.peranan || 'komuniti');
-
-            toast.success('Login Successful!', { description: 'Welcome back to the BANDA+ system.' });
-            
-            setTimeout(() => navigate('/dashboard'), 1000);
-
+            await axios.post('/api/reset-password', {
+                email,
+                token,
+                password: formData.password,
+                password_confirmation: formData.password_confirmation
+            });
+            toast.success('Berjaya', { description: 'Kata laluan berjaya dikemas kini.' });
+            setTimeout(() => navigate('/login'), 1500);
         } catch (error) {
-            const errorMessage = error.response?.data?.message || 'Please check your email and password.';
-            toast.error('Login Failed', { description: errorMessage });
+            const msg = error.response?.data?.message || 'Terdapat ralat semasa mengemas kini kata laluan.';
+            toast.error('Gagal', { description: msg });
         } finally {
             setLoading(false);
         }
@@ -80,42 +88,22 @@ const Login = () => {
             </div>
 
             {/* Right Side: Form */}
-            <div className="w-full lg:w-1/2 flex flex-col justify-center p-4 sm:p-8 lg:p-12 relative z-10 overflow-y-auto">
+            <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 relative z-10 overflow-y-auto">
                 <motion.div 
                     variants={containerVariants}
                     initial="hidden"
                     animate="visible"
-                    className="w-full max-w-md mx-auto bg-white shadow-xl shadow-slate-200/50 border border-slate-100 rounded-3xl p-6 lg:p-8"
+                    className="w-full max-w-md mx-auto bg-white shadow-xl shadow-slate-200/50 border border-slate-100 rounded-3xl p-8"
                 >
                     <motion.div variants={itemVariants} className="flex flex-col mb-8 items-center lg:items-start text-center lg:text-left">
-                        <img src={mpajLogo} alt="MPAJ Logo" className="h-14 mb-4 object-contain" />
-                        <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-2">Sign In</h1>
-                        <p className="text-slate-500 font-medium text-sm">Enter your account details to proceed.</p>
+                        <img src={mpajLogo} alt="MPAJ Logo" className="h-16 mb-6 object-contain" />
+                        <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight mb-2">Tetapkan Semula</h1>
+                        <p className="text-slate-500 font-medium text-sm">Sila masukkan kata laluan baharu anda.</p>
                     </motion.div>
 
                     <form onSubmit={handleSubmit} className="space-y-5">
                         <motion.div variants={itemVariants} className="space-y-2">
-                            <label className="text-sm font-bold text-slate-700">Email Address</label>
-                            <div className="relative group">
-                                <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors duration-300 ${focusedField === 'email' ? 'text-blue-800' : 'text-slate-400 group-hover:text-slate-500'}`} />
-                                <input 
-                                    type="email" 
-                                    required
-                                    value={formData.email}
-                                    onFocus={() => setFocusedField('email')}
-                                    onBlur={() => setFocusedField(null)}
-                                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                                    className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-800/30 focus:border-blue-800 transition-all outline-none font-medium"
-                                    placeholder="name@example.com"
-                                />
-                            </div>
-                        </motion.div>
-
-                        <motion.div variants={itemVariants} className="space-y-2">
-                            <div className="flex justify-between items-center">
-                                <label className="text-sm font-bold text-slate-700">Password</label>
-                                <Link to="/forgot-password" className="text-xs font-bold text-blue-800 hover:text-blue-900 transition-colors">Forgot password?</Link>
-                            </div>
+                            <label className="text-sm font-bold text-slate-700">Kata Laluan Baharu</label>
                             <div className="relative group">
                                 <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors duration-300 ${focusedField === 'password' ? 'text-blue-800' : 'text-slate-400 group-hover:text-slate-500'}`} />
                                 <input 
@@ -125,7 +113,7 @@ const Login = () => {
                                     onFocus={() => setFocusedField('password')}
                                     onBlur={() => setFocusedField(null)}
                                     onChange={(e) => setFormData({...formData, password: e.target.value})}
-                                    className="w-full pl-12 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-800/30 focus:border-blue-800 transition-all outline-none font-medium"
+                                    className="w-full pl-12 pr-12 py-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-800/30 focus:border-blue-800 transition-all outline-none font-medium"
                                     placeholder="••••••••"
                                 />
                                 <button 
@@ -138,26 +126,36 @@ const Login = () => {
                             </div>
                         </motion.div>
 
+                        <motion.div variants={itemVariants} className="space-y-2">
+                            <label className="text-sm font-bold text-slate-700">Sahkan Kata Laluan</label>
+                            <div className="relative group">
+                                <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors duration-300 ${focusedField === 'password_confirmation' ? 'text-blue-800' : 'text-slate-400 group-hover:text-slate-500'}`} />
+                                <input 
+                                    type={showPassword ? "text" : "password"} 
+                                    required
+                                    value={formData.password_confirmation}
+                                    onFocus={() => setFocusedField('password_confirmation')}
+                                    onBlur={() => setFocusedField(null)}
+                                    onChange={(e) => setFormData({...formData, password_confirmation: e.target.value})}
+                                    className="w-full pl-12 pr-12 py-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-800/30 focus:border-blue-800 transition-all outline-none font-medium"
+                                    placeholder="••••••••"
+                                />
+                            </div>
+                        </motion.div>
+
                         <motion.button 
                             variants={itemVariants}
                             type="submit" 
                             disabled={loading}
-                            className="w-full bg-blue-800 hover:bg-blue-900 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-blue-800/20 hover:-translate-y-0.5 flex items-center justify-center gap-2"
+                            className="w-full mt-4 bg-blue-800 hover:bg-blue-900 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-blue-800/20 hover:-translate-y-0.5 flex items-center justify-center gap-2"
                         >
-                            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Sign In'} <ArrowRight className="w-5 h-5" />
+                            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Sahkan'} <ArrowRight className="w-5 h-5" />
                         </motion.button>
                     </form>
-
-                    <motion.div variants={itemVariants} className="mt-6 text-center">
-                        <span className="text-slate-500 text-sm font-medium">First time here? </span>
-                        <Link to="/register" className="text-blue-800 font-bold hover:text-blue-900 transition-colors">
-                            Create New Account
-                        </Link>
-                    </motion.div>
                 </motion.div>
             </div>
         </div>
     );
 };
 
-export default Login;
+export default ResetPassword;

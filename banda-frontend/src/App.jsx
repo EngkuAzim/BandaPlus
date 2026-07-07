@@ -4,6 +4,8 @@ import { Toaster } from 'sonner';
 import Landing from './Landing';
 import Register from './Register';
 import Login from './Login';
+import ForgotPassword from './ForgotPassword';
+import ResetPassword from './ResetPassword';
 import Dashboard from './components/Dashboard';
 import Profile from './Profile';
 import LaporAduan from './LaporAduan';
@@ -31,6 +33,8 @@ function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/profil" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/lapor-aduan" element={<ProtectedRoute><LaporAduan /></ProtectedRoute>} />

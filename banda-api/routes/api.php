@@ -29,6 +29,9 @@ Route::post('/ai/upload-detection', [AiDetectionController::class, 'uploadDetect
 Route::get('/ai/pending', [AiDetectionController::class, 'getPending']);
 
 Route::post('/login',    [AuthController::class, 'login'])->middleware('throttle:5,1');
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:5,1');
+Route::post('/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:5,1');
+
 Route::get('/public/reviews', function() {
     return response()->json([]); // Empty for now to satisfy frontend carousel
 });

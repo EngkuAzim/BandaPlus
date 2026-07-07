@@ -79,47 +79,48 @@ const Register = () => {
     };
 
     return (
-        <div className="h-screen overflow-hidden bg-white flex font-sans selection:bg-teal-500/20">
+        <div className="h-screen overflow-hidden bg-slate-50 flex font-sans selection:bg-blue-800/20">
             
             {/* Left Side: Branding (Image with Overlay) */}
             <div 
                 className="hidden lg:flex w-1/2 relative overflow-hidden flex-col justify-end p-16 bg-cover bg-center border-r border-slate-200"
                 style={{ backgroundImage: `url(${bangunanMpaj})` }}
             >
-                {/* Dark Overlay */}
-                <div className="absolute inset-0 bg-slate-900/80 mix-blend-multiply z-0 pointer-events-none" />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent z-0" />
+                {/* Dark Overlay with brand tint */}
+                <div className="absolute inset-0 bg-slate-900/60 mix-blend-multiply z-0 pointer-events-none" />
+                <div className="absolute inset-0 bg-blue-900/40 mix-blend-overlay z-0 pointer-events-none" />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent z-0" />
                 
                 <div className="relative z-10 mb-8">
                     <h2 className="text-4xl md:text-5xl font-black text-white mb-6 leading-[1.2] tracking-tight">
                         Track your<br/>
                         infrastructure complaints.
                     </h2>
-                    <p className="text-teal-400 text-sm font-bold tracking-[0.2em] uppercase">
+                    <p className="text-emerald-500 text-sm font-bold tracking-[0.2em] uppercase">
                         SIMPLE • EFFICIENT • DETAILED
                     </p>
                 </div>
             </div>
 
             {/* Right Side: Form Wizard (Bright & Clean) */}
-            <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 relative z-10 overflow-y-auto bg-slate-50">
-                <div className="w-full max-w-md mx-auto">
+            <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-8 relative z-10 overflow-hidden bg-slate-50">
+                <div className="w-full max-w-md mx-auto bg-white shadow-xl shadow-slate-200/50 border border-slate-100 rounded-3xl p-6 lg:p-8 max-h-[90vh] overflow-y-auto custom-scrollbar">
                     
                     {/* MPAJ Logo */}
-                    <div className="flex flex-col mb-8 items-center lg:items-start text-center lg:text-left">
-                        <img src={mpajLogo} alt="MPAJ Logo" className="h-16 mb-2 object-contain" />
+                    <div className="flex flex-col mb-6 items-center lg:items-start text-center lg:text-left">
+                        <img src={mpajLogo} alt="MPAJ Logo" className="h-14 mb-2 object-contain" />
                     </div>
 
                     {/* Wizard Progress Bar */}
-                    <div className="flex items-center gap-2 mb-8">
-                        <div className={`h-2 flex-1 rounded-full transition-colors duration-500 ${step >= 1 ? 'bg-teal-500 shadow-sm' : 'bg-slate-100'}`} />
-                        <div className={`h-2 flex-1 rounded-full transition-colors duration-500 ${step >= 2 ? 'bg-teal-500 shadow-sm' : 'bg-slate-100'}`} />
+                    <div className="flex items-center gap-2 mb-6">
+                        <div className={`h-2 flex-1 rounded-full transition-colors duration-500 ${step >= 1 ? 'bg-blue-800 shadow-sm' : 'bg-slate-100'}`} />
+                        <div className={`h-2 flex-1 rounded-full transition-colors duration-500 ${step >= 2 ? 'bg-blue-800 shadow-sm' : 'bg-slate-100'}`} />
                     </div>
 
-                    <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-2">
+                    <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight mb-2">
                         {step === 1 ? 'Get Started.' : 'Account Security.'}
                     </h1>
-                    <p className="text-slate-500 font-medium mb-8">
+                    <p className="text-slate-500 font-medium text-sm mb-6">
                         {step === 1 ? 'Complete your personal profile.' : 'Complete your login credentials.'}
                     </p>
 
@@ -130,18 +131,20 @@ const Register = () => {
                                 key="step1"
                                 initial="initial" animate="in" exit="out" variants={pageVariants} transition={{ duration: 0.3 }}
                                 onSubmit={handleNext} 
-                                className="space-y-6"
+                                className="space-y-5"
                             >
                                 <div className="space-y-2">
                                     <label className="text-sm font-bold text-slate-700">Full Name</label>
                                     <div className="relative group">
-                                        <User className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${focusedField === 'name' ? 'text-teal-600' : 'text-slate-400 group-hover:text-slate-500'}`} />
+                                        <User className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${focusedField === 'name' ? 'text-blue-800' : 'text-slate-400 group-hover:text-slate-500'}`} />
                                         <input 
-                                            type="text" required
+                                            type="text" 
+                                            required
                                             value={formData.name}
-                                            onFocus={() => setFocusedField('name')} onBlur={() => setFocusedField(null)}
+                                            onFocus={() => setFocusedField('name')}
+                                            onBlur={() => setFocusedField(null)}
                                             onChange={(e) => setFormData({...formData, name: e.target.value})}
-                                            className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 outline-none transition-all"
+                                            className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-800/30 focus:border-blue-800 transition-all outline-none font-medium"
                                             placeholder="John Doe"
                                         />
                                     </div>
@@ -150,42 +153,50 @@ const Register = () => {
                                 <div className="space-y-2">
                                     <label className="text-sm font-bold text-slate-700">Phone Number</label>
                                     <div className="relative group">
-                                        <Phone className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${focusedField === 'phone' ? 'text-teal-600' : 'text-slate-400 group-hover:text-slate-500'}`} />
+                                        <Phone className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${focusedField === 'phone' ? 'text-blue-800' : 'text-slate-400 group-hover:text-slate-500'}`} />
                                         <input 
-                                            type="tel" required
+                                            type="tel" 
+                                            required
                                             value={formData.no_telefon}
-                                            onFocus={() => setFocusedField('phone')} onBlur={() => setFocusedField(null)}
+                                            onFocus={() => setFocusedField('phone')}
+                                            onBlur={() => setFocusedField(null)}
                                             onChange={(e) => setFormData({...formData, no_telefon: e.target.value})}
-                                            className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 outline-none transition-all"
+                                            className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-800/30 focus:border-blue-800 transition-all outline-none font-medium"
                                             placeholder="0123456789"
                                         />
                                     </div>
                                 </div>
 
-                                <button type="submit" className="w-full mt-4 bg-teal-600 hover:bg-teal-700 text-white font-black py-4 rounded-2xl transition-all shadow-lg shadow-teal-600/20 hover:-translate-y-0.5 flex items-center justify-center gap-2">
-                                    Continue <ArrowRight className="w-5 h-5" />
-                                </button>
+                                <div className="pt-2">
+                                    <button 
+                                        type="submit" 
+                                        className="w-full bg-blue-800 hover:bg-blue-900 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-blue-800/20 hover:-translate-y-0.5 flex items-center justify-center gap-2"
+                                    >
+                                        Continue <ArrowRight className="w-5 h-5" />
+                                    </button>
+                                </div>
                             </motion.form>
                         )}
 
-                        {/* STEP 2 */}
                         {step === 2 && (
                             <motion.form 
                                 key="step2"
                                 initial="initial" animate="in" exit="out" variants={pageVariants} transition={{ duration: 0.3 }}
                                 onSubmit={handleSubmit} 
-                                className="space-y-6"
+                                className="space-y-5"
                             >
                                 <div className="space-y-2">
                                     <label className="text-sm font-bold text-slate-700">Email Address</label>
                                     <div className="relative group">
-                                        <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${focusedField === 'email' ? 'text-teal-600' : 'text-slate-400 group-hover:text-slate-500'}`} />
+                                        <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${focusedField === 'email' ? 'text-blue-800' : 'text-slate-400 group-hover:text-slate-500'}`} />
                                         <input 
-                                            type="email" required
+                                            type="email" 
+                                            required
                                             value={formData.email}
-                                            onFocus={() => setFocusedField('email')} onBlur={() => setFocusedField(null)}
+                                            onFocus={() => setFocusedField('email')}
+                                            onBlur={() => setFocusedField(null)}
                                             onChange={(e) => setFormData({...formData, email: e.target.value})}
-                                            className="w-full pl-12 pr-4 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 outline-none transition-all"
+                                            className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-800/30 focus:border-blue-800 transition-all outline-none font-medium"
                                             placeholder="name@example.com"
                                         />
                                     </div>
@@ -194,20 +205,21 @@ const Register = () => {
                                 <div className="space-y-2">
                                     <label className="text-sm font-bold text-slate-700">Password</label>
                                     <div className="relative group">
-                                        <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${focusedField === 'password' ? 'text-teal-600' : 'text-slate-400 group-hover:text-slate-500'}`} />
+                                        <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${focusedField === 'password' ? 'text-blue-800' : 'text-slate-400 group-hover:text-slate-500'}`} />
                                         <input 
-                                            type={showPassword ? "text" : "password"} required
+                                            type={showPassword ? "text" : "password"} 
+                                            required
                                             value={formData.password}
-                                            onFocus={() => setFocusedField('password')} onBlur={() => setFocusedField(null)}
+                                            onFocus={() => setFocusedField('password')}
+                                            onBlur={() => setFocusedField(null)}
                                             onChange={(e) => setFormData({...formData, password: e.target.value})}
-                                            className="w-full pl-12 pr-12 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 outline-none transition-all"
+                                            className="w-full pl-12 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-800/30 focus:border-blue-800 transition-all outline-none font-medium"
                                             placeholder="••••••••"
                                         />
-                                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-teal-600">
+                                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-800">
                                             {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                         </button>
                                     </div>
-                                    {/* Password Strength Meter */}
                                     {formData.password.length > 0 && (
                                         <div className="pt-1">
                                             <div className="flex gap-1 h-1.5 mb-1">
@@ -223,16 +235,17 @@ const Register = () => {
                                 <div className="space-y-2">
                                     <label className="text-sm font-bold text-slate-700">Confirm Password</label>
                                     <div className="relative group">
-                                        <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${focusedField === 'confirm' ? 'text-teal-600' : 'text-slate-400 group-hover:text-slate-500'}`} />
+                                        <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors ${focusedField === 'confirm' ? 'text-blue-800' : 'text-slate-400 group-hover:text-slate-500'}`} />
                                         <input 
-                                            type={showPassword ? "text" : "password"} required
+                                            type={showConfirmPassword ? "text" : "password"} 
+                                            required
                                             value={formData.password_confirmation}
-                                            onFocus={() => setFocusedField('confirm')} onBlur={() => setFocusedField(null)}
+                                            onFocus={() => setFocusedField('confirm')}
+                                            onBlur={() => setFocusedField(null)}
                                             onChange={(e) => setFormData({...formData, password_confirmation: e.target.value})}
-                                            className="w-full pl-12 pr-12 py-4 bg-slate-50 border border-slate-200 rounded-2xl text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-teal-500/30 focus:border-teal-500 outline-none transition-all"
+                                            className="w-full pl-12 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:bg-white focus:ring-2 focus:ring-blue-800/30 focus:border-blue-800 transition-all outline-none font-medium"
                                             placeholder="••••••••"
                                         />
-                                        {/* Live Match Indicator */}
                                         {formData.password_confirmation.length > 0 && (
                                             <div className="absolute right-4 top-1/2 -translate-y-1/2">
                                                 {formData.password === formData.password_confirmation 
@@ -242,25 +255,32 @@ const Register = () => {
                                             </div>
                                         )}
                                     </div>
-                                </div>
-
-                                <div className="flex gap-4 mt-6">
-                                    <button type="button" onClick={() => setStep(1)} className="px-6 py-4 rounded-2xl border border-slate-200 bg-white text-slate-700 font-bold hover:bg-slate-50 transition-colors flex items-center gap-2">
-                                        <ArrowLeft className="w-5 h-5" />
-                                    </button>
-                                    <button type="submit" disabled={loading || formData.password !== formData.password_confirmation} className="flex-1 bg-teal-600 hover:bg-teal-700 text-white font-black py-4 rounded-2xl transition-all shadow-lg shadow-teal-600/20 disabled:opacity-50 disabled:hover:bg-teal-600 flex items-center justify-center gap-2">
-                                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Confirm & Register'}
-                                    </button>
+                                    <div className="pt-2 flex gap-3">
+                                        <button 
+                                            type="button" 
+                                            onClick={handleBack}
+                                            className="w-1/3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2"
+                                        >
+                                            <ArrowLeft className="w-5 h-5" /> Back
+                                        </button>
+                                        <button 
+                                            type="submit" 
+                                            disabled={loading}
+                                            className="w-2/3 bg-blue-800 hover:bg-blue-900 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-blue-800/20 hover:-translate-y-0.5 flex items-center justify-center gap-2"
+                                        >
+                                            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Confirm & Register'}
+                                        </button>
+                                    </div>
                                 </div>
                             </motion.form>
                         )}
                     </AnimatePresence>
 
-                    <div className="mt-8">
-                        <hr className="border-slate-100" />
-                        <p className="mt-8 text-center text-sm font-medium text-slate-500">
-                            Already have an account? <Link to="/login" className="text-teal-600 font-bold hover:text-teal-700 hover:underline transition-colors">Sign In</Link>
-                        </p>
+                    <div className="mt-6 text-center">
+                        <span className="text-slate-500 text-sm font-medium">Already have an account? </span>
+                        <Link to="/login" className="text-blue-800 font-bold hover:text-blue-900 transition-colors">
+                            Sign In
+                        </Link>
                     </div>
                 </div>
             </div>
