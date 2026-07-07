@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { User, Mail, Lock, Phone, ArrowRight, ArrowLeft, Loader2, Users, HardHat, CheckCircle2, XCircle, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import axios from 'axios';
+import mpajLogo from './assets/mpaj-logo.png';
+import bangunanMpaj from './assets/bangunan-mpaj.jpg';
 
 const Register = () => {
     const navigate = useNavigate();
@@ -82,7 +84,7 @@ const Register = () => {
             {/* Left Side: Branding (Image with Overlay) */}
             <div 
                 className="hidden lg:flex w-1/2 relative overflow-hidden flex-col justify-end p-16 bg-cover bg-center border-r border-slate-200"
-                style={{ backgroundImage: 'url("/bangunan-mpaj.jpg")' }}
+                style={{ backgroundImage: `url(${bangunanMpaj})` }}
             >
                 {/* Dark Overlay */}
                 <div className="absolute inset-0 bg-slate-900/80 mix-blend-multiply z-0 pointer-events-none" />
@@ -105,7 +107,7 @@ const Register = () => {
                     
                     {/* MPAJ Logo */}
                     <div className="flex flex-col mb-8 items-center lg:items-start text-center lg:text-left">
-                        <img src="/mpaj-logo.png" alt="MPAJ Logo" className="h-16 mb-2 object-contain" />
+                        <img src={mpajLogo} alt="MPAJ Logo" className="h-16 mb-2 object-contain" />
                     </div>
 
                     {/* Wizard Progress Bar */}

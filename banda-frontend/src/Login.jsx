@@ -6,6 +6,9 @@ import { toast } from 'sonner';
 import axios from 'axios';
 import ReviewCarousel from './ReviewCarousel';
 
+import mpajLogo from './assets/mpaj-logo.png';
+import bangunanMpaj from './assets/bangunan-mpaj.jpg';
+
 const Login = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
@@ -59,7 +62,7 @@ const Login = () => {
             {/* Left Side: Branding (Image with Overlay) */}
             <div 
                 className="hidden lg:flex w-1/2 relative overflow-hidden flex-col justify-end p-16 bg-cover bg-center"
-                style={{ backgroundImage: 'url("/bangunan-mpaj.jpg")' }}
+                style={{ backgroundImage: `url(${bangunanMpaj})` }}
             >
                 {/* Dark Overlay */}
                 <div className="absolute inset-0 bg-slate-900/80 mix-blend-multiply z-0 pointer-events-none" />
@@ -85,7 +88,7 @@ const Login = () => {
                     className="w-full max-w-md mx-auto"
                 >
                     <motion.div variants={itemVariants} className="flex flex-col mb-10 items-center lg:items-start text-center lg:text-left">
-                        <img src="/mpaj-logo.png" alt="MPAJ Logo" className="h-16 mb-8 object-contain" />
+                        <img src={mpajLogo} alt="MPAJ Logo" className="h-16 mb-8 object-contain" />
                         <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-3">Sign In</h1>
                         <p className="text-slate-500 font-medium">Enter your account details to proceed.</p>
                     </motion.div>
