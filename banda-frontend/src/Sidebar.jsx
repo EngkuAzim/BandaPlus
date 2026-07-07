@@ -20,7 +20,8 @@ import {
   LayoutDashboard,
   ShieldAlert,
   Search,
-  MapPin
+  MapPin,
+  FileText
 } from 'lucide-react';
 import NotificationBell from './components/NotificationBell';
 import bandaLogoFull from './assets/banda-logo-full.png';
