@@ -62,8 +62,8 @@ jobs:
             
             # Frontend Update
             cd ../banda-frontend
-            rm -rf node_modules
-            npm install
+            # Removed 'rm -rf node_modules' to allow npm to cache dependencies
+            npm install --prefer-offline --no-audit --no-fund
             chmod +x node_modules/.bin/vite
             npm run build
             
