@@ -39,7 +39,7 @@ class AduanAdminController extends Controller
 
         // Pegawai hanya boleh lihat aduan dari jabatan mereka dan pemilikan (ownership) mereka
         if ($user->peranan === 'pegawai') {
-            $query->whereNull('id_aduan_induk'); // Jangan tunjuk aduan anak kepada pegawai
+            // Removed: ->whereNull('id_aduan_induk') — pegawai should see both parent and child reports
             if ($user->id_jabatan) {
                 $query->where('id_jabatan', $user->id_jabatan);
             }

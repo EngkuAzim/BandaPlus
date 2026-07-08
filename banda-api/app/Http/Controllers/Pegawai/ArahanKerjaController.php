@@ -55,7 +55,7 @@ class ArahanKerjaController extends Controller
         $sudahAda = ArahanKerja::pluck('id_aduan')->toArray();
 
         $query = Aduan::select(
-                'id_aduan', 'id_jabatan', 'jenis_kerosakan',
+                'id_aduan', 'id_jabatan', 'id_aduan_induk', 'jenis_kerosakan',
                 'alamat_lokasi', 'gambar_bukti', 'status', 'tarikh_lapor'
             )
             ->withCount('anakAduan')
@@ -64,7 +64,7 @@ class ArahanKerjaController extends Controller
             }])
             ->whereNotIn('id_aduan', $sudahAda)
             ->whereIn('status', ['Baru', 'Dalam Tindakan'])
-            ->whereNull('id_aduan_induk') // Hanya aduan induk
+            // Removed: ->whereNull('id_aduan_induk') — both parent and child reports should be assignable
             ->orderBy('tarikh_lapor', 'desc');
 
         // Scope to pegawai's jabatan and ownership only
