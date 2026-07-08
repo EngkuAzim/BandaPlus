@@ -89,13 +89,19 @@ class AuthController extends Controller
                 ]
             );
 
-            $frontendUrl = env('FRONTEND_URL', 'http://localhost:5173');
+            // Dynamically detect the frontend origin (e.g. https://bandaplus.tech or http://localhost:5173)
+            $origin = $request->headers->get('origin') ?: env('FRONTEND_URL', 'https://bandaplus.tech');
+            $frontendUrl = rtrim($origin, '/');
             $resetUrl = $frontendUrl . '/reset-password?token=' . $token . '&email=' . urlencode($user->email);
 
-            if (env('APP_ENV') === 'local') {
-                \Illuminate\Support\Facades\Log::info('Password reset link: ' . $resetUrl);
-            } else {
+            // Always log the reset link for easy testing and debugging
+            \Illuminate\Support\Facades\Log::info('Password reset link for ' . $user->email . ': ' . $resetUrl);
+
+            // Attempt to send email
+            try {
                 \Illuminate\Support\Facades\Mail::to($user->email)->send(new \App\Mail\PasswordResetMail($resetUrl));
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to send password reset email: ' . $e->getMessage());
             }
         }
 

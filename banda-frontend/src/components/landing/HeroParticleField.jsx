@@ -1,44 +1,31 @@
-import React, { useEffect } from 'react';
-import { motion, useMotionValue, useSpring, useMotionTemplate } from 'framer-motion';
+import React from 'react';
 
+/**
+ * HeroParticleField (Simplified & Lightweight)
+ * ─────────────────────────────────────────────
+ * Replaces heavy canvas/JS particle loops with a subtle, trustworthy municipal background:
+ *  - Soft radial gradients
+ *  - Faint structural grid
+ *  - Subtle blue & gold glow accents
+ *  - Zero CPU/GPU overhead, instant rendering
+ */
 export default function HeroParticleField() {
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-
-  const springConfig = { stiffness: 100, damping: 30, mass: 1 };
-  const springX = useSpring(mouseX, springConfig);
-  const springY = useSpring(mouseY, springConfig);
-
-  // A very subtle blue/indigo glow that follows the cursor, 
-  // mimicking the clean, minimal interaction of antigravity.google
-  const glowBackground = useMotionTemplate`radial-gradient(1000px circle at calc(50% + ${springX}px) calc(50% + ${springY}px), rgba(37, 99, 235, 0.05), transparent 50%)`;
-
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      // Small parallax offset for the background glow
-      const x = (e.clientX / window.innerWidth - 0.5) * 60;
-      const y = (e.clientY / window.innerHeight - 0.5) * 60;
-      
-      mouseX.set(x);
-      mouseY.set(y);
-    };
-
-    if (window.matchMedia('(pointer: fine)').matches) {
-      window.addEventListener('mousemove', handleMouseMove);
-    }
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, [mouseX, mouseY]);
-
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-      <motion.div
-        className="absolute inset-0"
-        style={{ background: glowBackground }}
-      />
-      
-      {/* Edge glows (very soft) */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-50/50 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/4"></div>
-      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-indigo-50/50 rounded-full blur-[120px] translate-y-1/4 -translate-x-1/4"></div>
+      {/* Subtle structural grid pattern */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#0f172a05_1px,transparent_1px),linear-gradient(to_bottom,#0f172a05_1px,transparent_1px)] bg-[size:48px_48px] opacity-70" />
+
+      {/* Top center soft blue radial glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/4 w-[800px] h-[500px] bg-gradient-to-tr from-blue-600/10 via-indigo-600/5 to-transparent rounded-full blur-3xl" />
+
+      {/* Subtle gold accent glow on top right */}
+      <div className="absolute top-24 right-[15%] w-[400px] h-[400px] bg-amber-500/5 rounded-full blur-3xl" />
+
+      {/* Soft blue glow on bottom left */}
+      <div className="absolute bottom-10 left-[10%] w-[500px] h-[300px] bg-blue-500/5 rounded-full blur-3xl" />
+
+      {/* Bottom fade gradient to smoothly transition into Compartment 2 */}
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-slate-50 via-slate-50/80 to-transparent" />
     </div>
   );
 }
