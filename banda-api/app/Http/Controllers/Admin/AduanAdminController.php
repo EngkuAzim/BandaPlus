@@ -250,11 +250,15 @@ class AduanAdminController extends Controller
         $now           = CarbonImmutable::now();
         $lastMonthDate = $now->subMonth();
 
-        // Base query — scoped to jabatan if pegawai, else everything
+        // Base query — scoped to jabatan and ownership if pegawai, else everything
         $base = function () use ($user, $isPegawai) {
             $q = Aduan::query();
             if ($isPegawai) {
                 $q->where('id_jabatan', $user->id_jabatan);
+                $q->where(function($query) use ($user) {
+                    $query->whereNull('id_pegawai')
+                          ->orWhere('id_pegawai', $user->id);
+                });
             }
             return $q;
         };
