@@ -124,7 +124,10 @@ function PegawaiDashboard({ userData }) {
               <p className="text-sm text-slate-600">Please review verified reports and assign responsible contractors promptly.</p>
             </div>
           </div>
-          <button className="whitespace-nowrap bg-amber-500 hover:bg-amber-600 text-white font-bold px-6 py-2.5 rounded-xl transition-all shadow-sm">
+          <button 
+            onClick={() => navigate('/arahan-kerja')}
+            className="whitespace-nowrap bg-amber-500 hover:bg-amber-600 text-white font-bold px-6 py-2.5 rounded-xl transition-all shadow-sm"
+          >
             Manage New Reports
           </button>
         </motion.div>
@@ -157,7 +160,7 @@ function PegawaiDashboard({ userData }) {
         <motion.div variants={itemVariants} className="lg:col-span-2 bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
           <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
             <h4 className="text-lg font-black text-slate-800">Recent System Reports</h4>
-            <button className="text-sm text-blue-800 hover:text-blue-900 font-bold">View All</button>
+            <button onClick={() => navigate('/arahan-kerja')} className="text-sm text-blue-800 hover:text-blue-900 font-bold">View All</button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
