@@ -70,7 +70,15 @@ const Register = () => {
             setTimeout(() => navigate('/login'), 1500);
 
         } catch (error) {
-            toast.error('Registration Failed', { description: 'Please review your details and try again.' });
+            let errorMsg = 'Please review your details and try again.';
+            if (error.response && error.response.data && error.response.data.errors) {
+                // Get the first validation error message
+                const firstErrorKey = Object.keys(error.response.data.errors)[0];
+                errorMsg = error.response.data.errors[firstErrorKey][0];
+            } else if (error.response && error.response.data && error.response.data.message) {
+                errorMsg = error.response.data.message;
+            }
+            toast.error('Registration Failed', { description: errorMsg });
         } finally {
             setLoading(false);
         }

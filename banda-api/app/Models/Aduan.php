@@ -37,7 +37,8 @@ class Aduan extends Model
         'status',
         'maklum_balas',
         'detected_image_path',
-        'ai_predictions'
+        'ai_predictions',
+        'audio'
     ];
 
     protected $casts = [

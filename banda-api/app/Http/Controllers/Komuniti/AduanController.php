@@ -29,6 +29,7 @@ class AduanController extends Controller
             'scan_id'          => 'nullable|string',
             'evidences'        => 'nullable|array|max:3',
             'evidences.*'      => 'file|mimes:jpg,jpeg,png,webp,mp4,mov,webm|max:30720',
+            'audio'            => 'nullable|file|mimes:webm,ogg,mp3,wav,m4a,aac,mp4|max:10240',
         ]);
 
         $imagePath = null;
@@ -50,6 +51,11 @@ class AduanController extends Controller
             $imagePath = $request->file('gambar_bukti')->store('aduan_images', 'public');
         } elseif (!$imagePath) {
             return response()->json(['error' => 'Gambar atau scan_id diperlukan'], 422);
+        }
+
+        $audioPath = null;
+        if ($request->hasFile('audio')) {
+            $audioPath = $request->file('audio')->store('aduan_audio', 'public');
         }
 
         $lat = $request->input('lat');
@@ -116,6 +122,7 @@ class AduanController extends Controller
                     'id_aduan_induk'   => $id_aduan_induk,
                     'ai_predictions'   => $aiPredictions,
                     'detected_image_path' => $detectedImagePath,
+                    'audio'            => $audioPath,
                 ]);
                 $mainAduan = $aduan;
 
@@ -149,6 +156,7 @@ class AduanController extends Controller
                     'id_aduan_induk'   => null,
                     'ai_predictions'   => $aiPredictions,
                     'detected_image_path' => $detectedImagePath,
+                    'audio'            => $audioPath,
                 ]);
 
                 // 2. Create Anak Aduan for each label
@@ -172,6 +180,7 @@ class AduanController extends Controller
                         'id_aduan_induk'   => $mainAduan->id_aduan, // Link to parent
                         'ai_predictions'   => $aiPredictions,
                         'detected_image_path' => $detectedImagePath,
+                        'audio'            => $audioPath,
                     ]);
                 }
             }

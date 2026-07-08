@@ -52,25 +52,28 @@ class AduanAdminController extends Controller
         return response()->json($query->paginate(20));
     }
 
-    /**
-     * Update status and maklum balas of an aduan.
-     * Route: PUT /api/admin/aduan/{id}
-     */
     public function updateStatus(Request $request, $id_aduan)
     {
         $request->validate([
-            'status'       => 'required|in:Baru,Dalam Tindakan,Selesai,Ditolak',
-            'maklum_balas' => 'nullable|string|max:2000',
-            'id_jabatan'   => 'nullable|string|exists:jabatans,id_jabatan',
+            'status'          => 'required|in:Baru,Dalam Tindakan,Selesai,Ditolak',
+            'maklum_balas'    => 'nullable|string|max:2000',
+            'id_jabatan'      => 'nullable|string|exists:jabatans,id_jabatan',
+            'jenis_kerosakan' => 'nullable|string',
         ]);
 
         $aduan = Aduan::where('id_aduan', $id_aduan)->firstOrFail();
 
-        $aduan->update([
+        $updateData = [
             'status'       => $request->status,
             'maklum_balas' => $request->maklum_balas,
             'id_jabatan'   => $request->id_jabatan,
-        ]);
+        ];
+
+        if ($request->has('jenis_kerosakan')) {
+            $updateData['jenis_kerosakan'] = $request->jenis_kerosakan;
+        }
+
+        $aduan->update($updateData);
 
         return response()->json([
             'message' => 'Aduan berjaya dikemaskini!',
