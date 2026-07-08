@@ -42,7 +42,7 @@ return [
             'encryption' => env('MAIL_ENCRYPTION', 'tls'),
             'username' => env('MAIL_USERNAME'),
             'password' => env('MAIL_PASSWORD'),
-            'timeout' => null,
+            'timeout' => 5, // Prevent 504 Gateway Timeout
             'local_domain' => env('MAIL_EHLO_DOMAIN'),
         ],
 
