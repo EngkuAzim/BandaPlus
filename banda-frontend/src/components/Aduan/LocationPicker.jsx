@@ -57,7 +57,12 @@ const LocationPicker = ({
                     initial={{ opacity: 0, height: 0 }} 
                     animate={{ opacity: 1, height: 'auto' }} 
                     exit={{ opacity: 0, height: 0 }} 
-                    onAnimationComplete={() => mapRef.current?.resize()}
+                    onAnimationComplete={() => {
+                        setTimeout(() => {
+                            mapRef.current?.resize();
+                            window.dispatchEvent(new Event('resize'));
+                        }, 50);
+                    }}
                     className="flex flex-col gap-3"
                 >
                     <div className="flex items-center justify-between">
