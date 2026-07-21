@@ -346,4 +346,108 @@ class AduanAdminController extends Controller
             'taburan_zon'        => $taburanZon,
         ]);
     }
+
+    /**
+     * Get detailed analytics for the Performance Report page.
+     * Route: GET /api/admin/laporan-prestasi
+     */
+    public function getLaporanPrestasi(Request $request)
+    {
+        $month = $request->input('month', 'Semua');
+        $now = CarbonImmutable::now();
+
+        // Base query for Aduan
+        $base = Aduan::query();
+
+        // Filter by month if provided
+        if ($month !== 'Semua') {
+            $base->whereMonth('tarikh_lapor', $month)
+                 ->whereYear('tarikh_lapor', $now->year);
+        }
+
+        // 1. Ringkasan
+        $ringkasan = [
+            'jumlah'         => (clone $base)->count(),
+            'baru'           => (clone $base)->where('status', 'Baru')->count(),
+            'dalam_tindakan' => (clone $base)->where('status', 'Dalam Tindakan')->count(),
+            'selesai'        => (clone $base)->where('status', 'Selesai')->count(),
+            'ditolak'        => (clone $base)->where('status', 'Ditolak')->count(),
+        ];
+
+        // 2. Trend Bulanan (12 Months) - Unaffected by month filter
+        $trendBulanan = [];
+        for ($i = 11; $i >= 0; $i--) {
+            $monthDate = $now->subMonths($i);
+            
+            $aduanCount = Aduan::whereMonth('tarikh_lapor', $monthDate->month)
+                ->whereYear('tarikh_lapor', $monthDate->year)
+                ->count();
+                
+            $selesaiCount = Aduan::where('status', 'Selesai')
+                ->whereMonth('updated_at', $monthDate->month)
+                ->whereYear('updated_at', $monthDate->year)
+                ->count();
+                
+            $trendBulanan[] = [
+                'name'    => $monthDate->format('M Y'),
+                'aduan'   => $aduanCount,
+                'selesai' => $selesaiCount
+            ];
+        }
+
+        // 3. Taburan Kerosakan (Kategori)
+        $kategori = (clone $base)
+            ->selectRaw('jenis_kerosakan, count(*) as total')
+            ->groupBy('jenis_kerosakan')
+            ->orderByDesc('total')
+            ->get();
+
+        // 4. Taburan Zon
+        $zon = (clone $base)
+            ->selectRaw('id_zon, count(*) as total')
+            ->whereNotNull('id_zon')
+            ->groupBy('id_zon')
+            ->orderByDesc('total')
+            ->get();
+
+        // 5. Kontraktor Performance
+        $kontraktor = DB::table('users')
+            ->where('peranan', 'kontraktor')
+            ->leftJoin('arahan_kerjas', 'users.id', '=', 'arahan_kerjas.id_kontraktor')
+            ->selectRaw('
+                users.name,
+                COUNT(arahan_kerjas.id_arahan) as jumlah,
+                SUM(CASE WHEN arahan_kerjas.status_kerja = "Selesai" THEN 1 ELSE 0 END) as total_kerja,
+                SUM(CASE WHEN arahan_kerjas.status_kerja = "Selesai" AND arahan_kerjas.updated_at <= arahan_kerjas.tarikh_jangkaan_siap THEN 1 ELSE 0 END) as tepat,
+                SUM(CASE WHEN arahan_kerjas.status_kerja = "Selesai" AND arahan_kerjas.updated_at > arahan_kerjas.tarikh_jangkaan_siap THEN 1 ELSE 0 END) as lewat
+            ')
+            ->groupBy('users.id', 'users.name')
+            ->get()
+            ->map(function($k) {
+                return [
+                    'name' => $k->name,
+                    'jumlah' => (int) $k->jumlah,
+                    'total_kerja' => (int) $k->total_kerja,
+                    'tepat' => (int) $k->tepat,
+                    'lewat' => (int) $k->lewat,
+                ];
+            });
+
+        // 6. Status Distribusi
+        $statusDistribusi = [
+            ['name' => 'New', 'value' => $ringkasan['baru']],
+            ['name' => 'In Progress', 'value' => $ringkasan['dalam_tindakan']],
+            ['name' => 'Completed', 'value' => $ringkasan['selesai']],
+            ['name' => 'Rejected', 'value' => $ringkasan['ditolak']],
+        ];
+
+        return response()->json([
+            'ringkasan' => $ringkasan,
+            'trend_bulanan' => $trendBulanan,
+            'kategori' => $kategori,
+            'zon' => $zon,
+            'kontraktor' => $kontraktor,
+            'status_distribusi' => $statusDistribusi,
+        ]);
+    }
 }
