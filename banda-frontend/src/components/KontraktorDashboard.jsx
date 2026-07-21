@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
@@ -32,22 +32,24 @@ function KontraktorDashboard({ userData, stats }) {
     'Lain-lain': 'Others'
   })[c] || c;
 
-  useEffect(() => {
-    const fetchTugasan = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const res = await axios.get(`/api/kontraktor/tugasan`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setTugasanList(res.data.slice(0, 5)); // Just show top 5 latest
-      } catch (error) {
-        console.error('Gagal memuatkan senarai tugasan');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchTugasan();
+  const fetchTugasan = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const token = localStorage.getItem('token');
+      const res = await axios.get('/api/kontraktor/tugasan', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setTugasanList(res.data.slice(0, 5)); // Just show top 5 latest
+    } catch (error) {
+      console.error('Gagal memuatkan senarai tugasan');
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchTugasan();
+  }, [fetchTugasan]);
 
   // --- FEATURE 2: Echo listener for live task assignment notification ---
   useEffect(() => {
