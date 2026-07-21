@@ -7,7 +7,7 @@ import {
   Minus, MapPin, BarChart2, FileText
 } from 'lucide-react';
 import {
-  AreaChart, Area, PieChart, Pie, Cell,
+  AreaChart, Area, PieChart, Pie, Cell, BarChart, Bar, Legend,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
 
@@ -124,7 +124,7 @@ function AdminDashboard({ userData, stats }) {
                 <Activity className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="text-base font-black text-slate-900">Monthly Report Trends</h4>
+                <h4 className="text-base font-black text-slate-900">Report & Resolution Trends</h4>
                 <p className="text-xs text-slate-400 font-medium">Last 6 months</p>
               </div>
             </div>
@@ -133,16 +133,22 @@ function AdminDashboard({ userData, stats }) {
             <ResponsiveContainer width="100%" height={200}>
               <AreaChart data={trendData} margin={{ top: 5, right: 5, bottom: 0, left: -20 }}>
                 <defs>
-                  <linearGradient id="colorJumlah" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient id="colorIncoming" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#1e40af" stopOpacity={0.3} />
                     <stop offset="95%" stopColor="#1e40af" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="colorResolved" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                 <XAxis dataKey="name" tick={{ fontSize: 11, fontWeight: 700, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
                 <YAxis allowDecimals={false} tick={{ fontSize: 11, fontWeight: 700, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
                 <Tooltip content={<CustomTooltip />} />
-                <Area type="monotone" dataKey="jumlah" name="Reports" stroke="#1e40af" strokeWidth={3} fill="url(#colorJumlah)" dot={{ fill: '#1e40af', r: 4, strokeWidth: 2, stroke: '#fff' }} />
+                <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', fontWeight: 700, marginTop: '10px' }} />
+                <Area type="monotone" dataKey="incoming" name="Incoming Reports" stroke="#1e40af" strokeWidth={3} fill="url(#colorIncoming)" dot={{ fill: '#1e40af', r: 4, strokeWidth: 2, stroke: '#fff' }} />
+                <Area type="monotone" dataKey="resolved" name="Resolved" stroke="#10b981" strokeWidth={3} fill="url(#colorResolved)" dot={{ fill: '#10b981', r: 4, strokeWidth: 2, stroke: '#fff' }} />
               </AreaChart>
             </ResponsiveContainer>
           ) : (
@@ -238,22 +244,34 @@ function AdminDashboard({ userData, stats }) {
           )}
         </motion.div>
 
-        {/* Aktiviti Saringan Card */}
+        {/* Top Issue Categories Chart */}
         <motion.div variants={itemVariants} className="bg-white rounded-3xl p-7 border border-slate-200 shadow-sm">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-800 border border-blue-100">
-              <ShieldAlert className="w-5 h-5" />
+            <div className="w-10 h-10 bg-rose-50 rounded-2xl flex items-center justify-center text-rose-600 border border-rose-100">
+              <AlertCircle className="w-5 h-5" />
             </div>
-            <h4 className="text-base font-black text-slate-900">Review Activity</h4>
+            <div>
+              <h4 className="text-base font-black text-slate-900">Top Issue Categories</h4>
+              <p className="text-xs text-slate-400 font-medium">Most common problems</p>
+            </div>
           </div>
-          <div className="bg-slate-50 border border-slate-100 rounded-2xl p-6 text-center">
-            <ShieldAlert className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-            <h5 className="font-bold text-slate-700 mb-1">{stats?.baru || 0} new reports require attention</h5>
-            <p className="text-sm text-slate-500 mb-5">Requires Admin review to assign to the responsible Department.</p>
-            <button onClick={() => navigate('/urus-aduan')} className="text-blue-800 font-bold text-sm bg-blue-50 px-5 py-2.5 rounded-xl hover:bg-blue-100 transition-colors inline-flex items-center gap-2">
-              Review Now <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
+          {(stats?.taburan_kerosakan && stats.taburan_kerosakan.length > 0) ? (
+            <ResponsiveContainer width="100%" height={160}>
+              <BarChart data={stats.taburan_kerosakan} layout="vertical" margin={{ top: 0, right: 20, bottom: 0, left: 10 }}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#f1f5f9" />
+                <XAxis type="number" hide />
+                <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 700, fill: '#64748b' }} width={80} />
+                <Tooltip cursor={{ fill: '#f8fafc' }} content={<CustomTooltip />} />
+                <Bar dataKey="value" name="Reports" radius={[0, 4, 4, 0]} barSize={16}>
+                  {stats.taburan_kerosakan.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="h-[160px] flex items-center justify-center text-slate-400 text-sm font-bold">No data available</div>
+          )}
         </motion.div>
 
         {/* Laporan Prestasi CTA */}

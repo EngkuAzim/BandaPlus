@@ -289,13 +289,22 @@ class AduanAdminController extends Controller
         $trendBulanan = [];
         for ($i = 5; $i >= 0; $i--) {
             $monthDate = $now->subMonths($i);
-            $count = (clone $base())
+            
+            $incoming = (clone $base())
                 ->whereMonth('tarikh_lapor', $monthDate->month)
                 ->whereYear('tarikh_lapor', $monthDate->year)
                 ->count();
+                
+            $resolved = (clone $base())
+                ->where('status', 'Selesai')
+                ->whereMonth('updated_at', $monthDate->month)
+                ->whereYear('updated_at', $monthDate->year)
+                ->count();
+                
             $trendBulanan[] = [
-                'name' => $monthDate->format('M'),
-                'jumlah' => $count
+                'name' => $monthDate->format('M Y'),
+                'incoming' => $incoming,
+                'resolved' => $resolved
             ];
         }
 
