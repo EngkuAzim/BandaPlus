@@ -115,37 +115,51 @@ function LaporAduan() {
 
   const uploadForScan = async (file) => {
     setIsScanning(true);
-    const formData = new FormData();
-    formData.append('file', file);
     
-    try {
-      const token = localStorage.getItem('token');
-      const res = await axios.post('/api/aduan/pre-upload', formData, {
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' }
-      });
-      
-      const id = res.data.scan_id;
-      setScanId(id);
-      
-      // Start a timeout for the AI response in case AI service is offline/broken
-      const timeoutId = setTimeout(() => {
+    // Generate UUID so we can subscribe before the upload even starts!
+    const id = (typeof crypto !== 'undefined' && crypto.randomUUID) ? crypto.randomUUID() : Math.random().toString(36).substring(2, 15);
+    setScanId(id);
+    
+    let isCompleted = false;
+
+    // Start a timeout for the AI response in case AI service is offline/broken
+    const timeoutId = setTimeout(() => {
+      if (!isCompleted) {
         setIsScanning(false);
         toast.info('AI Service Offline', { description: 'AI analysis is currently unavailable. Please select the category manually and proceed.' });
         echo.leaveChannel(`scans.${id}`);
-      }, 15000); // 15 seconds timeout
-      
-      // Listen to the WebSocket channel for this specific scan ID
-      echo.channel(`scans.${id}`)
-        .listen('.ScanCompleted', (e) => {
+      }
+    }, 15000); // 15 seconds timeout
+    
+    // Listen to the WebSocket channel FIRST before uploading
+    echo.channel(`scans.${id}`)
+      .listen('.ScanCompleted', (e) => {
+        if (!isCompleted) {
+          isCompleted = true;
           clearTimeout(timeoutId);
           console.log("WebSocket Broadcast Received!", e);
           handleScanCompleted(e.scanData);
           echo.leaveChannel(`scans.${id}`);
-        });
+        }
+      });
 
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('scan_id', id); // Pass the ID to the server
+    
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post('/api/aduan/pre-upload', formData, {
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' }
+      });
+      // Do nothing else here. Wait for WebSocket response!
     } catch (error) {
-      setIsScanning(false);
-      toast.info('AI Service Offline', { description: 'AI analysis is currently unavailable. Please select the category manually and proceed.' });
+      if (!isCompleted) {
+        clearTimeout(timeoutId);
+        setIsScanning(false);
+        echo.leaveChannel(`scans.${id}`);
+        toast.info('Upload Failed', { description: 'Failed to upload image for AI scan.' });
+      }
     }
   };
 

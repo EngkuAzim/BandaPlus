@@ -123,14 +123,21 @@ class AiDetectionController extends Controller
     {
         $request->validate([
             'file' => 'required|image|mimes:jpeg,png,jpg,webp|max:10240',
+            'scan_id' => 'nullable|string',
         ]);
 
         $path = $request->file('file')->store('aduan_images', 'public');
         
-        $scan = \App\Models\AiScan::create([
+        $scan = new \App\Models\AiScan([
             'image_path' => $path,
             'status' => 'pending',
         ]);
+
+        if ($request->has('scan_id') && !empty($request->scan_id)) {
+            $scan->id = $request->scan_id;
+        }
+
+        $scan->save();
 
         // Trigger the Python FastAPI Webhook asynchronously
         try {
