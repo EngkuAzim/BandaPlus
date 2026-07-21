@@ -25,7 +25,7 @@ class AduanController extends Controller
             'id_zon'           => 'required|integer',
             'alamat_lokasi'    => 'required|string|max:255',
             'keterangan_aduan' => 'nullable|string',
-            'gambar_bukti'     => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5048',
+            'gambar_bukti'     => 'nullable|image|mimes:jpeg,png,jpg,webp|max:20480',
             'scan_id'          => 'nullable|string',
             'evidences'        => 'nullable|array|max:3',
             'evidences.*'      => 'file|mimes:jpg,jpeg,png,webp,mp4,mov,webm|max:30720',
