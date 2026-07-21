@@ -332,9 +332,9 @@ function LaporAduan() {
     recognition.onresult = (event) => {
       let finalTranscript = '';
       for (let i = event.resultIndex; i < event.results.length; ++i) {
-        if (event.results[i].isFinal) {
-          finalTranscript += event.results[i][0].transcript + ' ';
-        }
+        // iOS Safari bug: sometimes isFinal is not set correctly.
+        // Since interimResults is false, we can trust all results here.
+        finalTranscript += event.results[i][0].transcript + ' ';
       }
       if (finalTranscript) {
         setFormData(prev => ({

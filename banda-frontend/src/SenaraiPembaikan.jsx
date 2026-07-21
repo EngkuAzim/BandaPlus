@@ -110,16 +110,14 @@ function SenaraiPembaikan() {
     // Initialize Speech Recognition
     if (SpeechRecognition) {
       const recognition = new SpeechRecognition();
-      recognition.continuous = true;
-      recognition.interimResults = true;
+      recognition.continuous = false; // Safari iOS crashes if true
+      recognition.interimResults = false;
       recognition.lang = 'ms-MY'; // High accuracy Malay
 
       recognition.onresult = (event) => {
         let currentTranscript = '';
         for (let i = event.resultIndex; i < event.results.length; ++i) {
-          if (event.results[i].isFinal) {
-            currentTranscript += event.results[i][0].transcript + ' ';
-          }
+          currentTranscript += event.results[i][0].transcript + ' ';
         }
         if (currentTranscript) {
           setNewLogText(prev => prev + currentTranscript);
