@@ -87,18 +87,93 @@ export default function LaporanPrestasi() {
   const exportPDF = () => {
     if (!data) return;
     const doc = new jsPDF();
-    doc.setFontSize(20); doc.text('BANDA+ Performance Report', 14, 22);
-    doc.setFontSize(11); doc.text(`Month: ${filterMonth}`, 14, 30);
-    doc.text(`Date: ${new Date().toLocaleDateString('en-GB')}`, 14, 36);
-    let y = 45;
-    doc.setFontSize(14); doc.text('1. Reports by Category', 14, y);
-    autoTable(doc, { startY: y+5, head:[['Category','Total']], body: data.kategori.map(k=>[displayCategory(k.jenis_kerosakan), k.total]), theme:'grid', headStyles:{fillColor:[13,148,136]} });
+    const pageWidth = doc.internal.pageSize.width;
+    const pageHeight = doc.internal.pageSize.height;
+    
+    // Custom Header Banner
+    doc.setFillColor(30, 64, 175); // #1e40af
+    doc.rect(0, 0, pageWidth, 40, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.setFont('helvetica', 'bold');
+    doc.text('BANDA+ PERFORMANCE REPORT', 14, 22);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    const monthText = filterMonth === 'Semua' ? 'All Months' : ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][parseInt(filterMonth)-1];
+    doc.text(`Period: ${monthText} | Generated: ${new Date().toLocaleString('en-GB')}`, 14, 30);
+
+    let y = 50;
+    
+    // Executive Summary
+    doc.setTextColor(15, 23, 42); // slate-900
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Executive Summary', 14, y);
+    
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(71, 85, 105); // slate-600
+    y += 8;
+    const r = data.ringkasan;
+    doc.text(`Total Reports Received: ${r.jumlah || 0}`, 14, y); y += 6;
+    doc.text(`New / Pending Review: ${r.baru || 0}`, 14, y); y += 6;
+    doc.text(`In Progress: ${r.dalam_tindakan || 0}`, 14, y); y += 6;
+    doc.text(`Completed (Resolved): ${r.selesai || 0}`, 14, y); y += 6;
+    doc.text(`Rejected: ${r.ditolak || 0}`, 14, y); y += 12;
+
+    // Helper for table options
+    const tableOptions = {
+      theme: 'striped',
+      headStyles: { fillColor: [30, 64, 175], textColor: [255, 255, 255], fontStyle: 'bold' },
+      styles: { fontSize: 10, cellPadding: 5 },
+      alternateRowStyles: { fillColor: [248, 250, 252] },
+      margin: { left: 14, right: 14 }
+    };
+
+    doc.setTextColor(15, 23, 42);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('1. Reports by Category', 14, y);
+    autoTable(doc, { 
+      ...tableOptions,
+      startY: y + 5, 
+      head: [['Category', 'Total Reports']], 
+      body: data.kategori.map(k => [displayCategory(k.jenis_kerosakan), k.total])
+    });
+
     y = doc.lastAutoTable.finalY + 15;
-    doc.text('2. Reports by Zone', 14, y);
-    autoTable(doc, { startY: y+5, head:[['Zone','Total']], body: data.zon.map(z=>[z.id_zon, z.total]), theme:'grid', headStyles:{fillColor:[13,148,136]} });
+    if (y > pageHeight - 60) { doc.addPage(); y = 20; }
+
+    doc.setFontSize(14);
+    doc.text('2. Reports by Zone (Hotspots)', 14, y);
+    autoTable(doc, { 
+      ...tableOptions,
+      startY: y + 5, 
+      head: [['Zone / Location', 'Total Reports']], 
+      body: data.zon.map(z => [z.id_zon, z.total])
+    });
+
     y = doc.lastAutoTable.finalY + 15;
-    doc.text('3. Contractor Performance', 14, y);
-    autoTable(doc, { startY: y+5, head:[['Contractor','Total Jobs','Completed','On Time','Late']], body: data.kontraktor.map(k=>[k.name,k.jumlah,k.total_kerja,k.tepat,k.lewat]), theme:'grid', headStyles:{fillColor:[13,148,136]} });
+    if (y > pageHeight - 60) { doc.addPage(); y = 20; }
+
+    doc.setFontSize(14);
+    doc.text('3. Contractor Performance KPIs', 14, y);
+    autoTable(doc, { 
+      ...tableOptions,
+      startY: y + 5, 
+      head: [['Contractor Name', 'Total Jobs', 'Completed', 'On Time', 'Late']], 
+      body: data.kontraktor.map(k => [k.name, k.jumlah, k.total_kerja, k.tepat, k.lewat])
+    });
+
+    // Add Page Numbers Footer
+    const pageCount = doc.internal.getNumberOfPages();
+    for(let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(9);
+      doc.setTextColor(148, 163, 184); // slate-400
+      doc.text(`Page ${i} of ${pageCount} - BANDA+ Official Report`, pageWidth / 2, pageHeight - 10, { align: 'center' });
+    }
+
     doc.save(`BandaPlus_Report_${filterMonth}.pdf`);
     toast.success('PDF downloaded successfully.');
   };
@@ -106,9 +181,41 @@ export default function LaporanPrestasi() {
   const exportExcel = () => {
     if (!data) return;
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data.kategori.map(k => ({ ...k, jenis_kerosakan: displayCategory(k.jenis_kerosakan) }))), 'Category');
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data.zon.map(z=>({Zone:z.id_zon,Total:z.total}))), 'Zone');
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(data.kontraktor), 'Contractors');
+    const r = data.ringkasan;
+    const monthText = filterMonth === 'Semua' ? 'All Months' : ['January','February','March','April','May','June','July','August','September','October','November','December'][parseInt(filterMonth)-1];
+
+    // Summary Sheet
+    const summaryData = [
+      ['BANDA+ PERFORMANCE REPORT'],
+      [`Period: ${monthText}`],
+      [`Generated: ${new Date().toLocaleString('en-GB')}`],
+      [],
+      ['EXECUTIVE SUMMARY', ''],
+      ['Metric', 'Total'],
+      ['Total Reports Received', r.jumlah || 0],
+      ['New / Pending Review', r.baru || 0],
+      ['In Progress', r.dalam_tindakan || 0],
+      ['Completed (Resolved)', r.selesai || 0],
+      ['Rejected', r.ditolak || 0]
+    ];
+    const wsSummary = XLSX.utils.aoa_to_sheet(summaryData);
+    XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
+
+    // Category Sheet
+    const catData = [['BANDA+ PERFORMANCE REPORT', ''], ['Category Breakdown', ''], [], ['Issue Category', 'Total Reports'], ...data.kategori.map(k => [displayCategory(k.jenis_kerosakan), k.total])];
+    const wsCat = XLSX.utils.aoa_to_sheet(catData);
+    XLSX.utils.book_append_sheet(wb, wsCat, 'Categories');
+
+    // Zone Sheet
+    const zonData = [['BANDA+ PERFORMANCE REPORT', ''], ['Zone Distribution', ''], [], ['Zone / Location', 'Total Reports'], ...data.zon.map(z => [z.id_zon, z.total])];
+    const wsZon = XLSX.utils.aoa_to_sheet(zonData);
+    XLSX.utils.book_append_sheet(wb, wsZon, 'Zones');
+
+    // Contractors Sheet
+    const konData = [['BANDA+ PERFORMANCE REPORT', '', '', '', ''], ['Contractor KPIs', '', '', '', ''], [], ['Contractor Name', 'Total Jobs', 'Completed', 'On Time', 'Late'], ...data.kontraktor.map(k => [k.name, k.jumlah, k.total_kerja, k.tepat, k.lewat])];
+    const wsKon = XLSX.utils.aoa_to_sheet(konData);
+    XLSX.utils.book_append_sheet(wb, wsKon, 'Contractors');
+
     XLSX.writeFile(wb, `BandaPlus_Report_${filterMonth}.xlsx`);
     toast.success('Excel downloaded successfully.');
   };
