@@ -396,7 +396,8 @@ function LaporAduan() {
     
     if (scanId) {
         submitData.append('scan_id', scanId);
-    } else if (selectedImage) {
+    } 
+    if (selectedImage) {
         submitData.append('gambar_bukti', selectedImage);
     }
     
