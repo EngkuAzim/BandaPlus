@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PencilLine, Map as MapIcon, Navigation, MapPin, Loader2 } from 'lucide-react';
 import Map, { Marker, NavigationControl } from 'react-map-gl/mapbox';
@@ -15,6 +15,7 @@ const LocationPicker = ({
     handleMapClick,
     MAPBOX_TOKEN
 }) => {
+    const mapRef = useRef(null);
     return (
         <div className="space-y-4">
             <div>
@@ -52,13 +53,19 @@ const LocationPicker = ({
 
             <AnimatePresence mode="wait">
             {(locationMethod === 'peta' || locationMethod === 'gps') && (
-                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="flex flex-col gap-3">
+                <motion.div 
+                    initial={{ opacity: 0, height: 0 }} 
+                    animate={{ opacity: 1, height: 'auto' }} 
+                    exit={{ opacity: 0, height: 0 }} 
+                    onAnimationComplete={() => mapRef.current?.resize()}
+                    className="flex flex-col gap-3"
+                >
                     <div className="flex items-center justify-between">
                         <label className="text-sm font-bold text-slate-700">Interactive Map</label>
                         {isLocating && <span className="text-xs font-bold text-blue-800 flex items-center gap-1"><Loader2 className="w-3 h-3 animate-spin"/> Locating...</span>}
                     </div>
                     <div className="w-full h-[300px] sm:h-[400px] rounded-2xl overflow-hidden border-2 border-slate-200 relative shadow-inner">
-                        <Map {...viewState} onMove={evt => setViewState(evt.viewState)} onClick={handleMapClick} mapboxAccessToken={MAPBOX_TOKEN} mapStyle="mapbox://styles/mapbox/satellite-streets-v12" cursor={locationMethod === 'peta' || locationMethod === 'gps' ? 'crosshair' : 'grab'}>
+                        <Map ref={mapRef} {...viewState} onMove={evt => setViewState(evt.viewState)} onClick={handleMapClick} mapboxAccessToken={MAPBOX_TOKEN} mapStyle="mapbox://styles/mapbox/satellite-streets-v12" cursor={locationMethod === 'peta' || locationMethod === 'gps' ? 'crosshair' : 'grab'}>
                             <NavigationControl position="top-left" />
                             {formData.lat && formData.lng && <Marker longitude={formData.lng} latitude={formData.lat} color="#ef4444" />}
                         </Map>
