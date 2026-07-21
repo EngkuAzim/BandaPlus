@@ -8,7 +8,7 @@ import {
 import { toast } from 'sonner';
 import Sidebar from './Sidebar';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import {
   AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
@@ -92,13 +92,13 @@ export default function LaporanPrestasi() {
     doc.text(`Date: ${new Date().toLocaleDateString('en-GB')}`, 14, 36);
     let y = 45;
     doc.setFontSize(14); doc.text('1. Reports by Category', 14, y);
-    doc.autoTable({ startY: y+5, head:[['Category','Total']], body: data.kategori.map(k=>[displayCategory(k.jenis_kerosakan), k.total]), theme:'grid', headStyles:{fillColor:[13,148,136]} });
+    autoTable(doc, { startY: y+5, head:[['Category','Total']], body: data.kategori.map(k=>[displayCategory(k.jenis_kerosakan), k.total]), theme:'grid', headStyles:{fillColor:[13,148,136]} });
     y = doc.lastAutoTable.finalY + 15;
     doc.text('2. Reports by Zone', 14, y);
-    doc.autoTable({ startY: y+5, head:[['Zone','Total']], body: data.zon.map(z=>[z.id_zon, z.total]), theme:'grid', headStyles:{fillColor:[13,148,136]} });
+    autoTable(doc, { startY: y+5, head:[['Zone','Total']], body: data.zon.map(z=>[z.id_zon, z.total]), theme:'grid', headStyles:{fillColor:[13,148,136]} });
     y = doc.lastAutoTable.finalY + 15;
     doc.text('3. Contractor Performance', 14, y);
-    doc.autoTable({ startY: y+5, head:[['Contractor','Total Jobs','Completed','On Time','Late']], body: data.kontraktor.map(k=>[k.name,k.jumlah,k.total_kerja,k.tepat,k.lewat]), theme:'grid', headStyles:{fillColor:[13,148,136]} });
+    autoTable(doc, { startY: y+5, head:[['Contractor','Total Jobs','Completed','On Time','Late']], body: data.kontraktor.map(k=>[k.name,k.jumlah,k.total_kerja,k.tepat,k.lewat]), theme:'grid', headStyles:{fillColor:[13,148,136]} });
     doc.save(`BandaPlus_Report_${filterMonth}.pdf`);
     toast.success('PDF downloaded successfully.');
   };
